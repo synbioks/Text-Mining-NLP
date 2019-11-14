@@ -1,47 +1,50 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: sbks-gpu
+  name: mai
   labels:
-    k8s-app: sbks-gpu
-  namespace: sbks
+    k8s-app: mai
 spec:
   containers:
-  - name: sbks-gpu
-    # image: sdsc/words-tensorflow-py3:latest
-    image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/tf20-jupyter-dask:latest
+  - name: mai
+    image: sdsc/words-tensorflow-py3
     imagePullPolicy: Always
-    # args: ["sleep", "36500000"]
+    #args: ["sleep", "36500000"]
     #args: ["python3", "/usr/local/bin/jupyter-notebook", "--ip=*", "--port=8888", "--allow-root", "--NotebookApp.iopub_data_rate_limit=2147483647"]
     resources:
       limits:
-        memory: "8G"
+        memory: "24G"
         cpu: 2
         nvidia.com/gpu: 1
       requests:
-        memory: "8G"
         cpu: 2
         nvidia.com/gpu: 1
     volumeMounts:
-      - mountPath: "/sbksvol"
-        name: sbksvol
+      - mountPath: "/cephfs"
+        name: cephfs
   restartPolicy: Never
   volumes:
-    - name: sbksvol
-      persistentVolumeClaim:
-        claimName: sbksvol
+    - name: cephfs
+      flexVolume:
+        driver: ceph.rook.io/rook
+        fsType: ceph
+        options:
+          fsName: nautilusfs
+          clusterNamespace: rook
+          path: /fuelmap
+          mountUser: fuelmap
+          mountSecret: ceph-fs-secret
 ---
 kind: Service
 apiVersion: v1
 metadata:
   labels:
-    k8s-app: sbks-gpu
-  name: sbks-gpu
-  namespace: sbks
+    k8s-app: mai
+  name: mai
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8888
     name: web
   selector:
-    k8s-app: sbks-gpu
+    k8s-app: mai

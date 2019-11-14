@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: sbks-cpu
+  name: mai-cpu
   labels:
-    k8s-app: sbks-cpu
+    k8s-app: mai-cpu
   namespace: sbks
 spec:
   containers:
-  - name: sbks-cpu
+  - name: mai-cpu
     # image: sdsc/words-tensorflow-py3:latest
-    image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/tf20-jupyter-dask:latest
+    image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/keras-jupyter-dask:latest
     imagePullPolicy: Always
     # args: ["sleep", "36500000"]
     #args: ["python3", "/usr/local/bin/jupyter-notebook", "--ip=*", "--port=8888", "--allow-root", "--NotebookApp.iopub_data_rate_limit=2147483647"]
@@ -35,13 +35,12 @@ kind: Service
 apiVersion: v1
 metadata:
   labels:
-    k8s-app: sbks-cpu
-  name: sbks-cpu
-  namespace: sbks
+    k8s-app: mai-cpu
+  name: mai-cpu
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8888
     name: web
   selector:
-    k8s-app: sbks-cpu
+    k8s-app: mai-cpu
