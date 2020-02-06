@@ -1,3 +1,5 @@
+
+### METHOD-1: Storing scripts on persistent volume
 # Running pods as batch jobs
 We want to run jupyter notebooks (which preferably are bug-free) as Kubernetes Jobs, in order to streamline experiment running. 
 
@@ -19,3 +21,13 @@ job_test.sh: template for the job pod entrypoint script
 
 wrapped-job.yaml: wrap a pod spec inside a Job to circumvent cluster restrictions
 - don't use this unless you know what you're doing 
+
+
+#### Running .py scripts
+You can also run normal Python scripts on a batch job pod. Just replace the 
+name of the notebook with your script in job_test.sh and comment out the jupyter ipynb
+to python conversion line.
+
+#### METHOD-2: Running directly from Gitlab
+You can also run batch jobs directly from your scripts in Gitlab. This also provides the option to change the code in Gitlab IDE between iterations.
+See http://ucsd-prp.gitlab.io/userdocs/running/jobs/ for details
