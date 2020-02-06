@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: myapp1-gpu-job
+  namespace: sbks
+spec:
+  template:
+    spec:
+      nodeSelector:
+        nautilus.io/region: ucsd # use ucsd nodes only
+      containers:
+      - name: sleep-job
+        image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/keras-jupyter-dask:latest
+        # place the shell script here, or anywhere you want but remember to change the path
+        command: ["bash", "/sbksvol/misc_tests/job_test.sh", "myapp1-gpu-job"] 
+        resources:
+          limits:
+            memory: "8G"
+            cpu: 1
+            nvidia.com/gpu: 0
+          requests:
+            memory: "8G"
+            cpu: 1
+            nvidia.com/gpu: 0
+        volumeMounts:
+          - name: sbksvol
+            mountPath: "/sbksvol" 
+      volumes:
+        - name: sbksvol
+          persistentVolumeClaim:
+            claimName: sbksvol
+      restartPolicy: Never
+  backoffLimit: 1
