@@ -1,0 +1,20 @@
+# To install any packages permamently within on the nautilus bks image:
+1. Pull the existing image from any of the pod yaml files you use
+docker pull nakumgaurav/sbks:dev2
+
+2. Create a container using that image and open a shell within the container
+docker run -it --name="sbks_container" nakumgaurav/sbks:dev2 /bin/bash
+
+3. Install the required packages in the container
+apt-get install <package>
+
+4. Without exiting the container, open a new terminal shell and commit the changes in a new image
+docker commit -m="installed <packages>" sbks_container nakumgaurav/sbks:dev3
+(this command must be issued from the host machine)
+You can now exit the container
+
+5. Push the new image to the registry
+docker push nakumgaurav/sbks:dev3
+
+6. Remove the previous image
+docker rmi nakumgaurav/sbks:dev2
