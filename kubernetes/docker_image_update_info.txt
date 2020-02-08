@@ -1,4 +1,4 @@
-# To install any packages permamently within on the nautilus image:
+# To install any packages permamently in the docker image on nautilus cluster:
 1. Pull the existing image from any of the pod yaml files you use
 docker pull nakumgaurav/sbks:dev2
 
