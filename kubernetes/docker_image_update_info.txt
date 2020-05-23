@@ -16,14 +16,17 @@ You can now exit the container
 5. Push the new image to the registry
 docker push nakumgaurav/sbks:dev4
 
-6. Remove the previous image
+6. Delete the container
+docker rm sbks_container
+
+7. Remove the previous image
 docker rmi nakumgaurav/sbks:dev3
 
 Optionally, to ensure older pod/job specifications remain valid:
-7. Retag image:
+8. Retag image:
 docker tag nakumgaurav/sbks:dev4 nakumgaurav/sbks:dev3
 
-8. Remove new tag:
+9. Remove new tag:
 docker rmi nakumgaurav/sbks:dev4
 
 (If for some reason, the tag of an image is <none>, run "docker images" to get the Image ID of the image and then run "docker rmi <IMAGE-ID>".
