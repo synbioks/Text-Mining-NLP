@@ -25,3 +25,6 @@ docker tag nakumgaurav/sbks:dev4 nakumgaurav/sbks:dev3
 
 8. Remove new tag:
 docker rmi nakumgaurav/sbks:dev4
+
+(If for some reason, the tag of an image is <none>, run "docker images" to get the Image ID of the image and then run "docker rmi <IMAGE-ID>".
+See this stackoverflow answer for dangling docker images: https://stackoverflow.com/questions/33913020/docker-remove-none-tag-images)
