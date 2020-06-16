@@ -1,0 +1,3 @@
+ssh brat@brat.synbioks.org
+$yn810K$
+scp -r transfer2/* brat@brat.synbioks.org:/home/brat/brat-v1.3_Crunchy_Frog/data/ACS-TextMining-Internal/ -p $yn810K$
