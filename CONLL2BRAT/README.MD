@@ -12,3 +12,5 @@ Need to execute them in order:
 7. transfer
 
 The file brat.txt contains commands to transfer/login to brat
+
+See each file's doc string at the top to know the input/output specifications
