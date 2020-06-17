@@ -2,6 +2,7 @@
 	handle the ? and FIG tokens from ACS_huner
 	assumes that the current folder contains the folders
 	'chemical', 'gene', 'species' and 'cellline' with this script
+	See https://github.com/hu-ner/huner/issues/19 for an example
 """
 
 import os

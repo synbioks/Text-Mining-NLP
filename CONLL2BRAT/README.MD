@@ -3,7 +3,7 @@ The scripts in this folder can be used to convert CONLL files (obtained from hun
 Use python3 <file-name> to execute each of them.
 Need to execute them in order:
 
-1. refine_connll
+1. refine_connll 
 2. conll2brat2
 3. refine_using_confidence
 4. gen_text
