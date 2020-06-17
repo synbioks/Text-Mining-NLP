@@ -26,14 +26,14 @@ args = parser.parse_args()
 
 def main():
 
-
+    # Read datasets
     data = Dataset(args.DATA_DIR)
     sents, tags = data.get_all_data()
 
+    # Construct the model
     MyModel = BiLSTMModel(args.MAX_SEQ_LEN, args.EMBEDDING, args.LSTM_HIDDEN_UNITS, args.LSTM_DENSE_DIM, data.get_nwords(), data.get_ntags())
     model = MyModel.define_model()
 
-    # Datasets
     num_train_sents = len(data.train_sents)
     num_val_sents = len(data.val_sents)
     num_test_sents = len(data.test_sents)
@@ -41,8 +41,10 @@ def main():
     print("# train sents = {0} \n # of val sents = {1} \n # of test sents = {2}".format(
         num_train_sents, num_val_sents, num_test_sents), flush=True)
 
+    # indexes to train, val and test data
     partition = {"train": list(range(num_train_sents)), 
-            "val": list(range(num_val_sents))}
+            "val": list(range(num_val_sents)),
+            "test": list(range(num_test_sents))}
 
     # Parameters
     params = {'dim': args.MAX_SEQ_LEN,
@@ -73,7 +75,6 @@ def main():
               'tag2idx': data.get_tag2idx()}
 
     # Make predictions
-    partition = {"test": list(range(num_test_sents))}
     testing_generator = DG.DataGenerator(partition['test'], data.test_sents, data.train_tags, **params_test)
 
     pred_test = model.predict_generator(generator=testing_generator,

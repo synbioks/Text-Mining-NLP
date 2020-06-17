@@ -12,6 +12,7 @@ class BiLSTMModel:
 		self.n_tags = n_tags
 
 	def define_model(self):
+		"""Define the Bi-LSTM/CRF model"""
 		input_layer = Input(shape=(self.MAX_SEQ_LEN,))
 		model = Embedding(input_dim=self.n_words, output_dim=self.EMBEDDING, # actual n_words + 2 (PAD & UNK)
 		                  input_length=self.MAX_SEQ_LEN)(input_layer)  # default: 300-dim embedding

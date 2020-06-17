@@ -8,7 +8,7 @@ from keras.utils import to_categorical
 class DataGenerator(keras.utils.Sequence):
     def __init__(self, list_IDs, sents, tags, word2idx, tag2idx, batch_size=32, dim=100,
                  n_classes=4, shuffle=False, fit=True ):
-        """Initialization"""
+        """Data Generator produces batches of data to feed to the model"""
         self.list_IDs = list_IDs
         self.sents = sents
         self.tags = tags
@@ -62,21 +62,17 @@ class DataGenerator(keras.utils.Sequence):
 
         return X, y
 
-    # def gaurav_pad_sequences(self, maxlen, sequences, padding="post", value=0):
-    #     # print("maxlen=", maxlen)
-    #     padded_sequences = []
-    #     for seq in sequences:
-    #         if(len(seq) < maxlen):
-    #             padded_seq = seq + ([0] * (maxlen-len(seq)))
-    #         elif(len(seq) > maxlen):
-    #             padded_seq = seq[:maxlen]
-    #         else:
-    #             padded_seq = seq
-    #         padded_sequences.append(padded_seq)
-    #     return np.array(padded_sequences)
-
     def convert_to_trainable(self, args_sents, args_tags):
-        # Convert each sentence from list of Token to list of word_index
+        """
+            Convert each sentence from list of token to list of word_index and pads to MAX_LEN
+            Input 
+                sentence: ["Glucose", "is", "not", "amino" , "acid", "."]
+                tags:      [1,          3,    3,     1,        2,     3]
+            Output: 
+                sentence: [2341, 1234, 4532, 2435, 3535, 4644, 0, 0  ... 0]
+                tags: [1,          3,    3,     1,        2,     3, 0, 0, ... 0]
+
+        """
         idx_sents = []
         for sent in args_sents:
             idx_sent = []

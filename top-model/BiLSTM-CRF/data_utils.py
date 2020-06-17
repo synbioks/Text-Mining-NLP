@@ -4,10 +4,12 @@ from collections import defaultdict
 
 class Dataset:
 	def __init__(self, data_dir, ):
+		"""Dataset reads the input files from disk and """
 		self.data_dir = data_dir
 		self.set_tag2idx()
 
 	def get_sentences_helper(self, fname):
+		"""extracts the sentences and tags out of a single conll file"""
 	    with open(fname, "r") as fp:
 	        lines = [line.strip() for line in fp.readlines()]
 
@@ -29,6 +31,10 @@ class Dataset:
 	    return sentences, tags
 
 	def get_sentences(self):
+		"""
+			extracts the sentences and tags out of all datasets
+			Each dataset's dir contains (atleast) 3 files: train.tsv, devel.tsv, test.tsv
+		"""
 	    sents = defaultdict(list)
 	    tags = defaultdict(list)
 
@@ -51,6 +57,7 @@ class Dataset:
 	    return sents, tags
 
 	def get_all_data(self):
+		"""Read the data and set up the word-to-index dictionary"""
 		sents, tags = self.get_sentences()
 
 		self.train_sents = sents["train"]
@@ -65,6 +72,7 @@ class Dataset:
 		return sents, tags
 
 	def set_word2idx(self):
+		"""set up the word-to-index dictionary"""
 		words = defaultdict(int)
 
 		for sent_list, tag_list in zip(self.train_sents, self.train_tags):
@@ -82,6 +90,7 @@ class Dataset:
 		self.idx2word = {i: w for w, i in self.word2idx.items()}
 
 	def set_tag2idx(self):
+		"""set up the tag-to-index dictionary"""
 		# The first entry is reserved for PAD
 		self.tag2idx = {"B" : 1, "I" : 2, "O" : 3}
 		self.tag2idx["PAD"] = 0
