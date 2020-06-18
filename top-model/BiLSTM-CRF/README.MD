@@ -11,3 +11,7 @@ data_utils.py -> reads conll format huner datasets as lists of sentences/tags
 <br>
 data_gen.py -> converts the sentences/tags into train/test matrices
 			to be used by keras model
+
+Data can be found at:
+<br>
+/sbksvol/gaurav/BiLSTM-CRF/data
