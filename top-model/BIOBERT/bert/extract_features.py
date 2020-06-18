@@ -27,26 +27,30 @@ import modeling
 import tokenization
 import tensorflow as tf
 
+import settings
+
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 if type(tf.contrib) != type(tf): tf.contrib._warning = None
 
-# sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
+sess = tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(log_device_placement=True))
+
+params = {}
 
 flags = tf.flags
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("input_file", None, "")
+# flags.DEFINE_string("input_file", f2, "")
 
-flags.DEFINE_string("output_file", None, "")
+# flags.DEFINE_string("output_file", None, "")
 
 flags.DEFINE_string("layers", "-1,-2,-3,-4", "")
 
-flags.DEFINE_string(
-    "bert_config_file", None,
-    "The config json file corresponding to the pre-trained BERT model. "
-    "This specifies the model architecture.")
+# flags.DEFINE_string(
+#     "bert_config_file", f4,
+#     "The config json file corresponding to the pre-trained BERT model. "
+#     "This specifies the model architecture.")
 
 flags.DEFINE_integer(
     "max_seq_length", 128,
@@ -54,19 +58,19 @@ flags.DEFINE_integer(
     "Sequences longer than this will be truncated, and sequences shorter "
     "than this will be padded.")
 
-flags.DEFINE_string(
-    "init_checkpoint", None,
-    "Initial checkpoint (usually from a pre-trained BERT model).")
+# flags.DEFINE_string(
+#     "init_checkpoint", f5,
+#     "Initial checkpoint (usually from a pre-trained BERT model).")
 
-flags.DEFINE_string("vocab_file", None,
-                    "The vocabulary file that the BERT model was trained on.")
+# flags.DEFINE_string("vocab_file", f3,
+#                     "The vocabulary file that the BERT model was trained on.")
 
 flags.DEFINE_bool(
     "do_lower_case", True,
     "Whether to lower case the input text. Should be True for uncased "
     "models and False for cased models.")
 
-flags.DEFINE_integer("batch_size", 32, "Batch size for predictions.")
+flags.DEFINE_integer("batch_size", 256, "Batch size for predictions.")
 
 flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
 
@@ -189,13 +193,13 @@ def model_fn_builder(bert_config, init_checkpoint, layer_indexes, use_tpu,
     else:
       tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
-    # tf.logging.info("**** Trainable Variables ****")
-    # for var in tvars:
-    #   init_string = ""
-      # if var.name in initialized_variable_names:
-      #   init_string = ", *INIT_FROM_CKPT*"
-      # tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-      #                 init_string)
+    tf.logging.info("**** Trainable Variables ****")
+    for var in tvars:
+      init_string = ""
+      if var.name in initialized_variable_names:
+        init_string = ", *INIT_FROM_CKPT*"
+      tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
+                      init_string)
 
     all_layers = model.get_all_encoder_layers()
 
@@ -346,17 +350,32 @@ def read_examples(input_file):
   return examples
 
 
-def main(_):
+# def main(_):
+def main():
   # tf.logging.set_verbosity(tf.logging.INFO)
   # tf.logging.set_verbosity(tf.logging.ERROR)
   tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+  root_path = "/sbksvol/gaurav/BiLSTM-CRF/"
+  f2 = os.path.join(root_path, 'input.txt')
+  f3 = os.path.join(root_path, '../biobert_v1.0_pubmed_pmc/vocab.txt')
+  f4 = os.path.join(root_path, '../biobert_v1.0_pubmed_pmc/bert_config.json')
+  f5 = os.path.join(root_path, '../biobert_v1.0_pubmed_pmc/biobert_model.ckpt')
+
+  params["input_file"] = f2
+  params["vocab_file"] = f3
+  params["bert_config_file"] = f4
+  params["init_checkpoint"] = f5
+
   layer_indexes = [int(x) for x in FLAGS.layers.split(",")]
 
-  bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
+  # bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
+  bert_config = modeling.BertConfig.from_json_file(params["bert_config_file"])
 
+  # tokenizer = tokenization.FullTokenizer(
+  #     vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
   tokenizer = tokenization.FullTokenizer(
-      vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
+      vocab_file=params["vocab_file"], do_lower_case=FLAGS.do_lower_case)
 
   is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
   run_config = tf.contrib.tpu.RunConfig(
@@ -365,7 +384,8 @@ def main(_):
           num_shards=FLAGS.num_tpu_cores,
           per_host_input_for_training=is_per_host))
 
-  examples = read_examples(FLAGS.input_file)
+  # examples = read_examples(FLAGS.input_file)
+  examples = read_examples(params["input_file"])
 
   features = convert_examples_to_features(
       examples=examples, seq_length=FLAGS.max_seq_length, tokenizer=tokenizer)
@@ -376,7 +396,8 @@ def main(_):
 
   model_fn = model_fn_builder(
       bert_config=bert_config,
-      init_checkpoint=FLAGS.init_checkpoint,
+      init_checkpoint = params["init_checkpoint"],
+      # init_checkpoint=FLAGS.init_checkpoint,
       layer_indexes=layer_indexes,
       use_tpu=FLAGS.use_tpu,
       use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
@@ -392,37 +413,48 @@ def main(_):
   input_fn = input_fn_builder(
       features=features, seq_length=FLAGS.max_seq_length)
 
-  with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
-                                               "w")) as writer:
-    for result in estimator.predict(input_fn, yield_single_examples=True):
-      unique_id = int(result["unique_id"])
-      feature = unique_id_to_feature[unique_id]
-      output_json = collections.OrderedDict()
-      output_json["linex_index"] = unique_id
-      all_features = []
-      for (i, token) in enumerate(feature.tokens):
-        all_layers = []
-        for (j, layer_index) in enumerate(layer_indexes):
-          layer_output = result["layer_output_%d" % j]
-          layers = collections.OrderedDict()
-          layers["index"] = layer_index
-          layers["values"] = [
-              round(float(x), 6) for x in layer_output[i:(i + 1)].flat
-          ]
-          all_layers.append(layers)
-        features = collections.OrderedDict()
-        features["token"] = token
-        features["layers"] = all_layers
-        all_features.append(features)
-      output_json["features"] = all_features
-      writer.write(json.dumps(output_json) + "\n")
+  output_data = []
+
+  # with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
+  #                                              "w")) as writer:
+  example_no = 0
+  for result in estimator.predict(input_fn, yield_single_examples=True):
+    if(example_no % 100 == 0):
+      print(example_no, flush=True)
+    unique_id = int(result["unique_id"])
+    feature = unique_id_to_feature[unique_id]
+    output_json = collections.OrderedDict()
+    output_json["linex_index"] = unique_id
+    all_features = []
+    for (i, token) in enumerate(feature.tokens):
+      all_layers = []
+      for (j, layer_index) in enumerate(layer_indexes):
+        layer_output = result["layer_output_%d" % j]
+        layers = collections.OrderedDict()
+        layers["index"] = layer_index
+        layers["values"] = [
+            round(float(x), 6) for x in layer_output[i:(i + 1)].flat
+        ]
+        all_layers.append(layers)
+      features = collections.OrderedDict()
+      features["token"] = token
+      features["layers"] = all_layers
+      all_features.append(features)
+    output_json["features"] = all_features
+    output_data.append(json.dumps(output_json) + "\n")
+    example_no += 1
+    # writer.write(json.dumps(output_json) + "\n")
+  # gaurav = json.loads(output_data[0])
+  # print([d["token"] for d in gaurav["features"]])
+  return output_data
 
 
 if __name__ == "__main__":
-  flags.mark_flag_as_required("input_file")
-  flags.mark_flag_as_required("vocab_file")
-  flags.mark_flag_as_required("bert_config_file")
-  flags.mark_flag_as_required("init_checkpoint")
-  flags.mark_flag_as_required("output_file")
-  tf.compat.v1.app.run()
+  main()
+  # flags.mark_flag_as_required("input_file")
+  # flags.mark_flag_as_required("vocab_file")
+  # flags.mark_flag_as_required("bert_config_file")
+  # flags.mark_flag_as_required("init_checkpoint")
+  # flags.mark_flag_as_required("output_file")
+  # tf.compat.v1.app.run()
   # tf.app.run()
