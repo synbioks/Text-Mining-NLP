@@ -50,7 +50,7 @@ def process_file(fname):
 
 			mention += token
 
-			# print("now going in... ", mention, i)
+			# if tag is "B", scan next entity to see if it's an "I"...
 			if(tag == "B"):
 				# if(token == "N-terminal"):
 				# 	print(offset)
@@ -58,6 +58,7 @@ def process_file(fname):
 				start_ind = offset
 				offset += len(token) + 1
 				
+				# if it is, keep itearting through the file (line by line) until you keep seeing "I"
 				while i< num_lines and lines[i] != "\n" and lines[i].split("\t")[1].strip() == "I":
 					next_token = lines[i].split("\t")[0].strip()
 					mention += " " + next_token
@@ -65,6 +66,7 @@ def process_file(fname):
 					i += 1
 
 				end_ind = offset - 1
+				# BRAT format line
 				f_out.write("T{0}\t{1}_huner {2} {3}\t{4}\t{5}\n".format(real_id, model, start_ind, end_ind, mention, conf))
 				real_id += 1
 
