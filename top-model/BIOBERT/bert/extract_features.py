@@ -356,6 +356,7 @@ def main():
   # tf.logging.set_verbosity(tf.logging.ERROR)
   tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
+  # path to the config files
   root_path = "/sbksvol/gaurav/BiLSTM-CRF/"
   f2 = os.path.join(root_path, 'input.txt')
   f3 = os.path.join(root_path, '../biobert_v1.0_pubmed_pmc/vocab.txt')
@@ -415,6 +416,8 @@ def main():
 
   output_data = []
 
+  # DO NOT WRITE TO FILE, INSTEAD STORE THE OUTPUT IN output_data list
+  # and return it to the caller function
   # with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
   #                                              "w")) as writer:
   example_no = 0
