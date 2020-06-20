@@ -15,3 +15,5 @@ data_gen.py -> converts the sentences/tags into train/test matrices
 Data can be found at:
 <br>
 /sbksvol/gaurav/BiLSTM-CRF/data
+<br>
+To run the code, place all the 4 files in a folder say, "test" and the data folder also within test. Then run train.py
