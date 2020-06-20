@@ -153,58 +153,53 @@ test_sents = sents["test"]
 test_tags = tags["test"]
 
 
+# converting the tags for words to tags for tokens
+# see here for an example: 
+# https://docs.google.com/document/d/19WYc36YT8er45aF5-s-hxECVglufF7FruLakis67aNk/edit?usp=sharing
 def extend_tags(tokens, tags, orig_tokens):
     def tag_mapper(prev_tag):
         if prev_tag == tag2idx["B"] or prev_tag == tag2idx["I"]:
             return tag2idx["I"]
         return tag2idx["O"]
 
+    # In the comments below, original token refers to the tokens in the left column in the doc/ the input train tokens from huner
+    # and the new token refers to the tokens in the right column in the doc, the output tokens from bert
     
-
-    # converting the tags for words to tags for tokens
-    # see here for an example: 
-    # https://docs.google.com/document/d/19WYc36YT8er45aF5-s-hxECVglufF7FruLakis67aNk/edit?usp=sharing
-    new_tags = []
-    i = 0
-    tags_i = 0
+    new_tags = [] # new_tags will store the new extended tags for the bert-tokenized sentence
+    i = 0 # i is the loop variable for the new token/tag set
+    tags_i = 0 # tags_i is the loop variable for the original tag set
     num_tokens = len(tokens)
     # print(tokens)
     while i < num_tokens:
         token = tokens[i]
-            # print(" in the check if...", tokens, tags, orig_tokens)
         orig_token = orig_tokens[tags_i].lower()
         new_tags.append(tags[tags_i])
         i += 1
         
+        # if the original token is not equal to the new token, it means it has been splitted by bert tokenizer
         if(token != orig_token):
             prev_tag = tags[tags_i]
             continue_tag = tag_mapper(prev_tag)
 
+            # k stores the number of characters of the original token we have matched up. When it becomes
+            # equal to the length of the orignal token (total variable), we move on to the next original token
+            k = len(token) 
+            total = len(orig_token)
+            # so keep iterating through the new tokens until you have matched "total" number of characters
+            while(k < total and i < num_tokens):
+                token = tokens[i]
+                # As can be seen in the second and third examples in the doc, there can be two cases of token != orig_token:
+                
+                # Case-1: the sub-token is preceded by a "##"
+                if(len(tokens[i]) > 2 and tokens[i][:2] == "##"):
+                    k += len(token) - 2 # in this case just count the # of characters in sub-token - 2
+                # Case-2: the sub-token is not predeced by a "##"
+                else:
+                    k += len(token) # in this case just count the # of characters in sub-token
 
-            if(len(tokens[i]) > 2 and tokens[i][:2] == "##"):
-                k = len(token)
-                total = len(orig_token)
-                while(k < total or (i < num_tokens and len(tokens[i]) > 2 and tokens[i][:2] == "##")):
-                    token = tokens[i]
-                    if(len(tokens[i]) > 2 and tokens[i][:2] == "##"):
-                        k += len(token) - 2
-                    else:
-                        k += len(token)
-
-                    # check if the last tag we processed was a B or I
-                    new_tags.append(continue_tag)
-                    i += 1
-            else:
-                k = len(token)
-                total = len(orig_token)
-                while(k < total and i < num_tokens):
-                    token = tokens[i]
-                    if(len(token) > 2 and token[:2] == "##"):
-                        k += len(token) - 2
-                    else:
-                        k += len(token)
-                    new_tags.append(continue_tag)
-                    i += 1
+                # check if the last tag we processed was a B or I
+                new_tags.append(continue_tag)
+                i += 1
 
         tags_i += 1
 
