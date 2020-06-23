@@ -3,7 +3,7 @@ from collections import defaultdict
 
 
 class Dataset:
-	def __init__(self, data_dir, ):
+	def __init__(self, data_dir ):
 		"""Dataset reads the input files from disk and """
 		self.data_dir = data_dir
 		self.set_tag2idx()
