@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: biobert-job
+  namespace: sbks
+spec:
+  template:
+    spec:
+      nodeSelector:
+        nautilus.io/region: ucsd # use ucsd nodes only
+      containers:
+      - name: do-the-job
+        # image: gitlab-registry.nautilus.optiputer.net/greencodes/images/master/keras-jupyter-dask:latest
+        image: nakumgaurav/sbks:dev6
+        # place the shell script here, or anywhere you want but remember to change the path
+        # command: ["bash", "/sbksvol/gaurav/biobert_job.sh", "biobert-gpu-job"] 
+        command: ["bash", "/sbksvol/gaurav/biobert_job.sh", "biobert-job"]
+        resources:
+          limits:
+            memory: "128G"
+            cpu: 8
+            nvidia.com/gpu: 2
+          requests:
+            memory: "128G"
+            cpu: 8
+            nvidia.com/gpu: 2
+        volumeMounts:
+          - name: sbksvol
+            mountPath: "/sbksvol" 
+      volumes:
+        - name: sbksvol
+          persistentVolumeClaim:
+            claimName: sbksvol
+      restartPolicy: Never
+  backoffLimit: 0
