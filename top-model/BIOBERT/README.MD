@@ -1,4 +1,4 @@
-### These scripts are at /sbksvol/gaurav/BiLSTM-CRF/
+###These scripts are at /sbksvol/gaurav/BiLSTM-CRF/
 <br>
 To run:
 source /sbksvol/gaurav/tfenv/bin/activate
@@ -9,8 +9,9 @@ python3 top-model.py
 <br>
 
 <br>
-### TO RUN AS A BATCH JOB:
+###TO RUN AS A BATCH JOB:
 1. Move the script biobert_job.sh to the location indicated in the script: /sbksvol/gaurav/
+<br>
 2. Run biobert-job.yaml :
 <br>
 kubectl create -f biobert-job.yaml
