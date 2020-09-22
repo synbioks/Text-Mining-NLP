@@ -40,7 +40,7 @@ model.summary()
 
 early_stop = EarlyStopping(monitor='val_loss', patience=2, verbose=1)
 model.fit_generator(generator=training_generator,
-#                     validation_data=validation_generator,
+                    # validation_data=validation_generator,
                     use_multiprocessing=True,
                     callbacks=[early_stop],
                     epochs=EPOCHS,
