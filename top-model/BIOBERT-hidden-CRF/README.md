@@ -7,12 +7,9 @@ Project Organization
 ------------
 
     ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
     ├── README.md          <- The top-level README for developers using this project.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
     │
     ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
     │                         generated with `pip freeze > requirements.txt`
