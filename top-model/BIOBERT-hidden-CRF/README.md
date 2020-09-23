@@ -6,7 +6,6 @@ A short description of the project.
 Project Organization
 ------------
 
-    ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
