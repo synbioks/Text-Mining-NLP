@@ -3,4 +3,4 @@ __pycache__/
 checkpoints/
 acs-data
 data
-biobert/datasets/
+biobert_RE/datasets/
