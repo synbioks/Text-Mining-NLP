@@ -1,5 +1,5 @@
-# UCSD-Text-Mining-NLP
-This is the UCSD version of text mining and NLP code which covers work on NER, Topic Modeling and Relation Extraction.
+# Text-Mining-NLP
+This repo contains text mining and NLP code which covers work on NER, Topic Modeling and Relation Extraction.
 
 ## NER
 * top-model: Experiments on various top models over BERT used for NER
