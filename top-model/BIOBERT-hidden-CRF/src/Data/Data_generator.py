@@ -5,14 +5,11 @@ import os
 import keras
 
 PATH = "/sbksvol/xiang/sbks_gitlab/top-model/BIOBERT/NER/data/processed/"
-MAX_SEQ_LEN = 512
-EMBEDDING = 768
-N_TAG = 3
 
 class DataGenerator(keras.utils.Sequence):
   
-    def __init__(self, dataset, batch_size, dim=(MAX_SEQ_LEN,EMBEDDING),
-                 n_classes=N_TAG+1, shuffle=False):
+    def __init__(self, dataset, batch_size, dim=(512,768),
+                 n_classes=4, shuffle=False):
      
         self.path_train = PATH + dataset + "/Train/"
         self.path_label = PATH + dataset + "/Train_label/"   
