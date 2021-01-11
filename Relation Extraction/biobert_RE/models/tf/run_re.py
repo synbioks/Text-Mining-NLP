@@ -448,7 +448,6 @@ class BioBERTChemprotProcessor(DataProcessor):
       # title = line[1]
       text_a = tokenization.convert_to_unicode(line[2])
       # text_a = tokenization.convert_to_unicode(line[0])
-      print(text_a)
       # sdp = line[3]
       if set_type == "test":
           label = "false"

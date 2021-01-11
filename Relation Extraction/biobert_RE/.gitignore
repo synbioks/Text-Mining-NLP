@@ -1,0 +1,6 @@
+datasets/
+weights/
+misc/
+*.pyc
+models/tf/output
+__pycache__/
