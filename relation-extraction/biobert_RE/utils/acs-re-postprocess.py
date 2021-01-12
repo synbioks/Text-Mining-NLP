@@ -1,5 +1,7 @@
 import csv
 import os
+import sys
+import getopt
 from os.path import join, abspath, isdir
 
 from tqdm import tqdm
@@ -47,6 +49,13 @@ def process_file(res_path, ann_path):
 if __name__ == "__main__":
 
     dataset_dir = abspath("../datasets/acs")
+
+    opts, args = getopt.getopt(sys.argv[1:], "", [
+        "dataset_dir="
+    ])
+    for opt, arg in opts:
+        if opt == "--dataset_dir":
+            dataset_dir = arg
 
     for pub_num in tqdm(os.listdir(dataset_dir)):
         # if pub_num != "sb5b00002":

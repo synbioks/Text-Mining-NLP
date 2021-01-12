@@ -1,4 +1,6 @@
 import os
+import sys
+import getopt
 from os.path import abspath, isdir, join
 from tqdm import tqdm
 
@@ -41,7 +43,18 @@ if __name__ == "__main__":
     pretrained_weights_dir = abspath("../../weights/biobert-pt-v1.0-pubmed-pmc")
     init_state_path = abspath("../../weights/biobert-pt-chemprot/model-12000")
     max_seq_len = 128
-    
+
+    opts, args = getopt.getopt(sys.argv[1:], "", [
+        "dataset_dir=", "pretrained_weights_dir=", "init_state="
+    ])
+    for opt, arg in opts:
+        if opt == "--dataset_dir":
+            dataset_dir = arg
+        elif opt == "--pretrained_weights_dir":
+            pretrained_weights_dir = arg
+        elif opt == "--init_state":
+            init_state_path = arg
+
     # tokenizer
     tokenizer = BertTokenizer(
         "../../weights/biobert-pt-v1.0-pubmed-pmc/vocab.txt",

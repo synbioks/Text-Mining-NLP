@@ -119,9 +119,10 @@ if __name__ == "__main__":
     num_val_sample = 1000
     num_test_sample = float("inf")
     max_seq_len = 128
+    dataset_dir = "../../datasets/CHEMPROT"
 
     opts, args = getopt.getopt(sys.argv[1:], "", [
-        "init_state=", "ckpt_dir=", "do_train=", "train_step=", "num_test_sample=", "train_val_freq="
+        "init_state=", "ckpt_dir=", "do_train=", "train_step=", "num_test_sample=", "train_val_freq=", "data_dir=", "pretrained_weights_dir="
     ])
     for opt, arg in opts:
         if opt == "--init_state":
@@ -139,6 +140,10 @@ if __name__ == "__main__":
             num_test_sample = int(arg)
         elif opt == "--train_val_freq":
             train_val_freq = int(arg)
+        elif opt == "--data_dir":
+            dataset_dir = arg
+        elif opt == "--pretrained_weights_dir":
+            pretrained_weights_dir = arg
 
     # tokenizer
     tokenizer = BertTokenizer(
@@ -148,7 +153,7 @@ if __name__ == "__main__":
 
     # create dataloaders
     train_data = ChemprotDataset(
-        data_path="../../datasets/CHEMPROT/train.tsv", 
+        data_path=os.path.join(dataset_dir, "train.tsv"), 
         tokenizer=tokenizer,
         data_balance=False,
         max_seq_len=max_seq_len
@@ -156,14 +161,14 @@ if __name__ == "__main__":
 
     # the original tf implementation of this model is using the dev dataset for evaluation
     test_data = ChemprotDataset(
-        data_path="../../datasets/CHEMPROT/dev.tsv",
+        data_path=os.path.join(dataset_dir, "dev.tsv"), 
         tokenizer=tokenizer,
         data_balance=False,
         max_seq_len=max_seq_len
     )
 
     valid_data = ChemprotDataset(
-        data_path="../../datasets/CHEMPROT/dev.tsv", 
+        data_path=os.path.join(dataset_dir, "dev.tsv"), 
         tokenizer=tokenizer,
         data_balance=False,
         max_seq_len=max_seq_len
