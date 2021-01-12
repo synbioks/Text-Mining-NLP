@@ -36,7 +36,7 @@ python train.py [
 
 # Predicting Relations Using BioBERT
 
-To run relation extraction on ACS articles, you need to first do some preprocess the BRAT NER results. Place each .txt and .ann pair in separate sub directory and put the sub directories into a parent directory. The directory structure should look like the following:
+To run relation extraction on ACS articles, you need to first do some preprocess the BRAT NER results. Place each `.txt` and `.ann` pair in separate sub directory and put the sub directories into a parent directory. The directory structure should look like the following:
 ```
 parent-dir
 |-- article-1
@@ -51,7 +51,12 @@ Then, use the following command to preprocess the NER results.
 ```
 python acs-re-preprocess.py --dataset_dir=<dir, to the parent directory of the unprocessed BRAT NER results>
 ```
-The preprocess script should generate a "re_input.tsv" file in every sub directory. After this, you can run BioBERT inference:
+The preprocess script should generate a `re_input.tsv` file in every sub directory. After this, you can run BioBERT prediction:
 ```
 python predict.py --dataset_dir=<dir, to the parent directory of the processed BRAT NER results>
 ```
+After running the prediction, every sub directory should have a `re_output.tsv` file. Run postprocess on the outputs:
+```
+python acs-re-postprocess.py --dataset_dir=<dir, to the parent directory of the BioBERT RE results>
+```
+The postprocess script will append detected relations to the `.ann` files.
