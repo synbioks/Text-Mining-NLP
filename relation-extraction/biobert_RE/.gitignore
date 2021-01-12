@@ -4,3 +4,5 @@ misc/
 *.pyc
 models/tf/output
 __pycache__/
+*.pdf
+*.gz
