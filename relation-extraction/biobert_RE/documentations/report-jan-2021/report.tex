@@ -8,12 +8,7 @@
 \setlength{\parindent}{0em}
 \setlength{\parskip}{1em}
 
-\title{Extracting Biomedical Relation from ACS Articles}
-\date{January 2021}
-
 \begin{document}
-
-\maketitle
 
 \section{Introduction}
 
@@ -75,10 +70,23 @@ Weighted        & 0.9142    & 0.9125    & 0.9140    & 0.9130    & 0.9141    & 0.
 \end{tabular}
 \end{table}
 
+\begin{figure}[ht]
+\centering
+\includegraphics{brat1}
+\caption{BioBERT detecting downregualor relation}
+\label{fig:brat1}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics{brat2}
+\caption{BioBERT detecting upregulator relation}
+\label{fig:brat2}
+\end{figure}
+
 In table \ref{tab:score-cmp}, we are confident that the PyTorch implementation are very close to the original one
 because of the similar scores. After verifying the implementation, we run prediction task on the ACS article.
 Relation detected by the model are postprocessed into BRAT format and uploaded to a BRAT server, which helped us to
-visualize the result (figure \ref{fig:re-sample1}, figure \ref{fig:re-sample2}).
-
+visualize the result (figure \ref{fig:brat1}, figure \ref{fig:brat2}).
 
 \end{document}
