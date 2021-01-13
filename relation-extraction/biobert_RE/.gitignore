@@ -4,6 +4,9 @@ misc/
 *.pyc
 models/tf/output
 __pycache__/
+
+# latex related
 *.pdf
 *.gz
 *.log
+*.aux
