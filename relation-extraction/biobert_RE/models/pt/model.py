@@ -29,7 +29,7 @@ class BiLSTMTopModel(nn.Module):
 
 class FirstTokenPoolingTopModel(nn.Module):
 
-    def __init__(self, num_class=6, dropout_p=0.1):
+    def __init__(self, num_class=6, dropout_p=0.5):
         super(FirstTokenPoolingTopModel, self).__init__()
         self.linear = nn.Linear(768, 768)
         self.linear_act = nn.Tanh()

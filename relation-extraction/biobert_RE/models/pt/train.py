@@ -14,7 +14,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-def run_train(name, net, train_dataset, valid_dataset, max_step, max_valid_sample, valid_every, ckpt_dir, init_step):
+def run_train(name, net, train_dataset, valid_dataset, lr, max_step, max_valid_sample, valid_every, ckpt_dir, init_step):
 
     train_dataloader = DataLoader(
         dataset=train_dataset,
@@ -25,10 +25,10 @@ def run_train(name, net, train_dataset, valid_dataset, max_step, max_valid_sampl
     )
 
     # setup training
-    print(f"Running train {name}")
+    print(f"Running train {name}, lr {lr}")
     net.train()
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.AdamW(net.parameters(), lr=2e-5, betas=(0.9, 0.999), eps=1e-6, weight_decay=0.01)
+    optimizer = optim.AdamW(net.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-6, weight_decay=0.01) 
     train_step_count = 0
     epoch_count = 0
 
@@ -116,13 +116,14 @@ if __name__ == "__main__":
     train_step = 10000
     init_step = 0
     train_val_freq = 1000
-    num_val_sample = 1000
+    num_val_sample = 50000
     num_test_sample = float("inf")
     max_seq_len = 128
     dataset_dir = "../../datasets/CHEMPROT"
+    learning_rate = 5e-5 # 5e-5 to 1e-5 early stopping
 
     opts, args = getopt.getopt(sys.argv[1:], "", [
-        "init_state=", "ckpt_dir=", "do_train=", "train_step=", "num_test_sample=", "train_val_freq=", "data_dir=", "pretrained_weights_dir="
+        "init_state=", "ckpt_dir=", "do_train=", "train_step=", "num_test_sample=", "train_val_freq=", "data_dir=", "pretrained_weights_dir=", "lr="
     ])
     for opt, arg in opts:
         if opt == "--init_state":
@@ -144,6 +145,8 @@ if __name__ == "__main__":
             dataset_dir = arg
         elif opt == "--pretrained_weights_dir":
             pretrained_weights_dir = arg
+        elif opt == "--lr":
+            learning_rate = float(arg)
 
     # tokenizer
     tokenizer = BertTokenizer(
@@ -182,7 +185,7 @@ if __name__ == "__main__":
     net = net.cuda()
 
     if do_train:
-        run_train("TRAIN", net, train_data, valid_data, train_step, num_val_sample, train_val_freq, ckpt_dir, init_step)
+        run_train("TRAIN", net, train_data, valid_data, learning_rate, train_step, num_val_sample, train_val_freq, ckpt_dir, init_step)
 
     if ckpt_dir is not None:
         torch.save(net.state_dict(), os.path.join(ckpt_dir, f"model-{train_step + init_step}"))
