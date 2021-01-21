@@ -108,6 +108,10 @@ def run_test(name, net, test_dataset, max_sample):
 
 if __name__ == "__main__":
 
+    # 5e-5 to 1e-5 early stopping
+    # top layer pooling
+    # 
+
     # arg parsing
     pretrained_weights_dir = "../../weights/biobert-pt-v1.0-pubmed-pmc/"
     init_state_path = None
@@ -116,11 +120,11 @@ if __name__ == "__main__":
     train_step = 10000
     init_step = 0
     train_val_freq = 1000
-    num_val_sample = 50000
+    num_val_sample = 12000
     num_test_sample = float("inf")
     max_seq_len = 128
     dataset_dir = "../../datasets/CHEMPROT"
-    learning_rate = 5e-5 # 5e-5 to 1e-5 early stopping
+    learning_rate = 5e-5 
 
     opts, args = getopt.getopt(sys.argv[1:], "", [
         "init_state=", "ckpt_dir=", "do_train=", "train_step=", "num_test_sample=", "train_val_freq=", "data_dir=", "pretrained_weights_dir=", "lr="
@@ -158,7 +162,7 @@ if __name__ == "__main__":
     train_data = ChemprotDataset(
         data_path=os.path.join(dataset_dir, "train.tsv"), 
         tokenizer=tokenizer,
-        data_balance=False,
+        data_balance=True,
         max_seq_len=max_seq_len
     )
 

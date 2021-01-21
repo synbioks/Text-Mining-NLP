@@ -1,6 +1,8 @@
 import re
 import csv
 import os
+import getopt
+import sys
 from tqdm import tqdm
 from os.path import isdir, isfile, join, abspath
 from pprint import pprint

@@ -46,7 +46,7 @@ class FirstTokenPoolingTopModel(nn.Module):
 
 class HiddenPoolingTopModel(nn.Module):
 
-    def __init__(self, num_class=6, dropout_p=0.1, last_x=4):
+    def __init__(self, num_class=6, dropout_p=0.5, last_x=4):
         super(HiddenPoolingTopModel, self).__init__()
         self.last_x = last_x
         self.linear = nn.Linear(768 * self.last_x, 1024)

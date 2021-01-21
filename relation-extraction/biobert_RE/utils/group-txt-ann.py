@@ -4,8 +4,8 @@ from os.path import abspath, join, exists
 
 if __name__ == "__main__":
 
-    in_dir = abspath("../datasets/acs-ungrouped")
-    out_dir = abspath("../datasets/acs")
+    in_dir = abspath("../datasets/acs-20210114-ungrouped")
+    out_dir = abspath("../datasets/acs-20210114")
 
     pub_nums = set()
     for item in os.listdir(in_dir):
