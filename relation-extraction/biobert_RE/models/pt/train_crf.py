@@ -5,7 +5,7 @@ import sys
 import os
 
 from dataset import ChemprotDataset, chemprot_collate_fn
-from model import BertRE, BiLSTMTopModel, FirstTokenPoolingTopModel, HiddenPoolingTopModel
+from model import BertCRFModel
 
 from transformers import BertTokenizer
 from torch.utils.data import DataLoader
@@ -18,7 +18,7 @@ def run_train(name, net, train_dataset, valid_dataset, lr, max_step, max_valid_s
 
     train_dataloader = DataLoader(
         dataset=train_dataset,
-        batch_size=16,
+        batch_size=32,
         num_workers=4,
         shuffle=True,
         collate_fn=chemprot_collate_fn
@@ -36,7 +36,7 @@ def run_train(name, net, train_dataset, valid_dataset, lr, max_step, max_valid_s
     while True:
 
         print(f"Running epoch {epoch_count}")
-        for _, (x_batch, y_batch, _) in enumerate(train_dataloader):
+        for _, (x_batch, y_batch, extra) in enumerate(train_dataloader):
             
             # decide to break
             if train_step_count >= max_step:
@@ -44,11 +44,11 @@ def run_train(name, net, train_dataset, valid_dataset, lr, max_step, max_valid_s
 
             optimizer.zero_grad()
 
+            tags = extra["tags"].cuda()
             x_batch = {k: v.cuda() for k, v in x_batch.items()}
             y_batch = y_batch.cuda()
 
-            output = net(x_batch)
-            loss = criterion(output, y_batch)
+            loss = net(x_batch, tags)
             loss.backward()
             optimizer.step()
             train_step_count += 1
@@ -69,8 +69,8 @@ def run_test(name, net, test_dataset, max_sample):
 
     test_dataloader = DataLoader(
         dataset=test_dataset,
-        batch_size=128,
-        num_workers=4,
+        batch_size=256,
+        num_workers=2,
         shuffle=True,
         collate_fn=chemprot_collate_fn
     )
@@ -83,16 +83,17 @@ def run_test(name, net, test_dataset, max_sample):
     num_classes = len(test_dataset.labels)
     confusion_mat = np.zeros((num_classes, num_classes))
     with torch.no_grad():
-        for _, (x_batch, y_batch, _) in enumerate(test_dataloader):
+        for _, (x_batch, y_batch, extra) in enumerate(test_dataloader):
             
             if num_tested >= max_sample:
                 break
 
+            ent_pos = extra["ent_pos"]
             x_batch = {k: v.cuda() for k, v in x_batch.items()}
             y_batch = y_batch.numpy()
 
-            output = net(x_batch)
-            pred = torch.argmax(F.softmax(output, dim=-1), dim=-1).cpu().numpy()
+            decoding = np.array(net(x_batch))
+            pred = [decoding[i][pos] if pos < len(decoding[i]) else decoding[i][-1] for i, pos in enumerate(ent_pos)]
 
             num_tested += len(y_batch)
             num_correct += np.sum(pred == y_batch)
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     train_data = ChemprotDataset(
         data_path=os.path.join(dataset_dir, "train.tsv"), 
         tokenizer=tokenizer,
-        data_balance=True,
+        data_balance=False,
         max_seq_len=max_seq_len
     )
 
@@ -182,8 +183,7 @@ if __name__ == "__main__":
     )
 
     # init model
-    top_model = FirstTokenPoolingTopModel()
-    net = BertRE(pretrained_weights_dir, top_model)
+    net = BertCRFModel(pretrained_weights_dir)
     if init_state_path is not None:
         net.load_state_dict(torch.load(init_state_path))
     net = net.cuda()

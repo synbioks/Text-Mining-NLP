@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from transformers import BertModel, BertTokenizer
+from torchcrf import CRF
 
 class BiLSTMTopModel(nn.Module):
 
@@ -77,18 +79,31 @@ class BertRE(nn.Module):
         y = self.top_model(y)
         return y
 
-if __name__ == "__main__":
+class BertCRFModel(nn.Module):
 
-    net = BertRE("../../weights/torch/", BiLSTMTopModel())
-    net = net.cuda()
-
-    tokenizer = BertTokenizer("../../weights/torch/vocab.txt", do_lower_case=False)
-    sample = tokenizer("Hi there", return_tensors="pt")
-
-    def map_to_cuda(x):
-        res = {}
-        for k, v in x.items():
-            res[k] = v.cuda()
-        return res
-
-    print(net(map_to_cuda(sample)))
+    def __init__(self, state_path, num_class=6, dropout_p=0.1): 
+        super(BertCRFModel, self).__init__()
+        self.bert = BertModel.from_pretrained(state_path)
+        self.lstm = nn.LSTM(
+            input_size=768,
+            hidden_size=512,
+            batch_first=True,
+            bidirectional=True,
+            num_layers=2,
+            dropout=dropout_p
+        )
+        self.dropout_lstm = nn.Dropout(p=dropout_p)
+        self.token_softmax = nn.Softmax(dim = -1)
+        self.crf_linear = nn.Linear(1024, 6)
+        self.crf = CRF(num_class, batch_first=True)
+        
+    def forward(self, x, tags=None):
+        y = self.bert(**x, return_dict=True, output_hidden_states=True).last_hidden_state
+        y = self.lstm(self.dropout_lstm(y))[0]
+        y = self.token_softmax(y)
+        y = self.crf_linear(y)
+        if self.training:
+            y = -self.crf(y, tags)
+        else:
+            y = self.crf.decode(y)
+        return y
