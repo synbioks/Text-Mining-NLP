@@ -16,7 +16,7 @@ def run_predict(net, dataset):
     
     dataloader = DataLoader(
         dataset=dataset,
-        batch_size=256,
+        batch_size=128,
         num_workers=4,
         shuffle=False,
         collate_fn=acs_collate_fn
@@ -38,11 +38,11 @@ def run_predict(net, dataset):
 if __name__ == "__main__":
 
     # script parames
-    dataset_dir = abspath("../../datasets/acs")
+    dataset_dir = abspath("../../datasets/acs-20210205")
     # we are not actually using this pretrained weights, the init_state will override the pretrained weights
     pretrained_weights_dir = abspath("../../weights/biobert-pt-v1.0-pubmed-pmc")
-    init_state_path = abspath("../../weights/biobert-pt-chemprot/model-12000")
-    max_seq_len = 128
+    init_state_path = abspath("../../weights/biobert-pt-chemprot/top-pool-f1-9127-5000")
+    max_seq_len = 256
 
     opts, args = getopt.getopt(sys.argv[1:], "", [
         "dataset_dir=", "pretrained_weights_dir=", "init_state="

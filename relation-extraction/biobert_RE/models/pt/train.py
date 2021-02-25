@@ -122,7 +122,7 @@ if __name__ == "__main__":
     train_val_freq = 1000
     num_val_sample = 12000
     num_test_sample = float("inf")
-    max_seq_len = 128
+    max_seq_len = 256
     dataset_dir = "../../datasets/CHEMPROT"
     learning_rate = 5e-5 
 
