@@ -1,5 +1,5 @@
 # To install any packages permamently in the docker image on nautilus cluster:
-1. Pull the existing image from any of the pod yaml files you use
+1. Pull the existing image that you use for any of the pod yaml files from docker hub
 docker pull nakumgaurav/sbks:dev3
 
 2. Create a container using that image and open a shell within the container
