@@ -1,0 +1,7 @@
+{
+    "data_words_path": "data/saved_results/data_words/ner=20210205_q=0.005.pickle", 
+    "model_name": "",
+    "k": 5,
+    "path_to_mallet": "mallet-2.0.8/bin/mallet",
+    "model_path": "data/saved_results/model/lda_k=5.pickle"
+}
