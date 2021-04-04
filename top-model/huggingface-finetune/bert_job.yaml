@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: huggingface-job
+  namespace: sbks
+spec:
+  template:
+    spec:
+      nodeSelector:
+        # nodeName: k8s-bharadia-03
+        nautilus.io/region: ucsd
+      containers:
+      - name: bert-gau
+        image: nakumgaurav/sbks:dev8
+        # image: tensorflow/tensorflow  
+        command:
+        - "bash"
+        args:
+        - "/sbksvol/gaurav/NER_src/run_ner.sh"
+        resources:
+          limits:
+            memory: "24G"
+            cpu: 6
+            # ephemeral-storage: 200Gi
+            nvidia.com/gpu: 1  # enable GPUs as needed
+          requests:
+            memory: "24G"
+            cpu: 6
+            # ephemeral-storage: 100Gi
+            nvidia.com/gpu: 1  # must match the limit!
+        volumeMounts:
+          - mountPath: "/sbksvol"
+            name: sbksvol
+      restartPolicy: Never
+      volumes:
+        - name: sbksvol
+          persistentVolumeClaim:
+            claimName: sbksvol
+  backoffLimit: 0  # no backoff; if pod fails, fail the job
+
