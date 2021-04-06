@@ -1,0 +1,418 @@
+{
+    "pub_num": "sb5b00007",
+    "is_research": true,
+    "keywords": [
+        "DNA assembly",
+        "CRISPR/Cas9",
+        "double-strand break",
+        "metabolic engineering"
+    ],
+    "abstract": [
+        "Homologous recombination (HR) in Saccharomyces cerevisiae has been harnessed for both plasmid construction and chromosomal integration of foreign DNA. Still, native HR machinery is not efficient enough for complex and marker-free genome engineering required for modern metabolic engineering. Here, we present a method for marker-free multiloci integration of in vivo assembled DNA parts. By the use of CRISPR/Cas9-mediated one-step double-strand breaks at single, double and triple integration sites we report the successful in vivo assembly and chromosomal integration of DNA parts. We call our method CasEMBLR and validate its applicability for genome engineering and cell factory development in two ways: (i) introduction of the carotenoid pathway from 15 DNA parts into three targeted loci, and (ii) creation of a tyrosine production strain using ten parts into two loci, simultaneously knocking out two genes. This method complements and improves the current set of tools available for genome engineering in S. cerevisiae."
+    ],
+    "body": [
+        {
+            "text": "The yeast Saccharomyces cerevisiae serves as a platform organism for functional genomics of eukaryotes and biobased production of an ever-increasing list of chemicals and fuels. The native homologous recombination (HR) machinery of S. cerevisiae has also allowed it to be used in diverse plasmid-based and chromosome integrative cloning efforts with appreciable efficiency. However, it is widely acknowledged that plasmid-based systems can be unstable, and for that reason genome integration is the preferred tactic for most current metabolic engineering efforts on multistep enzymatic pathway construction. Since the pioneering studies on integration of linear fragments with kb-sized homologous ends to chromosome integration sites published in the 1980s, the past two decades have witnessed a number of studies that have continued to develop and improve both HR-based in vivo assembly of DNA fragments and methods for genome integration of heterologous DNA.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Though yeast\u2019s native HR machinery efficiently recombines homologous sequences, the background efficiency for genome integration of linear DNA fragments in yeast without use of a selection marker is too low to be applicable for strain building. This is due to the fact that in vivo assembly supplies DNA fragments with open ends readily accessible for the HR machinery, but chromosomal integration of these fragments requires recombination of DNA fragments into intact genomic DNA, and is therefore far less likely to occur. As the original function of HR includes repairing double-stranded breaks (DSBs) in the genome, the efficiency of targeting DNA fragments to chromosomes by HR can be dramatically increased when a DSB is introduced into the genome during transformation. Using the inducible homing endonuclease I-SceI to target a DSB-mediated integration of a 95 bp linear DNA fragment restoring tryptophan prototrophy, recombination efficiencies of 5\u201320% were achieved. This number was approximately 4000-fold higher than recombination efficiencies without DSB-induced integration of DNA fragments as originally described for the delitto perfetto method. Likewise, in the CATI method (combined in vivo assembly and targeted chromosomal integration), Kuijpers et al. used I-SceI to induce a single DSB for homology-directed and marker-assisted targeting of 10\u201315 part assemblies with an efficiency of 95%, compared to merely 5% without the induction of I-SceI endonuclease activity.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "In the past few years, CRISPR/Cas9 has further improved the toolkit for targeted genome engineering. In the first reported example of genome engineering in yeast using CRISPR/Cas9, DiCarlo et al. showed that homology-directed repair of a Cas9-mediated DSB could be effectively obtained by cotransforming yeast with 90 bp double-stranded oligonucleotides (dsOligos) and plasmid-based expression of a guide RNA (gRNA). Because of the ease and versatility of RNA-based guiding of Cas9 endonuclease activity, CRISPR/Cas9 has continued to improve targeted genome engineering in yeast. This includes restoring uracil prototrophy by single-site integration of a three-part DNA assembly in a ura-strain, and the marker-free homology-directed knockout of multiple genes in one step using short (90\u2013120 bp) dsOligos. However, in order to leverage current genome engineering for robust and balanced multistep metabolic pathway integration in S. cerevisiae chromosomes, there is a continued need to further exploit the potential of both in vivo DNA assembly and CRISPR/Cas9 multiplex and marker-free genome engineering.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Here we combine recent progress within DNA assembly procedures and efficient targeting of DSBs mediated by multiplex CRISPR/Cas9 genome editing in order to develop a one-step method for marker-free editing of S. cerevisiae genomes at multiple loci using in vivo DNA assembly of standard parts. In this study, we apply the genome engineering method for efficient in vivo assembly of a multiple-gene biochemical pathway and construction of a platform strain for aromatic amino acid biosynthesis. Compared to currently available methods, our method is a rapid and versatile approach to edit genomes at multiple loci.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Results and Discussion",
+            "normalized_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Results and Discussion",
+            "type": "title"
+        },
+        {
+            "text": "Rationale and Design of CasEMBLR",
+            "normalized_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Rationale and Design of CasEMBLR",
+            "type": "title"
+        },
+        {
+            "text": "In this study we wanted to apply Cas9-facilitated multiloci integration of DNA parts into S. cerevisiae chromosomes by combining three recently reported techniques: (i) in vivo DNA assembly, (ii) homology-directed repair of DSBs using linear DNA fragments, and (iii) our recently established method to efficiently construct multiplex gRNA expression cassettes used for marker-free multiloci genome engineering. We named the method CasEMBLR: Cas 9-facilitated multiloci integration of ass embl ed DNA parts into S. cerevisiae chromosomes, as a reference to the two mutually important methods DNA Assemble r and Cas9-facilitated integration of dsOligos into S. cerevisiae chromosomes. Compared to current procedures, this method should target multiple DNA part assemblies into a set of defined loci to further allow versatility in terms of strain design with genes or parts sharing sequence similarities between expression cassettes, without compromising strain stability. Taken together, by combining in vivo assembly and targeted integration into multiple loci mediated by Cas9, our method should allow seamless, marker-free and stable genome engineering.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Rationale and Design of CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "For this purpose we first used CRISPy, our recently developed in silico gRNA selection tool, to identify gRNAs specific to loci of interest (Figure), while minimizing off-targeting of Cas9 activity. Second, we applied constitutive plasmid-borne expression of Cas9 for an efficient and easy one-step transformation of a gRNA-expressing plasmid and parts of interest. Last, for the sake of versatility we included five fragments for each expression cassette: a promoter, a structural gene, a terminator and two 0.5 kb fragments identical to upstream (US) and downstream (DS) sequences of the DSB, respectively (Figure). All fragment ends share 50 bp overlaps with neighboring fragments, which allows for simple integration of 25 bp overhangs into oligonucleotides used for PCR-based parts amplification (Figure).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Rationale and Design of CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "Outline of the CasEMBLR method. To identify gRNAs without predicted off-targets we used the publicly available online tool CRISPy. Selected gRNAs were cloned into single, double and triple gRNA expressing cassettes for plasmid-based expression. Plasmids expressing gRNA(s) and linear DNA parts with 50 bp overlap were cotransformed into Cas9-expressing S. cerevisiae cells for Cas9-facilitated multiloci genomic integration of in vivo assembled DNA parts.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Rationale and Design of CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "normalized_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "title"
+        },
+        {
+            "text": "As a proof-of-principle we first applied CasEMBLR to reconstitute the biosynthetic pathway for carotenoid production, which gives S. cerevisiae a visible orange phenotype. In S. cerevisiae carotenoids can be efficiently produced from the mevalonate pathway by expressing the carotenogenic genes crtYB (encoding a bifunctional phytoene synthase and lycopene cyclase), crtI (phytoene desaturase) and crtE (heterologous geranylgeranyl pyrophosphate synthase) from the carotenoid-producing yeast Xanthophyllomyces dendrorhous (Figure a).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "Assembly of the carotenoid pathway by CasEMBLR. (a) The mevalonate pathway in yeast and the carotenoid synthesis pathway of X. dendrorhous (orange). (b) Schematic illustration of the five-part assembly of the crtE, crtI, and crtYB expression cassettes and homologous recombination with chromosomal target sites URA3, HIS3, and ADE2. Genotyping primers (arrows) for multiplex PCR are so designed that a correctly assembled and integrated product will yield two PCR products (approximately 1.5 and 0.75 kb), and no assembly yields a single band (approximately 1.1 kb) from the multiplex primers complementary to the flanking sequences (light gray). (c) (Top) Representative phenotype of Cas9-expressing S. cerevisiae transformed with DNA parts for in vivo assembly of the crtI expression cassette and an empty control plasmid (left) or a gRNA-expressing plasmid for DSB-mediated integration of the five-part crtI expression cassette into ADE2 (right). (Bottom) Genotyping result using a nested PCR to identify correct crtI expression cassette assembly and integration into ADE2. On the left, genotyping result of 6 representative colonies from Cas9-expressing cells cotransformed with DNA parts and the empty control plasmid. On the right, genotyping result of 6 representative colonies from cells cotransformed with DNA parts and a gRNA expressing plasmid targeting Cas9-mediated DSB to ADE2. Positive colonies should have two distinct bands the size of approximately 1.5 and 0.75 kb, whereas no integration in ADE2 should give a band of approximately 1.1 kb. Full details of the genotyping scheme are provided in the Methods. (d) Average engineering efficiencies obtained from two biological replicate transformations. Error bars represent one standard deviation of the mean. Dashed line separates bars representing single and triple integration efficiencies. (e) Optimization of CasEMBLR by use of a HIS3_2 gRNA. Bars represent average engineering efficiencies obtained from two biological replicates. Error bars represent one standard deviation of the mean. Dashed line separates bars representing single and triple integration efficiencies.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "Before integrating this three-step pathway we first validated the efficiency of Cas9-mediated DSB and integration of in vivo assembled DNA into each individual locus selected for integration. For this purpose we cotransformed yeast expressing Cas9 with DNA for individual five-part in vivo assemblies and an episomal plasmid expressing a gRNA cassette to guide Cas9-mediated DSB at either ADE2, HIS3, or URA3 genomic sites. Mutant alleles of ade2 \u2013 and ura3 \u2013 colonies can be easily screened by color appearance of adenine-deficient colonies (pink) or selected by 5-FOA resistance counter-selection, respectively. However, for this proof-of-principle study, efficiencies reported from genotyping of correct assembly and integration of the individual expression cassettes were only based on the representative distribution of phenotypes of transformants (orange/pink/white) appearing on plates selected for Cas9 and gRNA expression (Trp +/Leu +) alone. For all integration loci, multiplex PCR of a minimum of 12 colonies per transformation was used to verify both correct assembly and integration, as the expression cassette and flanking sequences are too large (approximately 2.8\u20134.4 kb) to be efficiently amplified by a single primer pair during colony PCR. Consequently, colonies without integration of the five-part assembly would generate an amplicon with a size of approximately 1.1 kb from amplification of the native locus (Figure b), whereas a correct assembly and integration should yield two amplicons spanning all six junctions of the five-part assembly, including integration. This is exemplified for assembly and integration of the crtI, crtE and crtYB expression cassettes into sites URA3, HIS3, and ADE2, respectively (Figure b). For correct assembly and integration of the crtYB expression cassette in ADE2, positive genotyping results matched the pink ade2 \u2013 phenotype (Figure b,c).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "Our genotyping showed that RNA-based guiding of Cas9 at individual target sites was indispensable for obtaining correct integration of five-part DNA assemblies, as no positive transformants were obtained from cells transformed with only DNA parts without the gRNA-expressing plasmid when targeting URA3, HIS3 and ADE2 sites (Figure c,d). For assembly of crtYB into ADE2 without expressing gRNA, 0.2% of the colonies were pink (Figure c), but none of these had the correct genotype. Contrastingly, when cotransforming cells with DNA parts and a gRNA-expressing plasmid we observed substantial differences between the engineering efficiencies we obtained for correct assembly onto the individual loci. Based on genotyping, we obtained engineering efficiencies of 96 and 77% for in vivo assembly and integration of crtYB and crtE expression cassettes in ADE2 and URA3, respectively (Figure d), whereas for crtI integration into HIS3, we only obtained 14.6% (Figure d). Following marker-free assembly and integration of five DNA parts (i.e., one expression cassette) at single targeted chromosomal locus, we made a one-step transformation of Cas9-expressing S. cerevisiae with all 15 DNA parts to be assembled and integrated into the three chromosomal loci: URA3, HIS3, and ADE2. As for single site integrations, genotyping of colonies transformed without a multiplex gRNA plasmid for guiding Cas9 DSBs revealed no correct assemblies and integrations of the three carotenoid pathway gene expression cassettes into the targeted integration sites (Figure d). However, from colonies transformed with both DNA parts and the multiplex gRNA plasmid we obtained an average of 4.5% colonies with correctly assembled carotenoid pathway into the ADE2, HIS3 and URA3 loci (Figure d).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "The single-site efficiencies obtained for assembly and integration into ADE2 and URA3 are comparable to those obtained from single-fragment integration to other loci using CRISPR/Cas9. This could indicate that assembly is not a limiting factor for high efficiency genome engineering using DNA parts, whereas the low engineering efficiency obtained for HIS3 could be associated with poor Cas9-mediated DSB induction, known to be critical for obtaining high engineering efficiencies. Further inspection of the 20 nt gRNA sequence guiding Cas9 to HIS3 site revealed a 5 nt motif 5\u2032-GGCCC-3\u2032 complementary to 5-GGGCC-3\u2032 positioned three nucleotides apart. Using the RNAfold web server, such complementarity is likely to cause secondary structure of the gRNA (Figure S1, Supporting Information), and thereby lowered guiding efficiency or increased off-targeting of Cas9. However, poor assembly of the crtI expression cassette could neither be ruled out as the reason for the modest efficiency obtained for this single-site engineering attempt. In order to check if suboptimal in vivo assembly of the crtI expression cassette was also affecting the engineering efficiency of crtI into HIS3, we targeted the in vivo assembly of crtI into the RNA-guided DSB of URA3. Here we observed an efficiency of 79.2% (Figure e), which is comparable to the efficiency obtained for assembly and integration of the crtE expression cassette into URA3 (Figure d). This indicates that S. cerevisiae \u2019s native capacity for homologous recombination does not have a sequence bias for the different expression cassette assemblies when using the parameters outlined in this study. In order to test if we could increase efficiency of carotenoid pathway construction using CasEMBLR by changing the HIS3 site, we selected a second gRNA target in HIS3 site (hereafter termed HIS3_2) using CRISPy. Transforming the five parts of the crtI expression cassette together with a gRNA expression plasmid guiding Cas9 to the HIS3_2 position we obtained an engineering efficiency of 79.2%, compared to 14.6% when using the former DSB in HIS3 as integration site (Figure d,e). In line with these results, we obtained an approximately 7-fold increase of the engineering efficiency when assembling the three-gene carotenoid pathway from 15 parts, using a triple gRNA expression plasmid targeting assemblies into the HIS3_2 site together with the formerly used ADE2 and URA3 sites (30.6 vs 4.5%, respectively) (Figure d,e).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "Taken together, our results show that selection of gRNA target sequence is a key parameter for optimal application of CasEMBLR.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Multiloci Integrative Pathway Building",
+            "type": "paragraph"
+        },
+        {
+            "text": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "normalized_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "type": "title"
+        },
+        {
+            "text": "Having established a proof-of-principle, we next sought to apply CasEMBLR for one-step genome engineering of strains without obvious selectable phenotypes. Also, to further advance the applicability of CasEMBLR for one-step genome engineering, we targeted assembly and integration of DNA parts into two chromosomal loci encoding genes of interest for simultaneous targeted knockout. For this purpose, we addressed the need for yeast cell factories with increased aromatic amino acid (AAA) precursors for improved production of a large number of fine and value-added chemicals including alkaloids and flavonoids. AAAs are synthesized via the shikimate pathway, starting with the condensation of erythrose 4-phosphate (E4P) and phospho enol pyruvate (PEP) (Figure a). This reaction, catalyzed by 3-deoxy-D-arabino-heptulosonate-7-phosphate (DAHP) synthase (ARO4), is allosterically inhibited by tyrosine or high concentrations of phenylalanine or tryptophan. Chorismate mutase (ARO7), another key enzyme for tyrosine and phenylalanine synthesis, is also feedback inhibited by tyrosine. Here, we aimed to relieve these feedback inhibitions on AAA biosynthesis by assembly of the two tyrosine-insensitive versions of ARO4 and ARO7 (hereafter referred to as ARO4* and ARO7*) (Figure a). To minimize the formation of byproduct in the Tyr/Phe branch, we targeted the integration of Tyr-insensitive ARO4* and ARO7* expression cassette assemblies into the PDC5 and ARO10 sites, respectively, encoding two decarboxylases earlier reported to have the highest decarboxylation rates of phenylpyruvate, a phenylethanol precursor and AAA biosynthesis competitor.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "type": "paragraph"
+        },
+        {
+            "text": "Construction of an improved tyrosine production strain by CasEMBLR. (a) Schematic representation of S. cerevisiae aromatic amino acid pathway highlighting the genes targeted for the improved tyrosine production strain. (b) Schematic illustration of the five-part assembly of the ARO4* and ARO7* expression cassettes and homologous recombination with genomic PDC5 and ARO10, respectively. Design of genotyping primers (arrows) for multiplex PCR are similar to those represented in Figure b. (c) Genotyping result using a nested PCR to identify correct assemblies and integration into ARO10 (top) and PDC5 (bottom). On the left, genotyping result of 6 representative colonies from Cas9-expressing cells cotransformed with DNA parts and the empty control plasmid. On the right, genotyping result of 6 representative colonies from cells cotransformed with DNA parts and the double gRNA expressing plasmid targeting Cas9-mediated DSB to ARO10 and PDC5. Positive colonies should have two distinct bands the size of approximately 1.5 and 0.7 kb, whereas no integration in ARO10 or PDC5 should give a band of 1.1 kb. Full details of the genotyping scheme are provided in the Methods. (d) Average engineering efficiencies obtained from two biological replicate transformations. Error bars represent one standard deviation of the mean. (e) Average p-coumaric acid titers in CEN.PK reference and PDC5::ARO4*/ARO10::ARO7* strains expressing a bacterial TAL (Jendresen et al., unpublished results) for one-step conversion of tyrosine to p-coumaric acid. Error bars represent one standard deviation of the mean (n = 8).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "type": "paragraph"
+        },
+        {
+            "text": "From our one-step in vivo assembly and marker-free integration of ARO4* and ARO7* expression cassettes into PDC5 and ARO10, we obtained an average engineering efficiency of 58% without any phenotypic selection (Figure b\u2013d). As with the assembly of the carotenoid pathway, we found no positive colonies from cells transformed without the double gRNA-expressing plasmid for directing Cas9 to PDC5 and ARO10 (Figure d).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "type": "paragraph"
+        },
+        {
+            "text": "To validate both method and testbed, we analyzed the capacity of our reference and engineered strains for the production of p-coumaric acid, a key precursor for flavonoids, by a plasmid-based expression of a bacterial tyrosine ammonia-lyase (Jendresen et al., unpublished results). Unlike its precursor tyrosine, p-coumaric acid is cell permeable and cannot be further metabolized by yeast cells, making it a good readout of the flux toward tyrosine. Here, we observed an approximately 4-fold increase in the p-coumaric acid titer in cultures of our engineered strain compared to that in cultures of the TAL-expressing reference strain (Figure e).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "CasEMBLR for Strain Building without Obvious Phenotypes",
+            "type": "paragraph"
+        },
+        {
+            "text": "Benchmarking CasEMBLR",
+            "normalized_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "title"
+        },
+        {
+            "text": "In order to allow for an easy comparison between CasEMBLR and other existing genome engineering methods reported in yeast, we highlight key parameters and engineering efficiencies reported for these methods in Table.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "The overarching theme for the work presented in this study, was the development of a multiplex and marker-free genome engineering tool by combining CRISPR/Cas9 and in vivo DNA assembly. Compared to other pioneering HR-based genome engineering methods like delitto perfetto and DNA Assembler, CRISPR/Cas9 is the only reported method that allows one-step efficient marker-free genome engineering (Table). Though the first reported application of CRISPR/Cas9 in yeast only targeted sites with selectable phenotypes, we and others have reported single-fragment integrations into multiple sites (1\u20135) without the use of markers or selectable phenotypes. Ideally, our previous successful CRISPR/Cas9-mediated genome engineering of five loci in one-step may allow for construction of larger metabolic pathways in yeast using CasEMBLR. Studies of the capacity for CasEMBLR in terms of numbers of integration sites and parts to be assembled are currently being performed in our laboratory. Still, with the present results, CasEMBLR is to the best of our knowledge the first reported method to combine in vivo DNA assembly and multiplex CRISPR/Cas9 for versatile strain design and building, while maintaining high engineering efficiencies for most of the targeted sites without the use of markers for assembly integration (Table; Figures d,e and d).",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "Another parameter to benchmark is the use of DNA parts versus yeast integrative plasmids (YIPs). For stable integration of heterologous DNA several procedures make use of YIPs. However, the use of YIPs require flanking fragment ends (0.1\u20134 kb) to be constructed and cloned together with expression cassettes of interest, for each integration site in order to boost marker-assisted integration. Though CasEMBLR does not reply on YIPs, each integration site still requires a gRNA-expressing plasmid. However, construction of gRNA-expressing plasmids for single-site targeting only require the cyclic amplification of a donor plasmid using a set of primers with the needed 20 bp gRNA target sequences included, whereas multiplex gRNA plasmids require subcloning. Accordingly, this aspect still limits the use of CRISPR/Cas9-mediated high-throughput strain building, and several efforts are currently targeting the delivery and in vivo processing of gRNA in order to simplify further CRISPR/Cas9. Also, it should be mentioned that although the edits introduced by CRISPR/Cas9 and CasEMBLR are marker-free, plasmid-based expression of Cas9 and gRNA(s) requires markers. However, recycling of these are easily accomplished by a single restreaking of edited strains onto nonselective medium.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "Finally, data presented in this study show a high degree of site-specificity with respect to successful integration of DNA assemblies at the sites of DNA damage caused by RNA-guided Cas9 (Figure d,e and Figure d). When targeting multiloci integration, such discrepancies will naturally affect the overall success rate of genome engineering by CasEMBLR, which we also observe here (Figure d,e and Figure c,d). We therefore foresee a need to build more high-performing integration sites, like ADE2, HIS3_2, PDC5 and ARO10, for optimal coupling of one-step multiloci DSBs and integration of assembled DNA parts into such sites. Consequently, our current efforts seek to address this issue by screening and testing for favorable gRNAs targeting native and synthetic \u201clanding pads\u201d in the S. cerevisiae genome with highest possible specificity and genomic sequence divergence to boost targeting of assemblies and limit mis-integration due to sequence homology between donor ends and off-target chromosomal loci. Applying a set of high-performing \u201clanding pads\u201d together with a complementary set of multiplex gRNA expression plasmids will relieve the need for gRNA plasmid cloning and therefore increase throughput.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "Altogether, CasEMBLR is on par with, and in some approaches superior to, state-of-the-art methods for multilocus integration of DNA assemblies (Table). We therefore envision that CasEMBLR can serve as a platform for multiloci diversity generation using libraries of parts to improve sequence-to-function understanding. Furthermore, as evidenced from our successful carotenoid pathway construction and AAA pathway rewiring from DNA parts, CasEMBLR can be a synthetic biology tool to screen for improved traits of yeast-based microbial cell factory when coupled to adequate non-natural selection or directed evolution regimes. With simple DNA parts amplification/synthesis and easy cloning of multiplex gRNA plasmids, CasEMBLR has impacted the strain engineering procedures in our laboratory, and we believe that CasEMBLR complements current strain building procedures to further develop S. cerevisiae as a preferred cell factory chassis for complex multistep metabolic engineering strategies.",
+            "normalized_section_header": [
+                "result",
+                "discussion"
+            ],
+            "section_header": "Benchmarking CasEMBLR",
+            "type": "paragraph"
+        },
+        {
+            "text": "Methods",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Methods",
+            "type": "title"
+        },
+        {
+            "text": "Strains, Plasmids, Media and Primers",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Strains, Plasmids, Media and Primers",
+            "type": "title"
+        },
+        {
+            "text": "The yeast strains used in this study were isogenic to CEN.PK111\u201327B. Strains and plasmids are listed in Tables S1 and S2 (Supporting Information), respectively. Strains were grown in complete medium (YPD) with 2% glucose and synthetic complete medium (SC, Sigma-Aldrich), supplemented with 2% glucose, minus the auxotrophic components complemented by propagated plasmids. Cell were propagated at 30 \u00b0C. All primers used in this study are listed in Table S3.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Strains, Plasmids, Media and Primers",
+            "type": "paragraph"
+        },
+        {
+            "text": "DNA Preparation",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "DNA Preparation",
+            "type": "title"
+        },
+        {
+            "text": "For five-part in vivo assembly, yeast promoters (TDH 3p, PGK 1p, TEF 1p), terminators (ADH1t, CYC1t, VPS13t, PRM9t) and homology sequences were amplified from genomic DNA isolated from S. cerevisiae CEN.PK113\u20137D using Phusion High-Fidelity Polymerase (F-531L; Thermo Fisher Scientific) following the manufacturer\u2019s recommendations. The structural genes crtE, crtYB, and crtI were amplified from plasmid YIplac211-crtYB/crtI/crtE kindly provided by Prof. Gerhard Sandman. The ARO4*\u00ad(K229L) and ARO7*\u00ad(G141S) mutants were constructed by site-directed mutagenesis according to sequence requirement for Tyr-insensitivity earlier reported. All PCR reactions added the relevant 50 bp overlaps to the ends of each part to allow in vivo assembly and integration by homologous recombination. The primers used for amplification are listed in Table S3. Following confirmation of their size by agarose gel electrophoresis, the products were individually purified using Nucleospin PCR cleanup columns (740588.250; Macherey-Nagel).",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "DNA Preparation",
+            "type": "paragraph"
+        },
+        {
+            "text": "To perform one-step in vivo assembly and integration targeting the locus or loci of interest, 4 picomoles of each part were mixed together, concentrated by ethanol precipitation, and resuspended in 5 \u03bcL of Milli-Q water. The mixes of resuspended DNA parts were used with the appropriate gRNA plasmid for electroporation-mediated transformation as described below.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "DNA Preparation",
+            "type": "paragraph"
+        },
+        {
+            "text": "gRNA Selection and Plasmid Construction",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "gRNA Selection and Plasmid Construction",
+            "type": "title"
+        },
+        {
+            "text": "To select for specific gRNAs targeting ADE2, URA3, HIS3, HIS3_2, ARO10 and PDC5 sites all potential gRNA targets in these annotated CEN.PK113\u20137D genes were compared to all potential off-targets in the entire CEN.PK113\u20137D genome using the CRISPy tool (http://staff.biosustain.dtu.dk/laeb/crispy_cenpk/). From this ranking, only gRNAs without any 100% identity to other genomic loci were selected. gRNA sequences are listed in Table S4. To search for predicted secondary structures in the gRNAs selected from CRISPy, we used RNAfold from the Vienna RNA suite (http://rna.tbi.univie.ac.at/cgi-bin/RNAfold.cgi).",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "gRNA Selection and Plasmid Construction",
+            "type": "paragraph"
+        },
+        {
+            "text": "To create a gRNA expression plasmid, first, a backbone vector was constructed. pESC-LEU was amplified with TJOS-97F and TJOS-97R and religated to insert a site compatible for USER cloning and create a cloning vector pTAJAK-96. pTAJAK-96 was digested with Asi SI and Nb.Bsm I to create compatible ends for USER cloning. Second, gRNA expression cassettes for all targeted loci were ordered from Integrated DNA Technologies as gBlocks. Sequence of gRNA expression cassette was used as in DiCarlo et al. (2013). Third, gRNA cassettes were amplified with universal primers (TJOS-62, TJOS-63, TJOS-64, TJOS-65, TJOS-66, TJOS-67) to attach compatible ends for USER cloning. Finally, desired combinations of single (ADE2; URA3; HIS3; HIS3_2), double (PDC5-ARO10) and triple (ADE2-URA3-HIS3 and ADE2-URA3-HIS3_2) gRNA expression cassettes were constructed by USER cloning into an Asi SI-, Nb.Bsm I-digested pTAJAK-96 vector.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "gRNA Selection and Plasmid Construction",
+            "type": "paragraph"
+        },
+        {
+            "text": "Strain Construction",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Strain Construction",
+            "type": "title"
+        },
+        {
+            "text": "The strain expressing Cas9 was constructed by transforming the Cas9 expression plasmid p414 (Addgene reference number: 43802) into CEN.PK111\u201327B by the lithium acetate transformation method. This strain was named TC-50 and used for all further manipulations. To construct a platform strain (PDC5::ARO4*-ARO10::ARO7*), TC-50 was transformed with individual five-part mixes (ARO4*, ARO7*; 4 picomoles of each individual part) for in vivo assembly and 1 \u03bcg of gRNA plasmid for targeting PDC5 and ARO10 by electroporation. The platform strain (PDC5::ARO4*-ARO10::ARO7*) was named TC-49. To test in vivo assembly and integration of carotene biosynthesis genes, strain TC-50 was used for electroporation-mediated transformation with appropriate individual five-part mixes (4 picomoles of each individual part) and with 0.5 \u03bcg (for single gRNA), and 1.5 \u03bcg (for triple gRNA) of gRNA plasmid for targeting appropriate sites. For no gRNA control, plasmid pTAJAK-96 was used. After transformation cells were plated on SC-TRP-LEU to select for cells carrying Cas9 and gRNA plasmids.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Strain Construction",
+            "type": "paragraph"
+        },
+        {
+            "text": "To evaluate the tyrosine production, CEN.PK113D-7D reference strain and PDC5::ARO4*-ARO10::ARO7* strains were transformed with a CEN/ARS plasmid pRS415 expressing a tyrosine ammonia-lyase (Jendresen et al., unpublished results) controlled by yeast TEF1 promoter (420 bp) and ADH1 terminator.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Strain Construction",
+            "type": "paragraph"
+        },
+        {
+            "text": "Strain Genotyping",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Strain Genotyping",
+            "type": "title"
+        },
+        {
+            "text": "For genotyping, a minimum of 12 colonies from each transformation were analyzed. As each expression cassette was too big to amplify using a single primer pair, we performed multiplex colony PCR with two primer pairs for each targeted locus. The multiplex PCR was used to verify (i) if transformants had the correctly assembled cassettes, and (ii) if it was integrated in the loci of interest (Figures b and b). The first pair\u2019s forward primer primes 50\u2013100 bp upstream of the upstream homology sequence and its reverse primer primes 50\u2013100 bp downstream Start codon of the gene of interest, spanning the homology sequence and promoter in the process. The second pair\u2019s forward primer primes 30\u201350 bp upstream of the gene\u2019s Stop codon and the reverse primer primes 50\u2013100 bp downstream of the downstream homology sequence, spanning the terminator and homology sequence. A correctly assembled gene expression cassette integrated at the correct locus would yield two bands, one 1.4\u20131.6 kb and the other 700\u2013800 bp depending on the sizes of the terminator and promoter used. If a gene is not assembled at the right locus, the innermost and outermost primers of the mix will amplify approximately 550 bp upstream and downstream of the PAM site in the locus, yielding a single PCR product approximately 1.1 kb on average.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Strain Genotyping",
+            "type": "paragraph"
+        },
+        {
+            "text": "Cells from each colony were lysed in Milli-Q water using the protocol and lysis volume recommended for Lyse and Go reagent (Thermo Fisher Scientific) (see also Table S5). Following lysis, the lysate was subjected to 40 cycles of colony PCR using the OneTaq Quick-Load 2\u00d7Master mix with standard buffer (New England Biolabs). The primer concentration for the downstream colony PCR, yielding the shorter product and in general the more efficient of the two PCR reactions was half of that of the upstream colony PCR (200 nM).",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Strain Genotyping",
+            "type": "paragraph"
+        },
+        {
+            "text": "HPLC",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "HPLC",
+            "type": "title"
+        },
+        {
+            "text": "Yeast strains were cultured in 0.5 mL of Feed-In-Time fed-batch medium (M2P Laboratories) in 96-well plate and shaken at 200 rpm, 30 \u00b0C for 72 h. Cells were centrifuged at 2000 g for 15 min, and 150 \u03bcL of supernatant was mixed with equal volume of absolute ethanol. p-Coumaric acid standards (0.1\u20131 mM) (Sigma-Aldrich) were prepared in ethanol (50%, v/v). Quantification of p-coumaric acid was performed on HPLC (Thermo) equipped with a Discovery HS F5 150 mm \u00d7 2.1 mm column (particle size 3 \u03bcm). Samples were analyzed using a gradient method with two solvents: 10 mM ammonium formate pH 3.0 (A) and acetonitrile (B) at 1.5 mL min \u20131. The program started with 5% of solvent B (0\u20130.5 min), after which its fraction was increased linearly from 5 to 60% (0.5\u20137.0 min) and held for 2.5 min (7.0\u20139.5 min). Then the fraction of solvent B was decreased back to 5% (9.5\u20139.6 min) and remained until the end (9.6\u201312 min). p-Coumaric acid was detected by absorbance at 277 nm and the peak (retention time 4.7 min) area was integrated and used for quantification by fitting with a standard curve. All strains were measured in 8 biological replicates (from 8 colonies) and technical duplicates.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "HPLC",
+            "type": "paragraph"
+        }
+    ],
+    "issue_pub_date": null,
+    "electron_pub_date": "11/20/2015",
+    "article_id": "10.1021/acssynbio.5b00007",
+    "internal_id": "c872920886",
+    "history": [
+        {
+            "event": "received",
+            "time": "01/15/2015"
+        },
+        {
+            "event": "asap",
+            "time": "03/26/2015"
+        },
+        {
+            "event": "issue-pub",
+            "time": "11/20/2015"
+        },
+        {
+            "event": "just-accepted",
+            "time": "03/17/2015"
+        }
+    ],
+    "type": "Research Article",
+    "article_title": "CasEMBLR: Cas9-Facilitated Multiloci Genomic Integration of in Vivo Assembled DNA Parts in Saccharomyces cerevisiae",
+    "suppl_files": [
+        {
+            "suppl_filename": "sb-2015-00007q_si_001.pdf",
+            "rpath": "sb5b00007/suppl/sb-2015-00007q_si_001.pdf",
+            "sequences": ">c872920886_sb-2015-00007q_si_001.pdf_0\nGACCCCATTCTTTGAAGGTACTTCTGACAATTCTGCTAACATCAAAAG\n>c872920886_sb-2015-00007q_si_001.pdf_1\nCCTTTTGATGTTAGCAGAATTGTCAGGAAGTACCTTCAAAGAATGG\n>c872920886_sb-2015-00007q_si_001.pdf_2\nCTGTGAGGATGTTCGCGTAATCCATTGTTTTATATTTGTTGTAAAAAGTAGATAA\n>c872920886_sb-2015-00007q_si_001.pdf_3\nTACTTTTTACAACAAATATAAAACAATGGATTACGCGAACATCCTC\n>c872920886_sb-2015-00007q_si_001.pdf_4\nTCCTTCCTTTTCGGTTAGAGCGGATTCACAGAGGGATATCGGCTAG\n>c872920886_sb-2015-00007q_si_001.pdf_5\nAAAGCTAGCCGATATCCCTCTGTGAATCCGCTCTAACCGAAAAGGA\n>c872920886_sb-2015-00007q_si_001.pdf_6\nGTCAACAGTACCCTTAGTATATTCTTTCTCAAGCAAGGTTTTCAGTATAAT\n>c872920886_sb-2015-00007q_si_001.pdf_7\nTTATACTGAAAACCTTGCTTGAGAAAGAATATACTAAGGGTACTGTTGACATTG\n>c872920886_sb-2015-00007q_si_001.pdf_8\nCGAACTGAAAAAGCGTGTTTTTTATTTTAAAAGCTTGACCGAGAGC\n>c872920886_sb-2015-00007q_si_001.pdf_9\nGATTGCTCTCGGTCAAGCTTTTAAAATAAAAAACACGCTTTTTCAGTTCG\n>c872920886_sb-2015-00007q_si_001.pdf_10\nTATCCTGATCTTGTTCTTTTCCCATTTTGTTTGTTTATGTGTGTTTATTCGA\n>c872920886_sb-2015-00007q_si_001.pdf_11\nGAATAAACACACATAAACAAACAAAATGGGAAAAGAACAAGATCAGG\n>c872920886_sb-2015-00007q_si_001.pdf_12\nAAATCATAAATCATAAGAAATTCGCTCAGAAAGCAAGAACACCAACG\n>c872920886_sb-2015-00007q_si_001.pdf_13\nATCCGTTGGTGTTCTTGCTTTCTGAGCGAATTTCTTATGATTTATGATTTTTATT\n>c872920886_sb-2015-00007q_si_001.pdf_14\nAAATCCTGATCCAAACCTTTTTACTCATGCCGGTAGAGGTGTG\n>c872920886_sb-2015-00007q_si_001.pdf_15\nTATTGACCACACCTCTACCGGCATGAGTAAAAAGGTTTGGATCAGGATTT\n>c872920886_sb-2015-00007q_si_001.pdf_16\nAACATTTTGAAGCTATGGTGTGTGCCAAGGACAATATTTGTGACTTATGT\n>c872920886_sb-2015-00007q_si_001.pdf_17\nACATAAGTCACAAATATTGTCCTTGGCACACACCATAGCTTCAAA\n>c872920886_sb-2015-00007q_si_001.pdf_18\nTCTGGTAATATGCGAGAGCCGTCATTTGTAATTAAAACTTAGATTAGATTGCTATG\n>c872920886_sb-2015-00007q_si_001.pdf_19\nAATCTAATCTAAGTTTTAATTACAAATGACGGCTCTCGCATATTA\n>c872920886_sb-2015-00007q_si_001.pdf_20\nTCCTTCCTTTTCGGTTAGAGCGGATTTACTGCCCTTCCCATCCGC\n>c872920886_sb-2015-00007q_si_001.pdf_21\nCATGAGCGGATGGGAAGGGCAGTAAATCCGCTCTAACCGAAAAGGA\n>c872920886_sb-2015-00007q_si_001.pdf_22\nTTCTTACCCAATTGTAGAGACTATCTTCTCAAGCAAGGTTTTCAGTATAAT\n>c872920886_sb-2015-00007q_si_001.pdf_23\nTTATACTGAAAACCTTGCTTGAGAAGATAGTCTCTACAATTGGGTAAGAA\n>c872920886_sb-2015-00007q_si_001.pdf_24\nTACCTAAACATCTATAACCTTCAAAAGTA\n>c872920886_sb-2015-00007q_si_001.pdf_25\nAACATTTTGAAGCTATGGTGTGTGCATTGGGTGCTACTATGGC\n>c872920886_sb-2015-00007q_si_001.pdf_26\nTTCAGCGGCCATAGTAGCACCCAATGCACACACCATAGCTTCAAA\n>c872920886_sb-2015-00007q_si_001.pdf_27\nCAGCGAACATTGGAGATTCACTCATTTGTAATTAAAACTTAGATTAGATTGCTATG\n>c872920886_sb-2015-00007q_si_001.pdf_28\nAATCTAATCTAAGTTTTAATTACAAATGAGTGAATCTCCAATGTTCG\n>c872920886_sb-2015-00007q_si_001.pdf_29\nAAATCATAAATCATAAGAAATTCGCCTATTTCTTGTTAACTTCTCTTCTTTGTCTG\n>c872920886_sb-2015-00007q_si_001.pdf_30\nAAGAAGAGAAGTTAACAAGAAATAGGCGAATTTCTTATGATTTATGATTTTTATT\n>c872920886_sb-2015-00007q_si_001.pdf_31\nTTCCATTGGTTTCACAGTCGGCGCTGAGCGACCTCATGCTATACCTG\n>c872920886_sb-2015-00007q_si_001.pdf_32\nTCTCAGGTATAGCATGAGGTCGCTCAGCGCCGACTGTGAAACC\n>c872920886_sb-2015-00007q_si_001.pdf_33\nCGAACTGAAAAAGCGTGTTTTTTATGTTGGTGAATTAAGCGCCTT\n>c872920886_sb-2015-00007q_si_001.pdf_34\nCGTTCAAGGCGCTTAATTCACCAACATAAAAAACACGCTTTTTCAGTTCG\n>c872920886_sb-2015-00007q_si_001.pdf_35\nCAGTTTCTGGTTTTGTGAAATCCATTTTGTTTGTTTATGTGTGTTTATTCGA\n>c872920886_sb-2015-00007q_si_001.pdf_36\nGAATAAACACACATAAACAAACAAAATGGATTTCACAAAACCAGAAAC\n>c872920886_sb-2015-00007q_si_001.pdf_37\nAGCGGGTATATACTTTCATATGTGATTACTCTTCCAACCTTCTTAGCAAG\n>c872920886_sb-2015-00007q_si_001.pdf_38\nCTTGCTAAGAAGGTTGGAAGAGTAATCACATATGAAAGTATATACCCGC\n>c872920886_sb-2015-00007q_si_001.pdf_39\nATTGGCTGTTTAATAACCACGTATGAAGAAAGTATAGCTCAACTATATTCCTT\n>c872920886_sb-2015-00007q_si_001.pdf_40\nGAATATAGTTGAGCTATACTTTCTTCATACGTGGTTATTAAACAGCCA\n>c872920886_sb-2015-00007q_si_001.pdf_41\nCGAACTGAAAAAGCGTGTTTTTTATGCGGGATTGCTCTCGGTC\n>c872920886_sb-2015-00007q_si_001.pdf_42\nAAAGCTTGACCGAGAGCAATCCCGCATAAAAAACACGCTTTTTCAGTTCG\n>c872920886_sb-2015-00007q_si_001.pdf_43\nTAGACGACCATCACACCACTGAAGACATGCCGGTAGAGGTGTG\n>c872920886_sb-2015-00007q_si_001.pdf_44\nTATTGACCACACCTCTACCGGCATGTCTTCAGTGGTGTGATGGTC\n>c872920886_sb-2015-00007q_si_001.pdf_45\nCGAACTGAAAAAGCGTGTTTTTTATTGACAATTCTGCTAACATCAAAAG\n>c872920886_sb-2015-00007q_si_001.pdf_46\nCCTTTTGATGTTAGCAGAATTGTCAATAAAAAACACGCTTTTTCAGTTCG\n>c872920886_sb-2015-00007q_si_001.pdf_47\nGTCAACAGTACCCTTAGTATATTCTCATGCCGGTAGAGGTGTG\n>c872920886_sb-2015-00007q_si_001.pdf_48\nTATTGACCACACCTCTACCGGCATGAGAATATACTAAGGGTACTGTTGACATTG\n>c872920886_sb-2015-00007q_si_001.pdf_49\nGACCCCATTCTTTGAAGGTACTTCTTTTAAAAGCTTGACCGAGAGC\n>c872920886_sb-2015-00007q_si_001.pdf_50\nGATTGCTCTCGGTCAAGCTTTTAAAGGAAGTACCTTCAAAGAATGG\n>c872920886_sb-2015-00007q_si_001.pdf_51\nAAATCCTGATCCAAACCTTTTTACTTTCTCAAGCAAGGTTTTCAGTATAAT\n>c872920886_sb-2015-00007q_si_001.pdf_52\nTTATACTGAAAACCTTGCTTGAGAAAGTAAAAAGGTTTGGATCAGGATTT\n>c872920886_sb-2015-00007q_si_001.pdf_53\nAGGGAACAAAAGCTGGAGCT\n>c872920886_sb-2015-00007q_si_001.pdf_54\nAGGGAACAAAAGCTGGAGCT\n>c872920886_sb-2015-00007q_si_001.pdf_55\nAGGGAACAAAAGCTGGAGCT\n>c872920886_sb-2015-00007q_si_001.pdf_56\nTAACTAATTACATGACTCGA\n>c872920886_sb-2015-00007q_si_001.pdf_57\nTAACTAATTACATGACTCGA\n>c872920886_sb-2015-00007q_si_001.pdf_58\nTAACTAATTACATGACTCGA\n>c872920886_sb-2015-00007q_si_001.pdf_59\nGAATGCGTGCGATCGCGTGCATTCCAGCTGCATTAATGAATCGG\n>c872920886_sb-2015-00007q_si_001.pdf_60\nTCTTAACCCAACTGCACAGAA\n>c872920886_sb-2015-00007q_si_001.pdf_61\nCTGGCGAGGTATTGGATAGTT\n>c872920886_sb-2015-00007q_si_001.pdf_62\nTCTTGGCCTCCTCTAGTACACTCT\n>c872920886_sb-2015-00007q_si_001.pdf_63\nAAGCAAAAAGAAAAAAGGAAAGC\n>c872920886_sb-2015-00007q_si_001.pdf_64\nCTGTAATGTAGTTCAGCCTTTGTTC\n>c872920886_sb-2015-00007q_si_001.pdf_65\nACCACGTTAATGGCTCCTT\n>c872920886_sb-2015-00007q_si_001.pdf_66\nAACACCCAAGATACGGTGG\n>c872920886_sb-2015-00007q_si_001.pdf_67\nTACCTATCAGTCAGTACGTCTCCAA\n>c872920886_sb-2015-00007q_si_001.pdf_68\nTTAAGATATAAACTGGGCTAGTTTG\n>c872920886_sb-2015-00007q_si_001.pdf_69\nTGATGCATTACCTTGTCATCTTCA\n>c872920886_sb-2015-00007q_si_001.pdf_70\nTTTTCTTTTTCTATTACTCTTGGCCT\n>c872920886_sb-2015-00007q_si_001.pdf_71\nGAAGAAACATGAAATTGCCCAG\n>c872920886_sb-2015-00007q_si_001.pdf_72\nGTCTTATTGTTCTTGATTTGTGCC\n>c872920886_sb-2015-00007q_si_001.pdf_73\nACTCTTGGCCTCCTCTAG\n>c872920886_sb-2015-00007q_si_001.pdf_74\nCCGTTCCTCCATCTCTTTTATAT\n>c872920886_sb-2015-00007q_si_001.pdf_75\nCACTTCAAATGGAACGCCAA\n>c872920886_sb-2015-00007q_si_001.pdf_76\nAGACGGTAATACTAGATGCTGA\n>c872920886_sb-2015-00007q_si_001.pdf_77\nTCTCGAGTTCAAGAGAAAAAAAAAG\n>c872920886_sb-2015-00007q_si_001.pdf_78\nTGCCAGGTATCGTTTGAACA\n>c872920886_sb-2015-00007q_si_001.pdf_79\nGACAGGACAGAAAAGTAATTACAAGA\n>c872920886_sb-2015-00007q_si_001.pdf_80\nATGACAAGAACTCTGTCGTC\n>c872920886_sb-2015-00007q_si_001.pdf_81\nGCTGCTGTCAGACAAAGAA\n>c872920886_sb-2015-00007q_si_001.pdf_82\nGATGTCAAGGCTGAAACTAAGAAG\n>c872920886_sb-2015-00007q_si_001.pdf_83\nCATATAAGTTGGGTTTGACTCATCAA\n>c872920886_sb-2015-00007q_si_001.pdf_84\nGGATGGTTTGCCTCATAAACT\n>c872920886_sb-2015-00007q_si_001.pdf_85\nTTATACCTATCACTAAGGAAGTTGA\n>c872920886_sb-2015-00007q_si_001.pdf_86\nTCGGTATGTAATAGGTTAGTGG\n>c872920886_sb-2015-00007q_si_001.pdf_87\nGAGTAAACTCGAGTGGAATTGC\n>c872920886_sb-2015-00007q_si_001.pdf_88\nTGGAAGCGATCCTGAAAAAG\n>c872920886_sb-2015-00007q_si_001.pdf_89\nCCACGATGATAGCTGTGG\n>c872920886_sb-2015-00007q_si_001.pdf_90\nGGTATACCTTTTGGTGTTGTTG\n>c872920886_sb-2015-00007q_si_001.pdf_91\nAGCGGTAAATAGGTAGATAATGG\n>c872920886_sb-2015-00007q_si_001.pdf_92\nGAAAGTCTTGAGTGTGGTCA\n>c872920886_sb-2015-00007q_si_001.pdf_93\nCAGCTGGCGTAATAGCGAAG\n>c872920886_sb-2015-00007q_si_001.pdf_94\nAATTGTAGAGACTATCCACA\n>c872920886_sb-2015-00007q_si_001.pdf_95\nTGCAAGGGCTCCCTATCTAC\n>c872920886_sb-2015-00007q_si_001.pdf_96\nGAGGCCCTAGGGGCCGTGCG\n>c872920886_sb-2015-00007q_si_001.pdf_97\nATCACACCACTGAAGACTGC\n>c872920886_sb-2015-00007q_si_001.pdf_98\nTTTCACAGTCGGCGCTCTAT\n>c872920886_sb-2015-00007q_si_001.pdf_99\nTTAATAACCACGTATGGCGT\n"
+        },
+        {
+            "suppl_filename": "sb-2015-00007q_si_002.pdf",
+            "rpath": "sb5b00007/suppl/sb-2015-00007q_si_002.pdf",
+            "sequences": null
+        }
+    ]
+}

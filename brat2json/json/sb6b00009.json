@@ -1,0 +1,635 @@
+{
+    "pub_num": "sb6b00009",
+    "is_research": true,
+    "keywords": [
+        "molecular computing",
+        "DNA strand displacement",
+        "machine learning",
+        "gradient descent",
+        "adaptive algorithms"
+    ],
+    "abstract": [
+        "The development of engineered biochemical circuits that exhibit adaptive behavior is a key goal of synthetic biology and molecular computing. Such circuits could be used for long-term monitoring and control of biochemical systems, for instance, to prevent disease or to enable the development of artificial life. In this article, we present a framework for developing adaptive molecular circuits using buffered DNA strand displacement networks, which extend existing DNA strand displacement circuit architectures to enable straightforward storage and modification of behavioral parameters. As a proof of concept, we use this framework to design and simulate a DNA circuit for supervised learning of a class of linear functions by stochastic gradient descent. This work highlights the potential of buffered DNA strand displacement as a powerful circuit architecture for implementing adaptive molecular systems."
+    ],
+    "body": [
+        {
+            "text": "Nucleic acid-based molecular computing systems are tools for information processing on the nanoscale. In these systems, computations on molecular input signals are performed by engineered reactions in a dynamic nucleic acid circuit. Such circuits can interface directly with biological and chemical systems at the molecular level, offering promising applications such as the development of autonomous \u201csmart\u201d therapeutics that could sense, diagnose, and treat disease within individual cells without external intervention. This article proposes a molecular circuit design framework capable of adaptive behavior, such as implementing machine learning algorithms, which could have practical applications in long-term autonomous monitoring and control of biological or chemical systems.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "DNA strand displacement has been proposed as an approach to molecular computing that enables sophisticated computations to be carried out by circuits that are built in a uniform, principled manner by composing computational units. DNA strand displacement reactions proceed by nucleic acid hybridization according to the rules of Watson\u2013Crick complementarity, which makes it relatively straightforward to predict their behavior using thermodynamic and kinetic models. It has been shown that DNA strand displacement reaction networks are universal in the sense that they can faithfully emulate the dynamics of any abstract chemical reaction network. Hence, strand displacement networks provide a platform for realizing distributed algorithms, represented as abstract chemical reaction networks, in wet chemistry via a formal compilation process. A number of different schemes to achieve this encoding have been published in recent years.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "A basic strand displacement reaction involves a single-stranded invader and a multistranded gate complex that consists of a template strand that is complementary to the invader and an incumbent strand bound to the template. The incumbent strand is complementary to the template but shorter, so there is a short single-stranded overhang on one end of the template strand, referred to as a toehold. The toehold is of critical importance because it provides a nucleation point for the interaction between the gate and the invader by holding the invader in proximity to the gate and in the correct orientation for the subsequent reaction to proceed. Toeholds are typically 5\u20138 nucleotides in length, so the binding of the invader to the toehold is a reversible process. (Strand displacement reaction rates are particularly sensitive to toehold length.) Once the invader is bound to the toehold, the sequence commonality between the invader and incumbent strands allows the invader to compete to bind to the template strand. This happens due to the breathing of the base pair at the end of the incumbent\u2013template duplex, which gives the invader strand a chance to replace the briefly opened bond with an invader\u2013template bond. This is known as branch migration because the boundary between the incumbent\u2013template duplex and the invader\u2013template duplex migrates back and forth in a random walk process. When the branch migration reaches the far end of the template strand and the final base pair of the incumbent\u2013template duplex is replaced by an invader\u2013template base pair, the strand displacement reaction is complete. As the resulting invader\u2013template duplex contains no single-stranded toehold, the displaced incumbent strand cannot rebind and, hence, the strand displacement reaction is typically modeled as an irreversible process. Furthermore, there is a thermodynamic bias toward completion of the displacement reaction because the resulting invader\u2013template duplex is a lower-energy structure than the initial incumbent\u2013invader duplex since more base pairs are formed.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Toehold exchange is a generalization of the basic strand displacement process in which the gate contains a secondary toehold that is initially sequestered in the incumbent\u2013template duplex and is not directly displaced by the invader strand. This means that the incumbent strand must spontaneously unbind when the branch migration process is complete. This secondary toehold provides a pathway for a displaced incumbent strand to rebind to the gate and displace the original invader, thereby providing a means to implement reversible strand displacement reactions. Crucially, a displaced incumbent strand that is the \u201coutput\u201d from one gate may diffuse and bind to another gate elsewhere in the system, thereby serving as its \u201cinput\u201d. For this to take place, it suffices that the nucleotide sequences of the strands should match correctly. Thus, we can straightforwardly connect strand displacement gates into circuits by a judicious choice of nucleotide sequences.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "The foregoing principles of DNA strand displacement can be used to create computational gates that accept multiple inputs and produce multiple outputs, and they can be used to connect these gates into networks that perform nontrivial information processing tasks. Previous experimental work has produced strand displacement cascades that mimic the behavior of digital logic circuits and catalytic cycles. A distributed consensus algorithm initially specified as an abstract chemical reaction network was also recently implemented using DNA strand displacement, and antibody-conjugated DNA strand displacement cascades have been used to analyze cell surface markers expressed by individual blood cells.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Those results demonstrate the unique capabilities of DNA strand displacement as a programmable chemical framework. However, all published experimental DNA strand displacement systems have the drawback that they are \u201cone shot\u201d computational devices: an experimental system is prepared and is perturbed by the introduction of input strands, and the reactions within the circuit compute the corresponding output as the system evolves toward equilibrium. Once equilibrium is reached and the circuit output has been read out, typically as a fluorescent signal, that collection of molecules cannot be used to carry out another computation and must be discarded. Thus, these molecular computing systems cannot be used in contexts where the circuit must remain operational to process multiple presentations of the input signal(s) over an extended period of time. In particular, this drawback precludes the implementation of adaptive molecular algorithms that can modify their behavior over time in response to time-dependent input signals. For example, a previous experimental implementation of artificial neural networks using DNA strand displacement required the network to be trained in silico, and each prepared instance of the experimental system could be used only once.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Implementing adaptive molecular information processing systems is a key challenge for the fields of molecular computing and synthetic biology because such systems are ubiquitous in nature. Adaptive capabilities are critical to enable cells (or synthetic protocells) to respond appropriately to changing environmental conditions and maintain internal homeostasis. Processes such as bacterial chemotaxis are regulated in an adaptive manner by simple desensitization of chemical sensors, and associative learning has been demonstrated in paramecia and sea slugs. Previous theoretical work has shown that synthetic gene networks are capable of associative learning. It has even been shown that Arabidopsis plants carry out simple arithmetic division operations to enable adaptive management of their photosynthetic starch reserves in the face of variable reserves and variable hours of darkness. Developing engineered molecular circuits that exhibit adaptive behaviors could enable molecular computing solutions for practical applications that rely on processing inputs over extended periods of time, such as long-term health monitoring and adaptive support of failing cellular regulatory networks, detection of emerging pathogens whose signatures mutate over time, and in situ measurement of cellular processes over extended periods of time to answer basic science questions. Adaptive molecular computing networks could also serve as control systems for artificial life systems engineered using biomolecules. Hence, there are both practical and basic science motivations for the development of adaptive molecular computing systems.",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "In this article, we present a DNA circuit architecture that is generally applicable to the implementation of adaptive algorithms using buffered DNA strand displacement gates. Briefly, a buffered DNA strand displacement gate is one where the gates are initially present in an inactive form and must be activated by a precursor input strand. This extension enables the inactive gates to be present in excess and called up as required to carry out computation. By designing the circuit so that availability of these activating strands can be controlled by another gate, we can implement buffered gate networks with feedback loops that adjust future circuit behavior in response to past stimuli. As a proof of concept, we provide an example circuit that uses buffered strand displacement gates to implement supervised learning of a class of linear functions using stochastic gradient descent, which is a well-known and well-studied machine learning algorithm. We use computational simulations to demonstrate that the DNA circuit correctly implements this learning algorithm and to characterize its learning performance for a range of initial conditions and learning targets as well as in the presence of noise in the inputs. Thus, this article offers a route to an experimental realization of adaptive molecular computing systems using DNA strand displacement. (A preliminary version of this article appeared in the DNA21 conference.)",
+            "normalized_section_header": [],
+            "section_header": null,
+            "type": "paragraph"
+        },
+        {
+            "text": "Results",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Results",
+            "type": "title"
+        },
+        {
+            "text": "Buffered DNA Strand Displacement Gates",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "title"
+        },
+        {
+            "text": "In this section, we present the framework of buffered strand displacement gates that we will use below to implement adaptive algorithms.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "The basic concept of buffered strand displacement gates was introduced by Cardelli. The key idea is that buffered gates that encode a given abstract chemical reaction, say X \u2192 Y, are initially present not in an \u201cactive\u201d configuration that can immediately accept the input X but rather in an \u201cinactive\u201d configuration that requires an initial step to activate a subset of the inactive gates so that they can accept the input X. We call this pool of \u201cinactive\u201d gates the buffer and refer to the strand that initiates the activation reaction (also referred to as the \u201cunbuffering\u201d reaction) as an unbuffering strand. The unbuffering reaction is typically made into an irreversible process by the addition of a sink gate that irreversibly consumes the strand displaced by the unbuffering strand. As a matter of notation, we will write for a buffered reaction gate that emulates the abstract chemical reaction R\u0305 \u2192 P\u0305 and whose unbuffering reaction is controlled by the unbuffering strand B. We will use the \u2300 symbol to denote an empty list of reactants or products.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "The advantage of using buffered strand displacement gates is that, because the inactive gates in the buffer do not interact directly with the input strands, the buffer can contain an excess of inactive gates without affecting the kinetics of the reactions that actually consume the strands representing abstract reactants and produce the strands representing abstract products. The kinetics of the emulated reactions are governed (in part) by the quantity of active gates, that is, by the amount of the unbuffering strand that is initially added. Buffered strand displacement gates are also typically designed so that, in addition to producing product strands, an additional copy of the corresponding unbuffering strand is also released into solution. This means that the population of active gates remains approximately constant over time, so the emulated reaction kinetics remain constant even as the population of gates in the buffer is consumed. This property was used in previous theoretical work to show that buffered strand displacement gates can be used to implement a three-phase DNA oscillator system with more robust long-term kinetics than the corresponding unbuffered circuit. Furthermore, the buffer can be replenished periodically without causing a corresponding shift in the emulated reaction kinetics, and if waste products are also removed to prevent them from accumulating, then the buffered reaction scheme can allow long-running strand displacement computations to be carried out without the additional complication and expense of an open microfluidic system to continuously provide active gates to the system.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "As a concrete example of a buffered strand displacement gate, Figure presents a buffered gate that uses the reactant strand X to catalyze production of the product strand Y under the control of unbuffering strand B. This example, and indeed the remainder of this article, uses the \u201cfour-domain\u201d encoding of abstract chemical reactions developed by Soloveichik as a basis for developing a buffered strand displacement scheme. In four-domain encoding, each abstract species X is represented by three domains Xa ^, Xb, and Xc ^ arranged from 5\u2032 to 3\u2032 in a single strand of the form \u27e8 h Xa^ Xb Xc^ \u27e9, written here in the syntax of the DSD language. Briefly, in the DSD language, domains are identified as toeholds using the circumflex symbol and strands are written as a sequence of domains enclosed in angle brackets. The domain h at the 5\u2032 end of the strand is called the \u201chistory domain\u201d because it simply records which gate generated that particular strand and plays no role in downstream reactions. Thus, the total \u201cpopulation\u201d of strands representing abstract species X is the sum of the populations of strand of the form \u27e8 h Xa^ Xb Xc^ \u27e9 for all history domains h. We may write \u201c?\u201d for a \u201chistory domain\u201d whose identity is irrelevant for the purposes of the reaction under discussion. We note, however, that while the identity of the history domain in a given strand is irrelevant to downstream reactions it is the case that history domains for product species must be distinct for each product-producing gate, to avoid crosstalk.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "Example of a buffered four-domain DNA strand displacement gate, implementing buffered reaction. (a) The first reaction is the unbuffering reaction, in which an unbuffering strand B binds to a buffered gate and reversibly produces an active input gate. The binding toehold for the X reactant strand is exposed in the active input gate. (b) To make the unbuffering reaction effectively irreversible, an additional sink gate for the strand released by the unbuffering reaction is provided (this gate is not required in standard four-domain chemical reaction network encodings). (c) Reactant strand X can bind to an active input gate via the Xa ^ toehold, irreversibly displacing an intermediate strand. (d) The released intermediate strand binds to the output gate and releases all of the products in a single-strand displacement reaction. Here, in addition to product strands X and Y, an additional output, B, is generated, which is a new copy of the unbuffering strand for this gate. Thus, a new gate will be activated from the buffer to replace the gate that was consumed to execute this reaction.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "Finally, we note that, although here we use the four-domain reaction encoding scheme the basic idea of buffered strand displacement is not tied to any particular reaction encoding scheme and buffered gates could, in principle, be used with any available encoding. Indeed, our previous work on buffered oscillators used the three-domain encoding developed by Cardelli.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Buffered DNA Strand Displacement Gates",
+            "type": "paragraph"
+        },
+        {
+            "text": "A Buffered Architecture for Adaptive Strand Displacement Networks",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "A Buffered Architecture for Adaptive Strand Displacement Networks",
+            "type": "title"
+        },
+        {
+            "text": "In this section, we demonstrate how buffered strand displacement gates can be used to implement adaptive molecular circuits using the simple example of a signal amplifier motif whose gain can be dynamically adjusted. This circuit design motif will be a critical component of the proof-of-principle learning circuit design that we will present below.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Buffered Architecture for Adaptive Strand Displacement Networks",
+            "type": "paragraph"
+        },
+        {
+            "text": "The key property of buffered gate systems is that the kinetics of gate reactions are controlled by the size of the activated gate population, which is directly related to the quantity of unbuffering strands introduced into the system. Releasing fresh unbuffering strands into solution to replace those that were used to activate a gate that has been consumed in the execution of a reaction produces stable, long-term kinetics, as mentioned above. However, here we do not necessarily want reaction kinetics to stay constant over time; rather, dynamically altering reaction kinetics is a powerful and convenient way to implement adaptive systems. In a buffered strand displacement system, we can dynamically increase the rate of a buffered reaction by releasing additional free copies of the corresponding unbuffering strand into the system. (This is a simpler approach to control reaction kinetics than engineering toehold binding energies or developing remote toehold systems.) Since the unbuffering strands and the strands that encode abstract reaction species have the same domain-level structure, as shown in Figure, a given buffered gate may release additional unbuffering strands for other buffered gate populations as part of its output. Thus, one buffered gate can adjust the number of active gates of a second kind, thereby controlling the rate of the second buffered gate\u2019s reaction.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Buffered Architecture for Adaptive Strand Displacement Networks",
+            "type": "paragraph"
+        },
+        {
+            "text": "An Adaptive, Buffered Amplifier",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "title"
+        },
+        {
+            "text": "As a concrete example of this approach to implementing adaptive molecular circuits, we now illustrate the use of buffered strand displacement gates to implement an adaptive amplifier whose gain can be dynamically adjusted. Previous work on DNA strand displacement-based amplifiers has relied on hard-coding the gain of the amplifiers in the initial species concentrations and provides no consideration to reusability or autonomously adjusting the gain of the amplifier. The circuit design motif introduced here will demonstrate a buffered strand displacement system whose result can be controlled by adjusting the provision of unbuffering strands and will also be a key component of our learning circuit design.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "paragraph"
+        },
+        {
+            "text": "Our design for a reusable, adaptive, buffered strand displacement-based amplifier consists of two buffered strand displacement gates: 1 2 The first gate is a \u201ccatalyst\u201d gate that accepts input species x as its reactant and produces another copy of x and a copy of output species y, i.e., x effectively catalyzes production of y. The second gate is a \u201cdegradation\u201d gate that removes input strand x from the system by consuming it without releasing any output species (except for a new activating strand B \u2032). A graphical shorthand for this circuit design element is presented in Figure a.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "paragraph"
+        },
+        {
+            "text": "Buffered amplifier design and ODE simulation data. (a) The buffered amplifier consists of two buffered reactions: a catalytic reaction that generates the output and a degradation reaction that removes the input from the system. The ratio of the concentrations of active gates from the two buffers corresponds to the gain of the amplifier. (b) Data from an ODE simulation of the buffered amplifier with multiple sequential input additions and dynamic control of amplifier gain. The initial concentration of B \u2032 was 100 nM, and the initial concentration of B was 200 nM, which sets the gain, w, to be 2.0. Addition of x input species (1 nM) at t = 100 s causes the amplifier to generate output species y at a concentration of 2 nM, as expected. At t = 600 s, an additional 300 nM of unbuffering strand B was added, increasing the amplifier\u2019s gain (w) by 3.0. Then, subsequent addition of x (1 nM) at t = 700 s produced a further 5 nM of output species y, showing that the gain had indeed been increased to 5.0, as expected. (Note that the plotted value of w is not a concentration but rather a ratio of concentrations, but the value follows the left axis.)",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "paragraph"
+        },
+        {
+            "text": "This gate design uses competition to achieve amplification of the input signal by the desired gain factor, as the ratio between the effective rates of the first and second gates controls the number of output molecules y that each input molecule x can produce before it is irreversibly consumed; therefore, this ratio controls the gain of the amplifier. Thus, in our buffered amplifier design, the ratio of the concentrations of the active catalyst and degradation gates, which is also the ratio of the concentrations of the corresponding unbuffering strands, controls the gain of the amplifier. We shall use the notation [ z ] 0 for the initial concentration of species z and [ z ] ss for the steady-state concentration of species z (when a steady state exists). Then, it is easy to show that 3 [ y ] ss = [ B ] 0 [ B \u2032 ] 0 \u00d7 [ x ] 0 We typically let and refer to w as the gain or weight of the amplifier.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "paragraph"
+        },
+        {
+            "text": "To illustrate the dynamic gain control capability of this buffered amplifier motif, we carried out ordinary differential equation (ODE) simulations of the two buffered reactions shown above. We used buffered four-domain strand displacement gates, as shown in Figure, to implement this circuit motif and simulated it using the beta version of the DSD compiler that includes support for mixing events. The results from this simulation are presented in Figure b and show that the amplifier produces correct results for several gain settings and that the gain of the amplifier can be dynamically adjusted by directly adding more unbuffering strands before adding input strands to trigger more amplification reactions.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "An Adaptive, Buffered Amplifier",
+            "type": "paragraph"
+        },
+        {
+            "text": "A Strand Displacement Learning Circuit",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "title"
+        },
+        {
+            "text": "In this section, we will present a buffered strand displacement system that can learn linear functions f of the form 4 f (x 1, x 2) = w 1 \u00d7 x 1 + w 2 \u00d7 x 2 where w 1 and w 2 are real-valued coefficients and x 1 and x 2 are real-valued inputs.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "In this article, we restrict ourselves to the two-input case for clarity, although the circuit design that we will present could be extended to process additional inputs. In particular, a bias term could be included by incorporating an additional input signal x 0 that is always supplied with the input value x 0 = \u22121 in each training round, as is common in studies of artificial neural networks. We will present a strand displacement system that learns functions of this form using a stochastic gradient descent algorithm. Gradient descent is a general solution for many optimization tasks, in which the current weight approximations are adjusted to minimize the squared error over the entire training set in each training round. Stochastic gradient descent is a simplification of gradient descent that considers only a single training instance in each training round, making it more amenable to implementation in a molecular computing system.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "A molecular computing system that solves this problem must accept input values x 1 and x 2, compute the predicted output based on the current stored weight approximations and, compare y with the supplied expected value d = w 1 \u00d7 x 1 + w 2 \u00d7 x 2, and update the stored weight approximations according to the gradient descent weight update rule 5 w i \u0302 \u2254 w i \u0302 + \u03b1 \u00d7 (d \u2212 y) \u00d7 x i where \u03b1 is a (usually small) positive coefficient called the \u201clearning rate\u201d, which controls the size of weight updates. This process can be visualized as a flowchart, as shown in Figure.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Flowchart illustrating the basic operations carried out by our learning system.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "We now present a strand displacement system that implements this learning algorithm using buffered DNA strand displacement gates. Our design can be divided into two subcircuits, as follows.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "A Strand Displacement Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Predictor Subcircuit",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "title"
+        },
+        {
+            "text": "The predictor subcircuit comprises steps (2)\u2013(4) from the flowchart in Figure and is based on the adaptive, buffered amplifier motif presented above. The input signals, and all other numeric signals, are represented in a dual rail format using a differential encoding, that is, input signal x i is actually represented by two species, x i + and x i \u2013, and the value of x i is interpreted as the concentration difference [ x i + ] \u2013 [ x i \u2013 ]. This encoding of numerical signals was used to enable the representation of both positive and negative signal values while avoiding the need to insert an annihilator gate to cancel out the species that represent the positive and negative components of each signal in the system. Using annihilator gates is the standard approach to this issue; however, as we elaborate in the Discussion, that approach can cause problems with sequestration of the signal species by the annihilator gate, which complicates analysis of circuit results. Therefore, here we accept the simultaneous presence of both positive and negative components of each signal and simply use the differential encoding to recover the true represented value of the signals.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The predictor subcircuit design is presented in Figure; the motif presented therein is replicated once for each input x i. Here, and henceforth, we will omit the identities of buffer species from figures if their identity is not important when describing the operation of the circuit. The species highlighted in gray (x i +, x i \u2013, d +, and d \u2013) are provided by the user to initiate each training round; their concentrations represent input value x i and expected result d that the user must derive using the target weight values. (If d = 0, then we must add equal concentrations of d + and d \u2013. Any non-zero concentration is acceptable, as these species must be present to drive the execution of the predictor subcircuit.)",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Design schematic for the predictor subcircuit. The concentrations of input species x i + and x i \u2013 (for each input signal x i) are copied by buffered fork gates to produce species that serve as inputs to the buffered amplifier motifs that implement that linear function prediction and additional species (k i 1 \u00b1, k i 2 \u00b1) that will be used in the feedback subcircuit. The gains of these amplifiers store the current weight approximations. The amplifiers produce species y + and y \u2013, such that [ y + ] \u2013 [ y \u2013 ] equals the predicted output value. These species then interact with the d + and d \u2013 species, which encode the expected output value, via four buffered reactions that implement subtraction. When the predictor subcircuit reaches steady state, the concentration difference [ d + ] \u2013 [ d \u2013 ] should equal d \u2013 y, i.e., the error in the prediction when compared with the expected output value.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Each positive input signal x i + is \u201ccopied\u201d by a buffered fork gate that accepts the input signal and generates four output signals, each of which will have the same overall concentration as the original at steady state. Two of these outputs, x i 1 + and x i 2 +, are for use by the predictor subcircuit, and the remaining two, k i 1 + and k i 2 +, are for use by the feedback subcircuit (as detailed below). Each negative input signal x i \u2013 is copied similarly.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The key parts of the predictor subcircuit are the buffered strand displacement amplifier motifs. The initial gains of the predictor subcircuit amplifiers encode the initial approximation of each weight value stored in the system (step (1) from Figure). There is one pair of amplifiers per positive input signal and one pair per negative input signal. In each of these pairs, the gain of one amplifier represents the positive component of the corresponding weight approximation, and the gain of the other amplifier represents the negative component. Thus, the positive component of each input is multiplied by both the positive and negative components of the corresponding weight and similarly for the negative component. The action of the amplifiers in the predictor subcircuit is to convert the x i 1 \u00b1 and x i 2 \u00b1 input species into output species y + and y \u2013, which represent positive and negative components of the current prediction at this stage in circuit execution. The concentration of the output species that is generated in each case is the corresponding input concentration multiplied by the corresponding stored weight approximation, and the amplifier gates are wired to their outputs such that the sign of the output species is correct with respect to the signs of the input component and the weight component in each case.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "To complete the execution of the predictor subcircuit, the y + and y \u2013 species, whose concentrations represent the current prediction, interact with the d + and d \u2013 species. The initial concentrations [ d + ] 0 and [ d \u2013 ] 0 of the d + and d \u2013 species represent the value of the expected output from the target function when presented with the input values that were provided in the training instance. In the final part of the predictor subcircuit, the y +, y \u2013, d +, and d \u2013 species interact via the four buffered reactions shown in the box on the right-hand side of Figure. These reactions have the collective effect of subtracting the value of y from the value of d and storing the resulting value in the d signal, i.e., in the steady-state concentration difference [ d + ] ss \u2013 [ d \u2013 ] ss. We implement this operation via four two-input, two-output reactions, in which the d \u00b1 species catalyze conversion of the y \u00b1 species to d \u00b1, with signs chosen such that the resulting concentrations of d \u00b1 represent the result of a subtraction. We choose to implement subtraction in this way, rather than using annihilator gates that degrade the positive and negative variants of the species, to avoid sequestration of the remaining species by the annihilator gates, which has been problematic in other work. For this reason, it is crucial that the y \u00b1 species must be the first input strands consumed by these reaction gates, and to ensure correct operation of the subtraction reactions, it is necessary for the result of the subtraction to be stored using the d \u00b1 species. This is because the additional d \u00b1 species generated by conversion of the y \u00b1 species produced by the amplifiers may themselves be needed to catalyze conversion of additional y \u00b1 species.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Thus, when the predictor subcircuit reactions reach steady state, the concentration difference [ d + ] ss \u2013 [ d \u2013 ] ss represents the value of d \u2013 y that must be computed according to the algorithm summarized in Figure. (Recall that the initial concentration difference [ d + ] 0 \u2013 [ d \u2013 ] 0 stored the value of d, but it was updated by the subtraction operation of the predictor subcircuit so that [ d + ] ss \u2013 [ d \u2013 ] ss stores the value of d \u2013 y at steady state.) If the value of d \u2013 y is positive, i.e., if [ d + ] ss > [ d \u2013 ] ss, then the predicted output value was too small. Conversely, if the value of d \u2013 y is negative, i.e., if [ d + ] ss < [ d \u2013 ] ss, then the predicted output was too large. The overall goal of the learning process is to adjust the stored weight approximations to match the target weight approximations so that [ d + ] ss = [ d \u2013 ] ss when the predictor subcircuit reactions reach steady state.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Predictor Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Feedback Subcircuit",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "title"
+        },
+        {
+            "text": "Once the predictor subcircuit has computed the discrepancy between the predicted function output and the expected output, the feedback subcircuit must use the value of this discrepancy to update the weight approximations stored in the predictor subcircuit, according to the gradient descent learning rule. This corresponds to step (5) from Figure. A design schematic for our feedback subcircuit is presented in Figure.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Design schematic for the feedback subcircuit. (a) Graphical shorthand for a multiamplifier motif that enables one input concentration [ x ] to be multiplied by another concentration [ k ] and a scalar scaling factor \u03b2. (b, c) Design schematic for the feedback subcircuit. Here, scaling factor \u03b2 = \u03b1 \u00d7 \u03b4, where \u03b1 is the learning rate constant and \u03b4 is the denominator of the weight ratios in the predictor subcircuit. The feedback circuitry from (b) is activated when d + is left over from the predictor subcircuit, and the feedback circuitry from (c) is activated when d \u2013 is left over from the predictor subcircuit.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The first point to note from the gradient descent learning rule is that the feedback subcircuit must take the concentration of d \u00b1 that denotes the discrepancy from the predictor subcircuit and, for each input, multiply the discrepancy value by the corresponding input value, both of which are concentrations, and by the learning rate constant \u03b1. A single buffered amplifier can multiply an input concentration only by a gain factor encoded as a ratio of concentrations. To enable two input concentrations to be multiplied together, we have developed a two-concentration multiplier circuit motif, shown in Figure a. In this motif, we assume that no unbuffering strands are initially present for the uppermost amplifier, which will accept input signal x and produce the output species. Input signal k activates an amplifier that produces the unbuffering strand for the catalyst gate from the output-producing amplifier, with gain \u03b2. An additional input signal, whose value is constant 1, activates an amplifier that produces the unbuffering strand for the degradation gate from the output-producing amplifier, with gain 1. Thus, these secondary amplifiers preset the gain of the output-producing amplifier to be \u03b2 \u00d7 [ k ], and upon addition of input signal x, the resulting concentration of both output species (y and z) will be \u03b2 \u00d7 [ x ] \u00d7 [ k ], as desired. We include two outputs because this variation of the two-concentration multiplier is called for in the feedback subcircuit of our two-input learning circuit design.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The feedback subcircuit uses the two-concentration multiplier circuit motif extensively to produce a molecular implementation of the gradient descent weight update rule. Figure b,c presents the feedback subcircuit design for the two-input case. Execution of the feedback subcircuit is initialized by buffered fork gates that copy the d \u00b1 species into four species d a \u00b1, d b \u00b1, d c \u00b1, and d d \u00b1. We assume that there are initially no unbuffering strands for these fork gates, and once the predictor subcircuit has run to completion, the addition of these unbuffering strands triggers execution of the feedback subcircuit.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "For each combination of signs for the leftover d \u00b1 species and the copied input species k ij \u00b1 from the predictor subcircuit, the copied d \u00b1 species and the copied k ij \u00b1 species serve as inputs to an instance of the two-concentration multiplier circuit motif. As described above, this circuit motif multiplies these values together (and by a scaling factor \u03b2 = \u03b1 \u00d7 \u03b4, where \u03b1 is the learning rate constant and \u03b4 is the denominator of the weight ratios in the predictor subcircuit) and generates additional unbuffering strands for certain amplifier gates from the predictor subcircuit. From the two-input predictor subcircuit design from Figure, we see that additional unbuffering strands B ia + and B ib + must be generated to increase weight approximation and that additional unbuffering strands B ia \u2013 and B ib \u2013 must be generated to decrease weight approximation. These pairs of species must be generated together so that the pairs of amplifiers from the predictor subcircuit that are initialized with the same weight approximation are updated together. Finally, we note that the Supporting Information contains a model of our learning circuit expressed in the DSD molecular programming language which formally defines the structure of our molecular learning circuit design.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Feedback Subcircuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Results from Simulations of the Learning Circuit",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "title"
+        },
+        {
+            "text": "In this section, we present the results from simulations in which we investigated the learning capabilities and performance of the learning circuit design presented above. We used buffered four-domain strand displacement gates, as shown in Figure, to translate our circuit design into a concrete DNA strand displacement system, and we refer the reader to the Methods section for details of how our simulation models were constructed and of how the simulations were executed. Briefly, the learning circuit reactions were compiled using Visual DSD and simulated using MATLAB in such a way that \u201cmixing events\u201d could be defined and carried out at certain time points during the simulation. These mixing events simulate the addition of inputs to the system, or the removal of species, by the experimenter at those time points.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The initial state of the learning circuit consists of the various buffered gates and their unbuffering strands (with the exceptions of the unbuffering strands for the fork gates and output-generating amplifiers in the feedback subcircuit, as these are added to initiate the feedback computation, as described below). We used an initial buffer size of 1 \u00d7 10 7 nM. The initial weight approximations are encoded as the gain settings of the amplifiers in the predictor subcircuit. After the gates have unbuffered (we wait 500 s for this to take place), the first training inputs are added, which consist of the x i \u00b1 and d \u00b1 species, whose concentrations encode the input values and the expected function output, respectively. At the same time, we also add the constant-valued signals that serve as an input to help prime the feedback subcircuit so that the output-generating amplifiers from the feedback subcircuit will be primed with the correct gain values before it starts executing. After a further 2000 s, when the predictor subcircuit has completed its execution, we add unbuffering strands for the fork gates from the feedback subcircuit, which triggers execution of the feedback subcircuit. After a further 3500 s, when the feedback subcircuit has finished updating the weight approximations stored in the predictor subcircuit, we set the concentrations of any remaining unbuffered (active) fork gates and output-generating gates in the feedback subcircuit to zero, to reset the state of the feedback subcircuit. We also add the second set of training inputs at this time and iterate until the entire specified sequence of training instances has been presented.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "We began by investigating the learning performance of the learning circuit for a series of randomly chosen initial and target weight values and randomly chosen training instances. We ran a total of 1000 simulations, with initial and target weight values and input values selected from a uniform random distribution over the interval [\u221210, 10] and with a fixed learning rate value \u03b1 = 0.01. Each simulation used a 15-round training schedule, with each training input also selected from a uniform random distribution over the interval [\u221210, 10]. For our two-input learning circuit, the weight space can be visualized in a two-dimensional Cartesian coordinate space, along with the trajectory of how the weights evolve, from their initial values (labeled \u201cStart\u201d) toward the true values (labeled \u201cTarget\u201d) over the training period. Figure presents some representative traces that show the evolution of the weight approximations from their starting values toward the target values over the course of their 15-round training schedules. In each plot, the weight trajectory from an ODE simulation of the DNA learning circuit design (red) is overlaid with a trajectory computed using a reference implementation of the learning algorithm from Figure, using the gradient descent learning rule with the same initial state and the same training schedule. The close agreements between the weight trajectories for the DNA circuit and the reference implementation shown in Figure are representative of the good agreement between the DNA system and the reference implementation observed in all cases. Furthermore, the weight trajectories correctly home in on the target weight values. These results give us confidence not only that the DNA circuit is capable of learning but also that it is a correct implementation of the stochastic gradient descent learning procedure.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Example weight traces from DNA learning circuit simulations (red solid lines), overlaid with corresponding traces from our reference implementation (black broken lines). Each training schedule was 15 rounds in length. Initial and target weights were drawn from a uniform distribution over [\u221210, 10], as were the input values for each training instance. These traces are representative of the other simulations that we performed, indicating that the DNA circuit functions as intended.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "We investigated the aggregate learning performance of the system by computing the root-mean-square error (RMSE) of the stored weight approximations with respect to the target weight values at each step of the training schedule for each of the 1000 training simulations. These RMSE values, averaged over the 1000 training simulations, and their standard deviations are plotted in Figure. Again, in this \u201clearning curve\u201d, the results from the DNA circuit simulations and the reference implementation are overlaid precisely, indicating that the DNA circuit behaves as specified by the algorithm. The average RMSE values tend toward zero, which shows that the stored weight approximations in the system tend to improve (that is, more closely approximate the target weight values) with the presentation of additional training instances. Furthermore, the RMSE in the weight approximations is almost zero after the 15 training rounds, which shows that the system is capable of learning the target weights well. This also suggests that an experimental implementation of this system could be trained to a reasonable degree of accuracy in a limited time frame.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Learning curves from DNA learning circuit simulations (red) and from our reference implementation (black). The average RMSE in the weight approximations was computed after each training round for 1000 training schedules, each 15 rounds in length. Initial and target weights were drawn from a uniform distribution over [\u221210, 10], as were the input values for each training instance. The error bars are 1 standard deviation above and below the mean. The data from the DNA circuit and reference implementation coincide well, indicating that our DNA circuit design functions as intended.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "The learning curve gives a good measure of aggregate learning performance; however, it may obscure any biases in the learning procedure that make it more challenging for the system to learn target weights in particular areas of the weight space or to adjust the stored weight approximations in particular directions through the weight space. To test our learning circuit design for any such biases, we ran a series of additional simulations in which the initial weight values were fixed and the system was trained to learn a number of target weight values evenly distributed across the weight space. This procedure was repeated for a range of initial weight values distributed throughout the weight space to build up a picture of the performance of the learning circuit across the weight space. Target weight values were chosen from the interval [\u221210, 10] at regular intervals of 1 unit, and initial weight values were chosen on the diagonals of the weight space. Results from weight space scanning simulations for several initial weight values are presented in Figure. Similar results for additional initial weight values are presented in the Supporting Information, along with plots that illustrate the weight RMSE values across the weight space at different points in the training schedule, which show how the learning proceeds over time. The results from Figure and the Supporting Information show that the final RMSE values are low throughout the weight space. Furthermore, the final RMSE values are independent of the starting weight values. This indicates that the system can learn different weight values without inherent bias. The occurrence of isolated points with higher RMSE may be attributed to buffer exhaustion, which is discussed further below.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Scatter plots showing the distribution of learning performance across a range of target weight values for several different initial weight values. The position of each marker represents a pair of weight values in the two-dimensional weight space, and each marker is color-coded to represent the final RMSE in the weight approximations when attempting to learn those weight values from the weight values marked \u201cStart\u201d. In each case, the average RMSE in the weight approximations was computed after a 15-round training schedule using input values for each training instance drawn from a uniform distribution over [\u221210, 10]. We observe a low and uniform distribution of final RMSE values, indicating that the system can learn a range of different weight values without inherent bias.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Results from Simulations of the Learning Circuit",
+            "type": "paragraph"
+        },
+        {
+            "text": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "normalized_header": [
+                "result"
+            ],
+            "section_header": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "type": "title"
+        },
+        {
+            "text": "There are numerous potential sources of error in experimental implementations of molecular computing systems. One of the most prominent is inaccuracies in species concentrations due to pipetting error. To study the effect of such inaccuracies on the performance of the learning circuit, we ran additional simulations in which the species concentrations added in the mixing events that corresponded to training instances, that is, the values of x 1, x 2, and d were each perturbed by a (different) noise term, drawn from a normal distribution with mean 0 and standard deviation \u03c3. For a range of values of \u03c3, we ran 1000 simulations using the same collection of initial and target weights and the same 15-round sequences of training instances as those used in Figure.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "type": "paragraph"
+        },
+        {
+            "text": "The results from these simulations are summarized in Figure, which plots the final weight RMSE values after 15-round training intervals (averaged over all 1000 simulations in each case) against the standard deviation \u03c3 of the noise distribution. The values for \u03c3 = 0 are the same as the final point (after 15 training rounds) from Figure. We observe that the final average values of the RMSE in the stored weight approximations increases with increasing amounts of noise, that is, with increasing values of \u03c3. This is to be expected; however, on the lower end of the noise spectrum (say, with \u03c3 \u2264 2), we still observe good learning performance. This suggests that the learning circuit could perform reasonably well in the face of moderate amounts of input noise, which is an important property for future experimental realizations of our learning circuit design. The high standard deviation of the final weight RMSE values, as reported by the error bars in Figure, shows that with high amounts of noise the end results of training are highly variable. Again, this is to be expected, as with large amounts of noise the signal being presented by the trainer is obscured and becomes lost in the noise.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "type": "paragraph"
+        },
+        {
+            "text": "Learning performance in the face of increasing noise in the training inputs. The average RMSE in the weight approximations was computed after completing 1000 training schedules, each 15 rounds in length. The same initial and target weights and training instances were used as those in Figure. The error bars are 1 standard deviation above and below the mean. The data indicate that our learning circuit design can learn even in the face of moderate amounts of input noise.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "type": "paragraph"
+        },
+        {
+            "text": "To summarize, these results illustrate that our learning circuit design can still function tolerably well in the face of noise in the training input values. We refer the reader to the Supporting Information for additional results from these simulations in the form of histograms showing the distributions of final weight RMSE values for different values of \u03c3.",
+            "normalized_section_header": [
+                "result"
+            ],
+            "section_header": "Investigating the Effect of Noise on Learning Circuit Operation",
+            "type": "paragraph"
+        },
+        {
+            "text": "Discussion",
+            "normalized_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "title"
+        },
+        {
+            "text": "We have presented buffered DNA strand displacement reactions as a framework for the implementation of adaptive molecular computing systems and used this framework to implement a strand displacement circuit to learn a class of linear functions using the well-studied stochastic gradient descent learning algorithm. We demonstrated, via in silico simulations, that this circuit correctly implements the desired learning algorithm and can learn target weight values in a reasonable time frame. Furthermore, we showed that there is no overall bias for learning different target weight values and that the circuit can function in the face of certain amounts of noise in the training inputs. These findings demonstrate that our molecular learning circuit design has the potential to be realized in a practical, experimental implementation, and we reserve such experimental implementations for future work.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "The study of learning in (synthetic) molecular systems is a relatively new endeavor; hence, the list of related work is not extensive. Our own prior theoretical work in this area has demonstrated that a biochemical system assuming hypothetical DNAzyme-like reactions can learn a class of linear functions. The learning system presented in the current article surpasses this previous work by allowing negative weight values and input values and also alleviates problems with our previous approach that caused poor performance when trying to learn weight values near zero. This is because the stochastic gradient descent learning procedure used in this work, which is well-known and has been extensively studied, is symmetric in the positive and negative weight update directions. Furthermore, it is well-known that the learning rate parameter (\u03b1) can have a significant effect on the rate of convergence of the learning process, and the fact that our learning circuit is founded on the well-studied gradient descent scheme means that we can predict the effects of modification to our learning scheme, such as the use of procedures for reducing the learning rate over time to achieve reliable convergence.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Learning behavior has also been studied in high-level artificial chemistries, which have been shown capable of learning to implement Boolean functions, perceptron-like classification tasks, analog functions, and temporal tasks. Other groups have also studied associative learning in the context of simulated transcriptional networks and evolutionary computational experiments on chemical reaction networks. Associative learning is a learning scheme by which simultaneous triggering of inputs strengthens the connection between those inputs, and in this way, the system learns that they are associated. This is a different form of learning from that studied in this article, and it would be interesting to consider whether a strand displacement-based approach similar to ours could be adapted to implement an associative learning circuit. Another form of learning that may be well-suited to compact implementations in molecular systems is \u201cwinner-takes-all\u201d, in which multiple agents compete for a shared catalytic resource and those that do not succeed in this competition are eliminated from the system. Designs for winner-takes-all systems have been proposed in in vitro transcriptional networks and strand displacement systems.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "From a circuit design perspective, our amplifier design draws on previous work on DNA strand displacement-based amplifiers and is inspired in particular by the strand displacement classifier circuit introduced by Zhang and Seelig. Our contribution is to extend this idea to buffered strand displacement systems that can be reused to classify multiple input signals and to link it to a feedback subcircuit so that learning can take place. Our approach to implementing the amplifier circuit motif is also related to the \u201cideal gain blocks\u201d developed by Oishi and Klavins, with the main difference being that our approach produces a quiescent final state, whereas their approach produces a steady state in which production and degradation of the output species balance. Thus, our approach prevents the supply of input species being constantly drained, as in Oishi and Klavins. However, our approach does require some care to be taken when composing the output from an amplifier circuit motif with downstream circuit elements, as we outline below. Nevertheless, the adaptive strand displacement amplifier motif that we have developed is of practical interest in its own right, and we anticipate that implementing this component in the laboratory will be an important direction for future research.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Our work is also related to previous work on DNA-based feedback and control systems and on (nontrainable) artificial neural networks implemented using DNA strand displacement. Finally, although we have assumed components and reactions based on DNA strand displacement in our circuit design, it is worth pointing out that learning behavior could, in principle, be realized in synthetic biomolecular systems based on different chemical frameworks, such as DNAzyme circuits, DNAzyme\u2013strand displacement hybrids, ex vivo transcriptional circuits, and protein-based molecular computing systems.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "When designing our learning circuit, we took care to avoid the issue of input sequestration, which can be problematic in DNA strand displacement systems. In all published compilation schemes for abstract chemical reactions into DNA strand displacement reactions, such as that proposed by Soloveichik and used here to create the DNA model of our learning circuit, reactions with more than one abstract reactant are implemented by multistep processes in which one reactant strand binds to a strand displacement gate and reveals a secondary toehold that enables a second reactant strand to bind, and so on. The reactant strands typically bind via reversible toehold exchange reactions so that the reactants cannot be consumed irreversibly until all required reactants have been consumed by the gate. However, reactants are still temporarily consumed. For example, for a two-input reaction gate, if the first input is present but the second input is not, then a fraction of the first input population will always be temporarily bound to, or sequestered by, the gate. The original version of Soloveichik\u2019s compilation scheme dealt with this issue by adding additional reaction gates to compensate by sequestering all other species similarly, thereby slowing the whole system. Other work has dealt with input sequestration by artificially increasing the values of certain input signals.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Our desire to avoid such considerations led to the design of the \u201csubtractor\u201d circuit motif shown in Figure, which avoids sequestration of the d \u00b1 species by using it as the second input to each fork gate. If the d \u00b1 species were the first input, then the resulting d \u00b1 produced by these gates would be sequestered. This solution, while somewhat elegant, has the property that the absolute values of the positive and negative components of the weight approximations and other signals processed by the system grow monotonically over the course of a multiround training session. This can drain other species out of the system by increasing the amount of fuel species that must be used to process subsequent input signals. This problem could be ameliorated by the inclusion of a single annihilator gate in the feedback subcircuit that takes d + and d \u2013 as inputs but produces no output, which could reduce the absolute sizes of these signals. This annihilator gate would need to compete only with the rest of the feedback subcircuit to drain some of the excess d \u00b1 signals form the system. By employing just a single annihilator gate at a specific part of the circuit, this approach would strike a balance between our approach (with no annihilator gates at all, which leads to monotonically increasing concentrations of the species representing dual rail signal components) and the standard approach to dual rail signal representation in molecular circuits (with annihilator gates added for every dual rail signal, which increases gate counts and introduces more competition for every signal strand). Thus, we would hope to ameliorate the problem causes by monotonically increasing species concentrations without introducing too much additional competition into the system, which could compromise the accuracy of the steady-state results obtained from our circuit. We will explore this alternative and its effects on the performance and accuracy of the learning circuit in future work.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Our use of buffered gates to implement adaptive strand displacement circuits allows us to implement systems whose operation can be extended by the periodical replenishment of buffered gate species before they are completely depleted, without adversely affecting the kinetics of the system. This was demonstrated in previous work on the design of oscillator networks using buffered strand displacement reactions. The ability to resupply a circuit with additional input reagents is an important consideration for the implementation of molecular learning circuits, which would typically need to be active for an extended period of time. In particular, in an in vivo application of a molecular circuit it may not be possible to provide a continuous stream of new reagents and periodical replenishment, e.g., via a daily dose of some therapeutic containing the reagents, may be the only option. In our simulations, we found that the size of the buffer, that is, the initial quantity of unbuffered gates waiting to be activated, did not affect the accuracy of the computation performed by the learning circuit. It did, however, govern the number of training rounds that could be conducted before the buffer was completely exhausted, at which point the computation ceased to function correctly. The Supporting Information contains additional results showing that, if the training schedule is extended without a concomitant increase in the initial quantity of buffered gates, we observe the weight RMSE values decreasing as training proceeds correctly, but after a point (typically around 15 training rounds for the buffer size that we used in our simulations), the weight RMSE values begin to increase again as the training is effectively \u201cundone\u201d by continuing to supply the circuit with new training instances that it cannot process correctly. As shown in the Supporting Information, periodically replenishing the supply of inactive buffered gates in the system can counteract this effect and extend the useful life of the learning circuit.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "The learning circuit design presented in this article uses the stochastic gradient descent weight update rule in conjunction with a linear transfer function, which allows the circuit to learn linear classification functions. However, this design could, in principle, be used to learn other functional forms by simply replacing the predictor subcircuit so that it computes the desired function of the provided training inputs. A major challenge is to implement nonlinear transfer functions such as the Heaviside (step) function, which is used in classical expositions of perceptron learning. Previous experimental work on artificial neural network implementations in DNA strand displacement networks implemented a traditional neural network using a Heaviside transfer function by using an extended toehold on a \u201csink\u201d gate that serves as a threshold for the input species and by supplying an amount of fuel for signal amplification equal to the expected output level. This provides a physical limit on the level to which input signals could be amplified. However, this approach is not compatible with a reusable circuit for multiround training because after the first round of training an unknown quantity of that fuel may remain, making it difficult to restore the system to a state such that it will process the second round of training inputs correctly. To solve this problem, it may be necessary to resort to alternative schemes based on continual production and degradation of species, as occurs in transcriptional circuits, because in this context network motifs such as negative autoregulation can be used to limit amplified output signals to a particular level.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Finally, it is well-known that, even for perceptron-like classifiers using nonlinear transfer functions, a single unit is capable of learning only linearly separable classification functions. To build molecular systems that can learn arbitrary functions, it would be necessary to connect a number of such units into networks. In this context, the network would need to be trained as a whole using backpropagation, which could be achieved by cascading several of the circuit motifs described here to produce the output and also cascading the feedback signals to implement the training. The development of such networks would go a long way toward realizing the potential of molecular computing for implementing nanoscale systems capable of highly sophisticated information processing on a par with that achieved by naturally occurring biological systems.",
+            "normalized_section_header": [
+                "discussion"
+            ],
+            "section_header": "Discussion",
+            "type": "paragraph"
+        },
+        {
+            "text": "Methods",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Methods",
+            "type": "title"
+        },
+        {
+            "text": "Construction of Chemical Reaction Models for Learning Circuit Simulations",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Construction of Chemical Reaction Models for Learning Circuit Simulations",
+            "type": "title"
+        },
+        {
+            "text": "We used the four-domain strand displacement encoding of abstract chemical reactions from Soloveichik to encode our learning circuit design as a buffered DNA strand displacement network. This circuit design was programmed in the DSD domain-specific programming language for DNA strand displacement systems. The reader is referred to the Supporting Information for the DSD source code listing. This code was compiled using the DSD compiler with the \u201cInfinite\u201d reaction semantics selected to produce the corresponding chemical reaction network model.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Construction of Chemical Reaction Models for Learning Circuit Simulations",
+            "type": "paragraph"
+        },
+        {
+            "text": "The initial state of the two-input system consists of 278 species, of which the majority (222) are gate complexes. It is worth noting, however, that many of these species are variants with different combinations of history domains, so the design complexity of the circuit is not as high as that suggested by the raw species counts. Furthermore, the number of species should scale linearly with the number of input signals, so the circuit design presented here could be replicated to learn similar functions of more than two inputs.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Construction of Chemical Reaction Models for Learning Circuit Simulations",
+            "type": "paragraph"
+        },
+        {
+            "text": "Execution of Learning Circuit Simulations",
+            "normalized_header": [
+                "method"
+            ],
+            "section_header": "Execution of Learning Circuit Simulations",
+            "type": "title"
+        },
+        {
+            "text": "The compiled DSD model was exported as a MATLAB code file that implements an ODE model of the chemical reaction network. We simulated the ODE model of the learning circuit using a custom MATLAB simulation routine that invokes a stiff ODE solver and that also allows mixing events to be executed at certain time points during the simulation. These mixing events simulate the addition of inputs to the system or the removal of species by the experimenter at certain time points.",
+            "normalized_section_header": [
+                "method"
+            ],
+            "section_header": "Execution of Learning Circuit Simulations",
+            "type": "paragraph"
+        }
+    ],
+    "issue_pub_date": "08/19/2016",
+    "electron_pub_date": "04/25/2016",
+    "article_id": "10.1021/acssynbio.6b00009",
+    "internal_id": "c344770637",
+    "history": [
+        {
+            "event": "received",
+            "time": "01/12/2016"
+        },
+        {
+            "event": "asap",
+            "time": "05/11/2016"
+        },
+        {
+            "event": "just-accepted",
+            "time": "04/25/2016"
+        }
+    ],
+    "type": "Research Article",
+    "article_title": "Supervised Learning in Adaptive DNA Strand Displacement Networks",
+    "suppl_files": [
+        {
+            "suppl_filename": "sb-2016-000095_si_001.pdf",
+            "rpath": "sb6b00009/suppl/sb-2016-000095_si_001.pdf",
+            "sequences": null
+        }
+    ]
+}
