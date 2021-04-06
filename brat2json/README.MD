@@ -9,7 +9,7 @@ The brat2json converter needs the following 4 directories:
 
 A few sample files are provided in each directory.
 
-<br>
+
 
 **Note that it is assumed that the text in the txt files is the exact same as the text in ACS json files.**
 
