@@ -1,4 +1,4 @@
-The brat2json convert needs the following 4 directories:
+The brat2json converter needs the following 4 directories:
 
 <ol>
 <li>txt -> Stores ACS txt files on which the NER annotations are made</li>
@@ -7,7 +7,11 @@ The brat2json convert needs the following 4 directories:
 <li>json_out -> Output directory for storing JSON formatted ACS data with NER annotations</li>
 </ol>
 
-Note that it is assumed that the text in the txt files is the exact same as the text in ACS json files.
+A few sample files are provided in each directory.
+
+<br>
+
+**Note that it is assumed that the text in the txt files is the exact same as the text in ACS json files.**
 
 
 
