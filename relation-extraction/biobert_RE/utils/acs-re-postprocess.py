@@ -6,7 +6,7 @@ from os.path import join, abspath, isdir
 
 from tqdm import tqdm
 
-def process_raw_output(row, threshold=0, label_name=("UpRegulator", "DownRegulator", "CPR-5", "CPR-6", "Substrate", "false")):
+def process_raw_output(row, threshold=0, label_name=("UpRegulator", "DownRegulator", "Substrate", "false")):
     relation = label_name[int(row[2])]
     confidence = float(row[3])
     if confidence < threshold:
@@ -48,7 +48,7 @@ def process_file(res_path, ann_path):
 
 if __name__ == "__main__":
 
-    dataset_dir = abspath("../datasets/acs")
+    dataset_dir = abspath("../datasets/acs-20210331-gold")
 
     opts, args = getopt.getopt(sys.argv[1:], "", [
         "dataset_dir="

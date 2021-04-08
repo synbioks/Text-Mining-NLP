@@ -32,11 +32,11 @@ def preprocess_article(tokenizer, txt_path, ann_path, output_path):
     with open(txt_path, "r", encoding="utf8") as fin:
         txt_raw = fin.readlines()
 
-    # the text file should have one and only one line
-    assert(len(txt_raw) == 1)
+    txt_raw = [x.strip() for x in txt_raw]
+    txt_raw = " ".join(txt_raw)
 
     # use spacy to separate the sentences
-    sent_spans = tokenizer(txt_raw[0]).sents
+    sent_spans = tokenizer(txt_raw).sents
 
     # readin the ann file
     entities = []
@@ -99,7 +99,7 @@ def preprocess_article(tokenizer, txt_path, ann_path, output_path):
 
 if __name__ == "__main__":
 
-    dataset_dir = abspath("../datasets/acs")
+    dataset_dir = abspath("../datasets/acs-20210331-gold")
     
     opts, args = getopt.getopt(sys.argv[1:], "", [
         "dataset_dir="
