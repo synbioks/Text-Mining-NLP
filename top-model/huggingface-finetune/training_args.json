@@ -1,0 +1,1 @@
+{"output_dir": "model_output", "num_train_epochs": 5, "train_batch_size": 32, "seed": 42, "evaluation_strategy": "epoch"}

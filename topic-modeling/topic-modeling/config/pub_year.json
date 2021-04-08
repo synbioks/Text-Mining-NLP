@@ -1,0 +1,4 @@
+{
+    "input_path": "data/json-files",
+    "output_path": "data/saved_results/json/pub_year.json"
+}
