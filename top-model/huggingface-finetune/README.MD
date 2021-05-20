@@ -30,6 +30,13 @@ model_utils.py -> Contains helper functions used by models.py.
 data_utils.py -> Helper functions for data preprocessing/loading.
 <br>
 <br>
+models_test.py -> consists of pytorch models for fully connected layers and a generic BertTopModelE2E. 
+<br>
+run_baseline.py -> Softmax. 
+<br>
+run_end2end.py -> End to end. 
+<br>
+<br>
 ### Jupyter Notebooks:
 <br>
 The same code can be run using the notebook selective_fine_tune.ipynb.
