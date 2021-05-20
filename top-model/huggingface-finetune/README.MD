@@ -36,6 +36,7 @@ run_baseline.py -> Softmax.
 <br>
 run_end2end.py -> End to end. 
 <br>
+run_test.py -> Similar to run_ner.py.
 <br>
 ### Jupyter Notebooks:
 <br>
