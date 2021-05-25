@@ -8,9 +8,9 @@ Architecture: NER Top Model Training setups (D)
 
 # Important parameters: 
 LOWER_CASE = False
-LOAD_BEST_MODEL = True
+LOAD_BEST_MODEL = True # Set to True for EarlyStopping to work
 MAX_LEN = 256
-EPOCH_END2END = 100
+EPOCH_END2END = 200
 BATCH_SIZE = 32
 
 # All file paths have to be absolute paths #
@@ -53,6 +53,8 @@ from utils_ner import NerDataset, Split
 
 def random_seed_set(seed_value):
 
+    """ Set seeds to reproduce results. """
+    
     os.environ['PYTHONHASHSEED']=str(seed_value)
     random.seed(seed_value)
     np.random.seed(seed_value)
@@ -116,7 +118,7 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     tokenizer = BertTokenizer.from_pretrained(
         model_args['model_name_or_path'],
         cache_dir=model_args['cache_dir'],
-        do_lower_case = LOWER_CASE
+        do_lower_case = LOWER_CASE # do not lower case
     )
     
     return data_args, model_args, config, tokenizer
@@ -142,7 +144,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'num_train_epochs' : EPOCH_END2END,
         'train_batch_size': BATCH_SIZE,
         "evaluation_strategy": "epoch",
-        "load_best_model_at_end": LOAD_BEST_MODEL
+        "load_best_model_at_end": LOAD_BEST_MODEL # Set to True
     }
     
     #### Create Trainer
@@ -161,7 +163,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       args=training_args,
       train_dataset=train_dataset,
       eval_dataset=eval_dataset, 
-      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
+      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)] # patience & tolenrance to be configured.
     )
 
     trainOutput = trainer.train()
@@ -219,7 +221,7 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
     
 def main():
     
-    # If args.dataset == True, set random seed.
+    # We currently do not set seeds. 
     if args.set_seed == "Yes":
         print("note that random seed is set to -------> ", args.seed_value)
         random_seed_set(int(args.seed_value))

@@ -8,7 +8,7 @@ Architecture: NER Top Model Training setups (C)
 
 # Important parameters: 
 LOWER_CASE = False
-LOAD_BEST_MODEL = True
+LOAD_BEST_MODEL = True # Set to True for EarlyStopping to work
 MAX_LEN = 256
 EPOCH_END2END = 100
 BATCH_SIZE = 32
@@ -53,6 +53,8 @@ from utils_ner import NerDataset, Split
 
 def random_seed_set(seed_value):
 
+    """ Set seeds to reproduce results. """
+    
     os.environ['PYTHONHASHSEED']=str(seed_value)
     random.seed(seed_value)
     np.random.seed(seed_value)
@@ -116,7 +118,7 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     tokenizer = BertTokenizer.from_pretrained(
         model_args['model_name_or_path'],
         cache_dir=model_args['cache_dir'],
-        do_lower_case = LOWER_CASE
+        do_lower_case = LOWER_CASE # Do not lower case
     )
     
     return data_args, model_args, config, tokenizer
@@ -142,7 +144,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'num_train_epochs' : EPOCH_END2END,
         'train_batch_size': BATCH_SIZE,
         "evaluation_strategy": "epoch",
-        "load_best_model_at_end": LOAD_BEST_MODEL
+        "load_best_model_at_end": LOAD_BEST_MODEL # set to True
     }
     
     # Create Trainer
@@ -161,7 +163,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       args=training_args,
       train_dataset=train_dataset,
       eval_dataset=eval_dataset,
-      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
+      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)] # patience & tolenrance
     )
 
     trainOutput = trainer.train()
