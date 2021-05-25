@@ -4,6 +4,9 @@
 """
 Architecture: NER Top Model Training setups (B) 
               Train top model first, then fine tune BioBERT+top models. Top models: 3layer-CRF, 3layer-Softmax
+              
+EarlyStopping: True
+             
 """
 
 # Important parameters: 
