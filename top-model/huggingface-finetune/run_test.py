@@ -11,7 +11,7 @@ EarlyStopping: True
 
 # Important parameters: 
 LOWER_CASE = False
-LOAD_BEST_MODEL = True
+LOAD_BEST_MODEL = True # Set to True for EarlyStopping to work. 
 MAX_LEN = 256
 BATCH_SIZE = 32
 EPOCH_TOP = 100
@@ -125,15 +125,12 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     tokenizer = BertTokenizer.from_pretrained(
         model_args['model_name_or_path'],
         cache_dir=model_args['cache_dir'],
-        do_lower_case = LOWER_CASE
+        do_lower_case = LOWER_CASE # do not lower case. 
     )
     
     return data_args, model_args, config, tokenizer
 
 def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map):
-    top_model = {"hidden_units_list": [500, 250, 125], 
-                 "activations_list": ["none", "none", "none", "none"]
-                }
 
     # First freeze bert weights and train
     model = BertTopModelE2E.from_pretrained(
@@ -166,7 +163,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       args=training_args,
       train_dataset=train_dataset,
       eval_dataset=eval_dataset,
-      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
+      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)] # patience & tolenrance
     )
     
     # Start training
@@ -177,6 +174,9 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     # Reading from file
     data = json.loads(open(OUTPUT_DIR+'config.json', "r").read())
     top_model_path = data['_name_or_path']
+    checkpoint = top_model_path.split("/")[-1]
+    print("checkpoint is at ... ", checkpoint)
+    print("top_model_path is at ...", top_model_path)
        
     # Config #
     config = BertConfig.from_pretrained(
@@ -215,7 +215,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     model.to('cuda')
     
     # Set to train mode.
-    model.train()
+    model.train(checkpoint)
     
     # Initialize our Trainer
     trainer = Trainer(

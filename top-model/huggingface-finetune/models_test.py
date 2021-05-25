@@ -1,8 +1,13 @@
+"""
+Similar to models.py. 
+
+"""
+
 import torch.nn as nn
 from transformers import BertPreTrainedModel, BertModel
-
 from model_utils_test import activations_mapper, get_token_classifier_output
-            
+  
+# different activation functions can be used. see model_utils_test.py
 top_model = {"hidden_units_list": [500, 250, 125], 
              "activations_list": ["relu", "relu", "relu", "relu"]
             }
@@ -93,3 +98,4 @@ class BertTopModelE2E(BertPreTrainedModel):
         logits = self.classifier(sequence_output)
         
         return get_token_classifier_output(self, logits, labels, attention_mask, return_dict, outputs)
+    
