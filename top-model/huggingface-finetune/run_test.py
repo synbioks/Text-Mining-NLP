@@ -4,14 +4,11 @@
 """
 Architecture: NER Top Model Training setups (B) 
               Train top model first, then fine tune BioBERT+top models. Top models: 3layer-CRF, 3layer-Softmax
-              
-EarlyStopping: True
-             
 """
 
 # Important parameters: 
 LOWER_CASE = False
-LOAD_BEST_MODEL = True # Set to True for EarlyStopping to work. 
+LOAD_BEST_MODEL = True
 MAX_LEN = 256
 BATCH_SIZE = 32
 EPOCH_TOP = 100
@@ -125,7 +122,7 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     tokenizer = BertTokenizer.from_pretrained(
         model_args['model_name_or_path'],
         cache_dir=model_args['cache_dir'],
-        do_lower_case = LOWER_CASE # do not lower case. 
+        do_lower_case = LOWER_CASE
     )
     
     return data_args, model_args, config, tokenizer
@@ -162,22 +159,28 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       model=model,
       args=training_args,
       train_dataset=train_dataset,
-      eval_dataset=eval_dataset,
-      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)] # patience & tolenrance
+      eval_dataset=eval_dataset
+      callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
     )
     
     # Start training
     trainOutput = trainer.train() 
     trainer.save_model(OUTPUT_DIR)
     
+    # use the last checkpints
+#     num_steps = trainOutput.global_step # 17880
+#     checkpoint = f"checkpoint-{num_steps}"
+#     top_model_path = f"{training_args_dict['output_dir']}/{checkpoint}" 
+
     # Now reload the model from best model we have found
     # Reading from file
+    print("The file is loaded from ---------------------------> ", OUTPUT_DIR+'config.json')
     data = json.loads(open(OUTPUT_DIR+'config.json', "r").read())
     top_model_path = data['_name_or_path']
     checkpoint = top_model_path.split("/")[-1]
     print("checkpoint is at ... ", checkpoint)
     print("top_model_path is at ...", top_model_path)
-       
+        
     # Config #
     config = BertConfig.from_pretrained(
         top_model_path,
@@ -215,7 +218,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     model.to('cuda')
     
     # Set to train mode.
-    model.train(checkpoint)
+    model.train()
     
     # Initialize our Trainer
     trainer = Trainer(
@@ -225,9 +228,11 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       eval_dataset=eval_dataset,
       callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
     )
-    
-    trainer.train()    
+
+    # checkpiont is here.
+    trainer.train(checkpoint)    
     return trainer, model
+
 
 def get_predictions(trainer, model, test_dataset, label_map):
     # last layer output/activation has the shape of (batch_size, seq_len,num_of_labels)

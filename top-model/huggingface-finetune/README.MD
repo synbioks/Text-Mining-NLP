@@ -29,7 +29,6 @@ model_utils.py -> Contains helper functions used by models.py.
 <br>
 data_utils.py -> Helper functions for data preprocessing/loading.
 <br>
-<br>
 models_test.py -> consists of pytorch models for fully connected layers and a generic BertTopModelE2E. 
 <br>
 run_baseline.py -> Softmax. 
