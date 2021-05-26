@@ -159,7 +159,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
       model=model,
       args=training_args,
       train_dataset=train_dataset,
-      eval_dataset=eval_dataset
+      eval_dataset=eval_dataset,
       callbacks = [EarlyStoppingCallback(early_stopping_patience = 3)]
     )
     
