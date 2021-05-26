@@ -20,8 +20,8 @@ DATA_PATH = WORKING_DIR + "NER_data/"
 CACHE_DIR = WORKING_DIR + "NER_out_test"
 
 # Where model checkpoints are stored. 
-OUTPUT_DIR = WORKING_DIR + "NER_src/model_output_test/"
-TRAIN_ARGS_FILE = WORKING_DIR + "NER_src/train_args_test.json"
+OUTPUT_DIR = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/model_output_test/"
+TRAIN_ARGS_FILE = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/train_args_test.json"
 
 
 import os
