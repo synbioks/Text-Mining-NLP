@@ -22,6 +22,7 @@ def create_data_words(json_files, path2entity, q):
     for k in json_files.keys():
         article_sq.append(k)
         data_words.append(clean.NERCleanText(k, json_files[k], path2entity))
+        #data_words.append(clean.NonNerCleanText(json_files[k]))
 
     if q > 0:
         corpus = [' '.join(d) for d in data_words]
@@ -30,7 +31,7 @@ def create_data_words(json_files, path2entity, q):
         pipe = Pipeline([('count', CountVectorizer(vocabulary=vocabulary)),('tfid', TfidfTransformer())]).fit(corpus)
         ser = pd.Series(index = vocabulary, data = pipe['tfid'].idf_)
 
-        # create stop words list 
+        # create stop words list
         stops = ser[ser<ser.quantile(q)].sort_values().index.tolist()
 
         #update data_words 
