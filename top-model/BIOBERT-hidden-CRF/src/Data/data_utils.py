@@ -37,11 +37,10 @@ for dataset in DATASETs:
     X_train = np.load(os.path.join(embd, "X_train.npy")) 
     y_train = np.load(os.path.join(embd, "y_train.npy"))
 
-    # cast the generator to a list
-    X_train_chunk = list(chunks(X_train, CHUNK_SIZE))
-    y_train_chunk = list(chunks(y_train, CHUNK_SIZE))
+    X_train_gen = chunks(X_train, CHUNK_SIZE)
+    y_train_gen = chunks(y_train, CHUNK_SIZE)
 
-    for i,j in zip(X_train_chunk, y_train_chunk):
+    for i,j in zip(X_train_gen, y_train_gen):
         count += 1
         with open(SAVE_PATH+'Train/'+dataset+'_{}.npy'.format(count), 'wb') as f:
             np.save(f, i)
