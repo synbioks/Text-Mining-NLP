@@ -167,11 +167,6 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     trainOutput = trainer.train() 
     trainer.save_model(OUTPUT_DIR)
     
-    # use the last checkpints
-#     num_steps = trainOutput.global_step # 17880
-#     checkpoint = f"checkpoint-{num_steps}"
-#     top_model_path = f"{training_args_dict['output_dir']}/{checkpoint}" 
-
     # Now reload the model from best model we have found
     # Reading from file
     print("The file is loaded from ---------------------------> ", OUTPUT_DIR+'config.json')
@@ -179,7 +174,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     top_model_path = data['_name_or_path']
     checkpoint = top_model_path.split("/")[-1]
     print("checkpoint is at ... ", checkpoint)
-    print("top_model_path is at ...", top_model_path)
+    print("top_model_path is at ...", LOAD_BEST_MODEL)
         
     # Config #
     config = BertConfig.from_pretrained(
