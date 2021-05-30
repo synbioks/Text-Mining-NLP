@@ -4,7 +4,7 @@ from transformers import BertPreTrainedModel, BertModel
 from model_utils_test import activations_mapper, get_token_classifier_output
             
 top_model = {"hidden_units_list": [500, 250, 125], 
-             "activations_list": ["relu", "relu", "relu", "relu"]
+             "activations_list": ["none", "none", "none", "none"]
             }
 
 class FullyConnectedLayers(nn.Module):
