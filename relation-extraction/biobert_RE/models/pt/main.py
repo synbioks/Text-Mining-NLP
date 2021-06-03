@@ -126,7 +126,8 @@ def test_net(task_name, net, test_dataloader):
     print("Precision:", precisions)
     print("Recall:", recalls)
     print("F1 Score", f1s)
-    print("F1 three cls", 2 * np.mean(precisions[:3]) * np.mean(recalls[:3]) / (np.mean(precisions[:3]) + np.mean(recalls[:3])))
+    print("F1 three cls", np.mean(f1s[:3]))
+    print("Confusion Matrix:")
     print(confusion_mat)
 
 def predict_net(task_name, net, dataloader):
@@ -173,7 +174,7 @@ def train_cls_end_to_end():
     valid_data.load(os.path.join(CHEMPROT_ROOT, "dev_4cls.tsv"))
     valid_dataloader = DataLoader(
         dataset=valid_data,
-        batch_size=256,
+        batch_size=128,
         num_workers=8,
         shuffle=False,
         collate_fn=chemprot_tsv_collate_fn
@@ -183,7 +184,7 @@ def train_cls_end_to_end():
     test_data.load(os.path.join(CHEMPROT_ROOT, "test_4cls.tsv"))
     test_dataloader = DataLoader(
         dataset=test_data,
-        batch_size=256,
+        batch_size=128,
         num_workers=8,
         shuffle=False,
         collate_fn=chemprot_tsv_collate_fn
@@ -207,6 +208,8 @@ def train_cls_end_to_end():
     optimizer = NoamOptim(768, init_step, 3000, 0.0005, adam) 
     # current best 768, init_step, 3000, 0.0005, adam, rate2() func
     # current best 768, init_step, 3000, 0.02, adam, rate() func
+
+    print(net)
 
     # train / test loop
     train_net(
@@ -255,7 +258,7 @@ def gen_chemprot_act(model_name):
     test_data.load(os.path.join(CHEMPROT_ROOT, "test_4cls.tsv"))
     test_dataloader = DataLoader(
         dataset=test_data,
-        batch_size=256,
+        batch_size=128,
         num_workers=8,
         shuffle=False,
         collate_fn=chemprot_tsv_collate_fn
@@ -267,10 +270,12 @@ def gen_chemprot_act(model_name):
     act0 = activation_hook()
     act1 = activation_hook()
     act2 = activation_hook()
-    net.top_model.fc[1].register_forward_hook(act0)
-    net.top_model.fc[3].register_forward_hook(act1)
-    net.top_model.fc[5].register_forward_hook(act2)
+    net.top_model.fc[0].register_forward_hook(act0)
+    net.top_model.fc[2].register_forward_hook(act1)
+    net.top_model.fc[4].register_forward_hook(act2)
     test_net("TEST", net, test_dataloader)
+
+    exit(-1)
     
     with open(f"activations/{model_name}/l0.npy", "wb") as fout:
         np.save(fout, act0.get_act())
@@ -284,7 +289,7 @@ def gen_chemprot_act(model_name):
 
 def acs_predict():
 
-    dataset_dir = "../../datasets/acs-20210505-kevin"
+    dataset_dir = "../../datasets/acs-20210530-gold"
 
     # tokenizer
     tokenizer = BertTokenizer(
@@ -293,7 +298,7 @@ def acs_predict():
     )
 
     net = EndToEnd("../../weights/biobert-pt-v1.0-pubmed-pmc")
-    net.load_state_dict(torch.load("../../weights/chemprot-cls-end-to-end/top-first-9000"))
+    net.load_state_dict(torch.load("../../weights/chemprot-cls-end-to-end/3layer-e2e-2"))
     net = net.cuda()
     net.eval()
 
@@ -378,6 +383,6 @@ if __name__ == "__main__":
     # top layer pooling
 
     # acs_predict()
-    # train_cls_end_to_end()
+    train_cls_end_to_end()
     # train_cls_top_model()
-    gen_chemprot_act("3layer-e2e-narrow-relu")
+    # gen_chemprot_act("3layer-e2e-narrow-2")
