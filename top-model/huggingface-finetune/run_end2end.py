@@ -132,8 +132,11 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     )
     
     # train end-to-end
+    COUNT = 1
     for param in model.base_model.parameters():
-        param.requires_grad = True
+        if COUNT >= 182:
+            param.requires_grad = True
+        COUNT += 1
 
     model.to('cuda')
     model.train()
