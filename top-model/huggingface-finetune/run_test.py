@@ -14,6 +14,7 @@ BATCH_SIZE = 32
 EPOCH_TOP = 100
 EPOCH_END2END = 100
 
+
 # All file paths have to be absolute paths
 WORKING_DIR = "sbksvol/xiang/"
 DATA_PATH = WORKING_DIR + "NER_data/"
@@ -147,8 +148,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'train_batch_size': BATCH_SIZE,
         "save_strategy": "epoch",
         "evaluation_strategy": "epoch",
-        "load_best_model_at_end": LOAD_BEST_MODEL
+        "load_best_model_at_end": LOAD_BEST_MODEL,
+        "learning_rate": 5e-04 # see if larger lr improves
     }
+    
     with open(TRAIN_ARGS_FILE, 'w') as fp:
         json.dump(training_args_dict, fp)
     parser = HfArgumentParser(TrainingArguments)
@@ -208,8 +211,12 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
     # Then unfreeze the bert weights and fine tune end-to-end
     model = reloaded_model
+    COUNT = 1
     for param in model.base_model.parameters():
-        param.requires_grad = True
+        if COUNT >= 182:
+            param.requires_grad = True
+        COUNT += 1
+        
     model.to('cuda')
     
     # Set to train mode.

@@ -16,7 +16,7 @@ actfn_lst = {
 
 top_model = {
              "hidden_units_list": [500, 250, 125], 
-             "activations_list": actfn_lst["leaky_relu"]
+             "activations_list": actfn_lst["relu"]
             }
 
 activations_mapper = {
