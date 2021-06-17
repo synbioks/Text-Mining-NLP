@@ -39,18 +39,22 @@ def get_token_classifier_output(model, logits, labels, attention_mask, return_di
                 
         elif "crf" in model.top_model["name"]:
             labels_copy = labels.detach().clone()
+            logits_copy = logits.detach().clone()
             labels_copy[labels_copy == -100] = 2
             if attention_mask is not None:
                 loss = -model.crf.forward(logits, labels_copy, attention_mask.type(torch.uint8), reduction="mean")
-                decoded_seq = model.crf.decode(logits, attention_mask.type(torch.uint8))
+                decoded_seq = model.crf.decode(logits_copy, attention_mask.type(torch.uint8))
             else:
                 loss = -model.crf.forward(logits, labels_copy)
-                decoded_seq = model.crf.decode(logits)
+                decoded_seq = model.crf.decode(logits_copy)
             
             #  compute new logits for CRF as per final sequence
-            tag_indices = torch.tensor(decoded_seq).unsqueeze(-1)
-            src_matrix = torch.ones_like(logits)
-            logits = torch.zeros_like(logits)
+            tag_indices = torch.zeros(logits_copy.shape[:2]).to(logits_copy.device)
+            for i, batch in enumerate(decoded_seq):
+                tag_indices[i,:len(batch)] = torch.tensor(batch).to(logits_copy.device)
+            tag_indices = tag_indices.unsqueeze(-1)
+            src_matrix = torch.ones_like(logits_copy)
+            logits = torch.zeros_like(logits_copy)
             logits.scatter_(-1,tag_indices,src_matrix)
 
     if not return_dict:

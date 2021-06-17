@@ -20,6 +20,7 @@ top_model = {
 }
 
 top_model_crf = {
+    "name": "dense_layer_crf",
     "hidden_units_list": [],
     "activations_list": actfn_lst["crf"]
 }
@@ -45,7 +46,8 @@ class FullyConnectedLayers(nn.Module):
         self.layers = nn.ModuleList()
         self.activations_list = activations_list
 
-        self.num_units_list = [input_embedding_size, *hidden_units_list, num_classes]
+        self.num_units_list = [input_embedding_size,
+                               *hidden_units_list, num_classes]
 
         for i in range(len(self.num_units_list) - 1):
             units1 = self.num_units_list[i]
@@ -54,11 +56,11 @@ class FullyConnectedLayers(nn.Module):
             self.layers.append(layer)
 
     def forward(self, x):
-        # for softmax models, it is assumed that the last layer activation would always be 
+        # for softmax models, it is assumed that the last layer activation would always be
         # identity since nn.CrossEntropyLoss applies softmax
         for i, activation_str in enumerate(self.activations_list):
             layer = self.layers[i]
-            activation = activations_mapper(activation_str)
+            activation = activations_mapper[activation_str]
             x = activation(layer(x))
 
         return x
@@ -68,15 +70,16 @@ class BertNERTopModel(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config):
-        super(BertNERTopModel).__init__(config)
+        super().__init__(config)
         self.num_labels = config.num_labels
         self.bert = BertModel(config, add_pooling_layer=False)
-        self.top_layers = nn.ModuleList()
-        self.top_layers.append(nn.Dropout(config.hidden_dropout_prob))
+        top_layers = []
+        top_layers.append(nn.Dropout(config.hidden_dropout_prob))
         self.top_model = top_model_crf
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
-        self.top_layers.append(fcn)
+        top_layers.append(fcn)
+        self.top_layers = nn.Sequential(*top_layers)
 
         if self.top_model["name"] == "dense_layer_crf":
             self.crf = CRF(config.num_labels, batch_first=True)

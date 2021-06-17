@@ -139,6 +139,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
     # Change from default eval mode to train mode
     model.train()
+    print(model)
 
     training_args_dict = {
         'output_dir': OUTPUT_DIR,
