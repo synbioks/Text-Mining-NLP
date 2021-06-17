@@ -1,4 +1,5 @@
 import torch
+from torch._C import dtype
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers.modeling_outputs import TokenClassifierOutput
@@ -49,9 +50,9 @@ def get_token_classifier_output(model, logits, labels, attention_mask, return_di
                 decoded_seq = model.crf.decode(logits_copy)
             
             #  compute new logits for CRF as per final sequence
-            tag_indices = torch.zeros(logits_copy.shape[:2]).to(logits_copy.device)
+            tag_indices = torch.zeros(logits_copy.shape[:2], dtype=logits_copy.dtype).to(logits_copy.device)
             for i, batch in enumerate(decoded_seq):
-                tag_indices[i,:len(batch)] = torch.tensor(batch).to(logits_copy.device)
+                tag_indices[i,:len(batch)] = torch.tensor(batch,dtype=logits_copy.dtype).to(logits_copy.device)
             tag_indices = tag_indices.unsqueeze(-1)
             src_matrix = torch.ones_like(logits_copy)
             logits = torch.zeros_like(logits_copy)
