@@ -37,13 +37,13 @@ EPOCH_TOP = 100
 EPOCH_END2END = 100
 
 # All file paths have to be absolute paths
-EXP_NAME = "CRF"
+EXP_NAME = "crf/"
 WORKING_DIR = "sbksvol/nikhil/"
-DATA_PATH = WORKING_DIR + "NER_data/"
-CACHE_DIR = WORKING_DIR + "/" + EXP_NAME + "NER_out_test"
+DATA_PATH = "sbksvol/xiang/" + "NER_data/"
+CACHE_DIR = WORKING_DIR + "NER_out_test/" + EXP_NAME 
 
 # Where model checkpoints are stored.
-OUTPUT_DIR = WORKING_DIR + "/" + EXP_NAME + "sbks-ucsd/top-model/huggingface-finetune/model_output_test/"
+OUTPUT_DIR = WORKING_DIR + "sbks/top-model/huggingface-finetune/model_output_test/" + EXP_NAME 
 TRAIN_ARGS_FILE = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/train_args_test.json"
 
 parser = argparse.ArgumentParser()
