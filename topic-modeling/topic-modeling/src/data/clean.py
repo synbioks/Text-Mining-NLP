@@ -29,8 +29,8 @@ def NonNerCleanText(data):
     words = [s for s in words if not len(s) == 1]
 
     # Only keeping the nouns 
-    is_noun = lambda pos: pos[:2] == 'NN'
-    words = [word for (word, pos) in pos_tag(words) if is_noun(pos) or '-' in word] 
+    # is_noun = lambda pos: pos[:2] == 'NN'
+    # words = [word for (word, pos) in pos_tag(words) if is_noun(pos) or '-' in word] 
 
     return words
 
@@ -50,11 +50,11 @@ def NERCleanText(key, data, path2entity):
     stop_words = set(stopwords.words('english'))
     stop_words = stop_words.union({'et', 'al', 'use', 'using', 'used'})
     punctuations = string.punctuation
-    lemmatizer = WordNetLemmatizer() 
+    lemmatizer = WordNetLemmatizer()
 
     # load NER entities
     entities = list(path2entity[key])
-    entities.sort(key=len, reverse=True)    
+    entities.sort(key=lambda x: (-len(x), x)) # sort NER by length before preprocessing
 
     # open file read data 
     
@@ -74,7 +74,7 @@ def NERCleanText(key, data, path2entity):
             terms.append(tnew)
         else:
             terms.append(t)
-    terms.sort(key=len, reverse=True)
+    terms.sort(key=lambda x: (-len(x), x)) # sort by len frist then by alphabet
 
     # using NERTokenizer
     words = [s for s in B_tokenizer.tokenize(data, terms) if not (len(s) == 1 and (s in punctuations))]

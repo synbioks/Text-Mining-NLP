@@ -258,7 +258,7 @@ def gen_chemprot_act(model_name):
     test_data.load(os.path.join(CHEMPROT_ROOT, "test_4cls.tsv"))
     test_dataloader = DataLoader(
         dataset=test_data,
-        batch_size=256,
+        batch_size=128,
         num_workers=8,
         shuffle=False,
         collate_fn=chemprot_tsv_collate_fn
