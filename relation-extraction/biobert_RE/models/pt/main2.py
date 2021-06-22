@@ -67,28 +67,19 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     # train loop
     for epoch_count in range(n_epochs):
         print(f"Running epoch {epoch_count}\n")
-        for i, (x, y) in enumerate(train_dataloader):
-            print("Running for epoch {} batch {} train step {}".format(epoch_count, i, train_step_count), end = "\r")
-            # decide to break
-            #if train_step_count >= max_step:
-            #    print(f"Training completed, {train_step_count} steps in total")
-            #    return
-
+        for (x, y) in tqdm(train_dataloader):
             net.train_step(x, y, loss_fn, optimizer)
-            train_step_count += 1
-
-            if train_step_count % valid_freq == 0:
-                net.eval()
-                print(f"Step {init_step + train_step_count} finished")
-                test_net("TRAIN", net, train_dataloader)
-                test_net("VALIDATION", net, valid_dataloader)
-                if ckpt_dir is not None:
-                    a = time.time()
-                    ckpt_path = os.path.join(ckpt_dir, f"{init_step + train_step_count}")
-                    torch.save(net.state_dict(), ckpt_path)
-                    print(time.time() - a)
-                net.train()
-                print(f"Resume epoch {epoch_count}")
+        
+        net.eval()
+        print(f"Step {init_step + train_step_count} finished")
+        test_net("TRAIN", net, train_dataloader)
+        test_net("VALIDATION", net, valid_dataloader)
+        if ckpt_dir is not None:
+            a = time.time()
+            ckpt_path = os.path.join(ckpt_dir, f"{init_step + train_step_count}")
+            torch.save(net.state_dict(), ckpt_path)
+            print(time.time() - a)
+        net.train()
 
 def test_net(task_name, net, test_dataloader):
 
