@@ -16,7 +16,7 @@ BATCH_SIZE = 32
 # All file paths have to be absolute paths #
 WORKING_DIR = "sbksvol/xiang/"
 # DATA_PATH = WORKING_DIR + "NER_data/"
-DATA_PATH = WORDING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
+DATA_PATH = WORKING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
 CACHE_DIR = WORKING_DIR + "NER_out_baseline/"
 
 # Where model checkpoints are stored. 
