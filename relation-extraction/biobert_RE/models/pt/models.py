@@ -10,16 +10,18 @@ class CLSTopModel(nn.Module):
     def __init__(self):
         super(CLSTopModel, self).__init__()
         input_size = 768
-        hidden_size = 512
+        hidden_size = 1024
         num_class = 4
-        dropout_p = 0.1
+        dropout_p = 0.3
         self.fc = nn.Sequential(
             nn.Dropout(p=dropout_p),
             nn.Linear(input_size, hidden_size),
-            nn.ReLU(),
-            nn.Linear(hidden_size, hidden_size // 2),
-            nn.ReLU(),
-            nn.Linear(hidden_size // 2, num_class)
+            nn.Tanh(),
+            nn.Dropout(p=dropout_p),
+            nn.Linear(hidden_size, hidden_size),
+            nn.Tanh(),
+            nn.Dropout(p=dropout_p),
+            nn.Linear(hidden_size, num_class)
         )
     
     def forward(self, x):
