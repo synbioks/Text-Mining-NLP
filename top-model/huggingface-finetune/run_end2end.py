@@ -12,10 +12,13 @@ LOAD_BEST_MODEL = True # Set to True for EarlyStopping to work
 MAX_LEN = 256
 EPOCH_END2END = 100
 BATCH_SIZE = 32
+PRE_TRAINED = 'dmis-lab/biobert-base-cased-v1.1'
 
 # All file paths have to be absolute paths #
 WORDING_DIR = "sbksvol/xiang/"
-DATA_PATH = WORDING_DIR + "NER_data/"
+# DATA_PATH = WORDING_DIR + "NER_data/"
+
+DATA_PATH = WORDING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
 CACHE_DIR = WORDING_DIR + "NER_out_end/"
 
 # Where model checkpoints are stored. 
@@ -97,7 +100,9 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     model_args = dict()
 
     # Path to pretrained model or model identifier from huggingface.co/models
-    model_args['model_name_or_path'] = 'dmis-lab/biobert-base-cased-v1.1'
+#     model_args['model_name_or_path'] = 'dmis-lab/biobert-base-cased-v1.1'
+    
+    model_args['model_name_or_path'] = PRE_TRAINED
     model_args['cache_dir'] = CACHE_DIR
     model_args['do_basic_tokenize'] = False
 
@@ -132,11 +137,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     )
     
     # train end-to-end
-    COUNT = 1
     for param in model.base_model.parameters():
-        if COUNT >= 182:
-            param.requires_grad = True
-        COUNT += 1
+        param.requires_grad = True
 
     model.to('cuda')
     model.train()
@@ -219,7 +221,7 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
 
     from seqeval.metrics import f1_score, classification_report
     print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
-    print(classification_report(test_labels_new, preds_list_new))
+    print(classification_report(test_labels_new, preds_list_new, digits=3))
 
 def main():
     
