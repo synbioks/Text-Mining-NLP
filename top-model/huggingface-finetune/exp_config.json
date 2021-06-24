@@ -1,0 +1,16 @@
+{
+    "crf": {
+        "LOWER_CASE": false,
+        "LOAD_BEST_MODEL": true,
+        "MAX_LEN": 256,
+        "BATCH_SIZE": 32,
+        "EPOCH_TOP": 100,
+        "EPOCH_END2END": 100,
+        "model_type": 2,
+        "grad_finetune": true,
+        "grad_e2e": false,
+        "grad_finetune_layers": 0,
+        "lr": 5e-4,
+        "weight_decay": 0.005
+    }
+}

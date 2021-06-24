@@ -8,7 +8,7 @@ Architecture: NER Top Model Training setups (B)
 
 
 from models.models_enum import ModelsType
-from models_test import BertTopModelE2E
+from models_factory import get_model
 from seqeval.metrics import f1_score, classification_report
 from utils_ner import NerDataset, Split
 from data_utils import convert_tsv_to_txt, get_train_test_df
@@ -129,12 +129,13 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
 
 def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map):
     # First freeze bert weights and train
-    model = BertTopModelE2E.from_pretrained(
-        model_args['model_name_or_path'],
-        config=config,
+    model = get_model(
+        model_path=model_args["model_name_or_path"],
         cache_dir=model_args['cache_dir'],
-    )
-    if (params['grad_finetune'] or params['grad_topmodel']) and (not params['grad_e2e']):
+        config=config,
+        model_type=params['model_type'])
+
+    if not params['grad_e2e']:
         for param in model.base_model.parameters():
             param.requires_grad = False
 
@@ -148,7 +149,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         "save_strategy": "epoch",
         "evaluation_strategy": "epoch",
         "load_best_model_at_end": params['LOAD_BEST_MODEL'],
-        "learning_rate": 5e-04  # see if larger lr improves
+        "learning_rate": params["lr"],
+        "weight_decay": params["weight_decay"]
     }
 
     with open(params['TRAIN_ARGS_FILE'], 'w') as fp:
@@ -170,72 +172,76 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     trainOutput = trainer.train()
     trainer.save_model(params['OUTPUT_DIR'])
 
-    # Now reload the model from best model we have found
-    # Reading from file
-    print("The file is loaded from ---------------------------> ",
-          params['OUTPUT_DIR']+'config.json')
-    data = json.loads(open(params['OUTPUT_DIR']+'config.json', "r").read())
-    top_model_path = data['_name_or_path']
-    checkpoint = top_model_path.split("/")[-1]
-    print("checkpoint is at ... ", checkpoint)
-    print("top_model_path is at ...", params['LOAD_BEST_MODEL'])
-
-    # Config #
-    config = BertConfig.from_pretrained(
-        top_model_path,
-        num_labels=num_labels,
-        id2label=label_map,
-        label2id={label: i for i, label in enumerate(labels)},
-        cache_dir=model_args['cache_dir']
-    )
-
-    # Model #
-    reloaded_model = BertTopModelE2E.from_pretrained(
-        top_model_path,
-        config=config,
-        cache_dir=model_args['cache_dir'],
-    )
-
-    # Training args #
-    training_args_dict = {
-        'output_dir': params['OUTPUT_DIR'],
-        'num_train_epochs': params['EPOCH_END2END'],
-        'train_batch_size': params['BATCH_SIZE'],
-        "evaluation_strategy": "epoch",
-        "load_best_model_at_end": params['LOAD_BEST_MODEL']
-    }
-
-    with open(params['TRAIN_ARGS_FILE'], 'w') as fp:
-        json.dump(training_args_dict, fp)
-    parser = HfArgumentParser(TrainingArguments)
-    training_args = parser.parse_json_file(
-        json_file=params['TRAIN_ARGS_FILE'])[0]
-
-    # Then unfreeze the bert weights and fine tune end-to-end
-    model = reloaded_model
-    COUNT = 1
-    for param in model.base_model.parameters():
-        if COUNT >= 182:
-            param.requires_grad = True
-        COUNT += 1
-
-    model.to('cuda')
-
-    # Set to train mode.
-    model.train()
-
-    # Initialize our Trainer
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
-    )
-
     if params['grad_finetune']:
+
+        # Now reload the model from best model we have found
+        # Reading from file
+        print("The file is loaded from ---------------------------> ",
+              params['OUTPUT_DIR']+'config.json')
+        data = json.loads(open(params['OUTPUT_DIR']+'config.json', "r").read())
+        top_model_path = data['_name_or_path']
+        checkpoint = top_model_path.split("/")[-1]
+        print("checkpoint is at ... ", checkpoint)
+        print("top_model_path is at ...", params['LOAD_BEST_MODEL'])
+
+        # Config #
+        config = BertConfig.from_pretrained(
+            top_model_path,
+            num_labels=num_labels,
+            id2label=label_map,
+            label2id={label: i for i, label in enumerate(labels)},
+            cache_dir=model_args['cache_dir']
+        )
+
+        # Model #
+        reloaded_model = get_model(
+            model_path=top_model_path,
+            cache_dir=model_args['cache_dir'],
+            config=config,
+            model_type=params['model_type'])
+
+        # Training args #
+        training_args_dict = {
+            'output_dir': params['OUTPUT_DIR'],
+            'num_train_epochs': params['EPOCH_END2END'],
+            'train_batch_size': params['BATCH_SIZE'],
+            "evaluation_strategy": "epoch",
+            "load_best_model_at_end": params['LOAD_BEST_MODEL'],
+            "learning_rate": params["lr"],
+            "weight_decay": params["weight_decay"]
+        }
+
+        with open(params['TRAIN_ARGS_FILE'], 'w') as fp:
+            json.dump(training_args_dict, fp)
+        parser = HfArgumentParser(TrainingArguments)
+        training_args = parser.parse_json_file(
+            json_file=params['TRAIN_ARGS_FILE'])[0]
+
+        # Then unfreeze the bert weights and fine tune end-to-end
+        model = reloaded_model
+        COUNT = 1
+        for param in model.base_model.parameters():
+            if COUNT >= params['grad_finetune_layers']:
+                param.requires_grad = True
+            COUNT += 1
+
+        model.to('cuda')
+
+        # Set to train mode.
+        model.train()
+
+        # Initialize our Trainer
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
+        )
+
         # checkpiont is here.
         trainer.train(checkpoint)
+
     return trainer, model
 
 
@@ -298,6 +304,8 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
     test_labels = [[w[1] for w in s] for s in testing_sentences]
     test_tokens = [[w[0] for w in s] for s in testing_sentences]
 
+    test_labels = test_labels[:len(preds_list)]
+
     # make sure all test and pred sentences have the same length
     # for some tokenization reason cellfinder(Cellline) had a problem with 3 test sentences
 
@@ -348,7 +356,7 @@ def main(_params):
 
     # Train top-model using the Trainer API
     trainer, model = run_train(train_dataset, eval_dataset,
-                               config, model_args, labels, num_labels, label_map, params)
+                               config, model_args, labels, num_labels, label_map)
 
     gc.collect()
     torch.cuda.empty_cache()

@@ -1,3 +1,4 @@
+from models.models_enum import ModelsType
 from run import main
 import argparse
 import os
@@ -24,6 +25,9 @@ EXP_CONFIG_FILE = os.path.join(args.root, CODE_DIR, 'exp_config.json')
 with open(EXP_CONFIG_FILE, 'r') as fp:
     params = json.load(fp)[args.exp_config]
 
+
+params['model_type'] = ModelsType(params['model_type'])
+
 params['seed_value'] = args.seed_value
 params['set_seed'] = args.set_seed
 params['entity_type'] = args.entity_type
@@ -33,7 +37,7 @@ params['exp_config'] = args.exp_config
 
 # All file paths have to be absolute paths
 params['WORKING_DIR'] = os.path.join(
-    params['WORKING_DIR'], args.exp_name)
+    args.root, args.exp_name)
 params['DATA_PATH'] = os.path.join(args.data, "NER_data/")
 params['CACHE_DIR'] = os.path.join(
     params['WORKING_DIR'], "NER_out_test")

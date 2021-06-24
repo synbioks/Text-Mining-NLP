@@ -26,11 +26,11 @@ top_model_crf = {
 }
 
 activations_mapper = {
-    "relu": F.relu,
-    "elu": F.elu,
-    "leaky_relu": F.leaky_relu,
-    "tanh": F.tanh,
-    "softmax": nn.functional.softmax,
+    "relu": nn.ReLU(),
+    "elu": nn.ELU(),
+    "leaky_relu": nn.LeakyReLU(),
+    "tanh": nn.Tanh(),
+    "softmax": nn.Softmax(),
     "identity": nn.Identity()
 }
 
@@ -43,7 +43,7 @@ class FullyConnectedLayers(nn.Module):
 
     def __init__(self, hidden_units_list, activations_list, input_embedding_size, num_classes):
         super(FullyConnectedLayers, self).__init__()
-        self.layers = nn.ModuleList()
+        layers = []
         self.activations_list = activations_list
 
         self.num_units_list = [input_embedding_size,
@@ -53,15 +53,17 @@ class FullyConnectedLayers(nn.Module):
             units1 = self.num_units_list[i]
             units2 = self.num_units_list[i + 1]
             layer = nn.Linear(units1, units2)
-            self.layers.append(layer)
+            layers.append(layer)
+            layers.append(activations_mapper[activations_list[i]])
+            if i < len(self.num_units_list) - 2:
+                layers.append(nn.LayerNorm(units2))
+                layers.append(nn.Dropout(p=0.2))
+        self.layers = nn.Sequential(*layers)
 
     def forward(self, x):
         # for softmax models, it is assumed that the last layer activation would always be
         # identity since nn.CrossEntropyLoss applies softmax
-        for i, activation_str in enumerate(self.activations_list):
-            layer = self.layers[i]
-            activation = activations_mapper[activation_str]
-            x = activation(layer(x))
+        x = self.layers(x)
 
         return x
 
