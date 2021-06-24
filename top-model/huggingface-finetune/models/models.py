@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from transformers import BertPreTrainedModel, BertModel
 from torchcrf import CRF
 
-from model_utils import get_token_classifier_output
+from models.model_utils import get_token_classifier_output
 
 actfn_lst = {
     "relu": ["relu"] * 3 + ["identity"],
