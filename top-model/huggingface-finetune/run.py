@@ -341,7 +341,8 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],  # True
-        mode=Split.train)
+        mode=Split.train,
+        data_size=params["data_size"])
 
     eval_dataset = NerDataset(
         data_dir=data_args['data_dir'],
@@ -350,7 +351,8 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],
-        mode=Split.dev)
+        mode=Split.dev,
+        data_size=params["data_size"])
 
     print(train_dataset.__len__(), eval_dataset.__len__())
 
@@ -371,7 +373,8 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=True,
-        mode=Split.test)
+        mode=Split.test,
+        data_size=params["data_size"])
 
     run_test(trainer, model, train_dataset, train_df, label_map)
     run_test(trainer, model, eval_dataset, dev_df, label_map)
