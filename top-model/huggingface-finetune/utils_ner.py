@@ -91,12 +91,13 @@ if is_torch_available():
             max_seq_length: Optional[int] = None,
             overwrite_cache=False,
             mode: Split = Split.train,
+            data_size: int = 100
         ):
             # Load data features from cache or dataset file
             cached_features_file = os.path.join(
                 data_dir, "cached_{}_{}_{}".format(mode.value, tokenizer.__class__.__name__, str(max_seq_length)),
             )
-
+            self.data_size = data_size
             # Make sure only the first process in distributed training processes the dataset,
             # and the others will use the cache.
             lock_path = cached_features_file + ".lock"
@@ -126,11 +127,12 @@ if is_torch_available():
                         pad_token_segment_id=tokenizer.pad_token_type_id,
                         pad_token_label_id=self.pad_token_label_id,
                     )
+                    self.features = self.features[:(len(self.features)*self.data_size)//100]
                     logger.info(f"Saving features into cached file {cached_features_file}")
                     torch.save(self.features, cached_features_file)
 
         def __len__(self):
-            return len(self.features)
+            return len(self.features)#(len(self.features)*self.data_size)//100
 
         def __getitem__(self, i) -> InputFeatures:
             return self.features[i]

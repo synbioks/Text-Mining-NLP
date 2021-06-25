@@ -31,24 +31,24 @@ import os
 
 # Important parameters:
 params = {}
-params['LOWER_CASE'] = False
-params['LOAD_BEST_MODEL'] = True
-params['MAX_LEN'] = 256
-params['BATCH_SIZE'] = 32
-params['EPOCH_TOP'] = 100
-params['EPOCH_END2END'] = 100
+# params['LOWER_CASE'] = False
+# params['LOAD_BEST_MODEL'] = True
+# params['MAX_LEN'] = 256
+# params['BATCH_SIZE'] = 32
+# params['EPOCH_TOP'] = 100
+# params['EPOCH_END2END'] = 100
 
 
-# All file paths have to be absolute paths
-params['WORKING_DIR'] = "sbksvol/xiang/"
-params['DATA_PATH'] = params['WORKING_DIR'] + "NER_data/"
-params['CACHE_DIR'] = params['WORKING_DIR'] + "NER_out_test"
+# # All file paths have to be absolute paths
+# params['WORKING_DIR'] = "sbksvol/xiang/"
+# params['DATA_PATH'] = params['WORKING_DIR'] + "NER_data/"
+# params['CACHE_DIR'] = params['WORKING_DIR'] + "NER_out_test"
 
-# Where model checkpoints are stored.
-params['OUTPUT_DIR'] = params['WORKING_DIR'] + \
-    "sbks-ucsd/top-model/huggingface-finetune/model_output_test/"
-params['TRAIN_ARGS_FILE'] = params['WORKING_DIR'] + \
-    "sbks-ucsd/top-model/huggingface-finetune/train_args_test.json"
+# # Where model checkpoints are stored.
+# params['OUTPUT_DIR'] = params['WORKING_DIR'] + \
+#     "sbks-ucsd/top-model/huggingface-finetune/model_output_test/"
+# params['TRAIN_ARGS_FILE'] = params['WORKING_DIR'] + \
+#     "sbks-ucsd/top-model/huggingface-finetune/train_args_test.json"
 
 
 def random_seed_set(seed_value):
@@ -69,7 +69,7 @@ def prepare_data():
 
     # Prepare Data
     all_data = convert_tsv_to_txt(data_dir)
-    train_df, test_df = get_train_test_df(all_data)
+    train_df, test_df, dev_df = get_train_test_df(all_data)
 
     # Print some data statistics
     num_train_sents = len(all_data["train"]["words"])
@@ -87,7 +87,7 @@ def prepare_data():
     num_labels = len(labels)
     print("unique labels:", labels)
 
-    return train_df, test_df, labels, num_labels, label_map, data_dir
+    return train_df, test_df, dev_df, labels, num_labels, label_map, data_dir
 
 
 def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
@@ -327,7 +327,7 @@ def main(_params):
     global params
     params = _params
 
-    train_df, test_df, labels, num_labels, label_map, data_dir = prepare_data()
+    train_df, test_df, dev_df, labels, num_labels, label_map, data_dir = prepare_data()
 
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(
         data_dir, labels, num_labels, label_map)
@@ -374,6 +374,7 @@ def main(_params):
         mode=Split.test)
 
     run_test(trainer, model, train_dataset, train_df, label_map)
+    run_test(trainer, model, eval_dataset, dev_df, label_map)
     run_test(trainer, model, test_dataset, test_df, label_map)
 
 

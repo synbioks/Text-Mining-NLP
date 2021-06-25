@@ -17,7 +17,7 @@ parser.add_argument("--root", required=True)
 args = parser.parse_args()
 
 # code directory
-CODE_DIR = '/sbks-ucsd/top-model/huggingface-finetune/'
+CODE_DIR = 'sbks-ucsd/top-model/huggingface-finetune/'
 
 # exp config file
 EXP_CONFIG_FILE = os.path.join(args.root, CODE_DIR, 'exp_config.json')
