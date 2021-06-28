@@ -10,12 +10,10 @@ import os
 import gc
 import json
 import random
-from typing_extensions import ParamSpec
 import numpy as np
 
 import torch
 import torch.nn as nn
-import transformers
 from transformers import (
     BertConfig,
     BertTokenizer
@@ -28,7 +26,6 @@ from data_utils import convert_tsv_to_txt, get_train_test_df
 from utils_ner import NerDataset, Split
 from models_factory import get_model
 from seqeval.metrics import f1_score, classification_report
-import argparse
 params = {}
 # Important parameters:
 # params["LOWER_CASE"] = False
@@ -142,7 +139,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         config=config,
         model_type=params['model_type'])
 
-    if not params['grad_e2e']:    
+    if not params['grad_e2e']:
         for param in model.base_model.parameters():
             param.requires_grad = False
 
@@ -181,12 +178,13 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     trainer.save_model(params["OUTPUT_DIR"])
 
     if params['grad_finetune']:
-            
+
         # Now reload the model from best model we have found
         # Reading from file
         print("The file is loaded from ---------------------------> ",
-            params["OUTPUT_DIR"] + 'config.json')
-        data = json.loads(open(params["OUTPUT_DIR"] + 'config.json', "r").read())
+              params["OUTPUT_DIR"] + 'config.json')
+        data = json.loads(
+            open(params["OUTPUT_DIR"] + 'config.json', "r").read())
         top_model_path = data['_name_or_path']
         checkpoint = top_model_path.split("/")[-1]
         print("checkpoint is at ... ", checkpoint)
