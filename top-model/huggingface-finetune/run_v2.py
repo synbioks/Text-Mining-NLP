@@ -68,8 +68,8 @@ def random_seed_set(seed_value):
 
 
 def prepare_data():
-    ENT = args.entity_type
-    DATASET = args.dataset
+    ENT = params["entity_type"]
+    DATASET = params["dataset"]
     data_dir = os.path.join(params["DATA_PATH"], ENT, DATASET)
 
     # Prepare Data
