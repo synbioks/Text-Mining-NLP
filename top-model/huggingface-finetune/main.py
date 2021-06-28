@@ -48,7 +48,8 @@ params['OUTPUT_DIR'] = os.path.join(
 params['TRAIN_ARGS_FILE'] = os.path.join(
     params['WORKING_DIR'], "train_args_test.json")
 
-shutil.rmtree(params['WORKING_DIR'])
+if os.path.exists(params['WORKING_DIR']):
+    shutil.rmtree(params['WORKING_DIR'])
 try:
     os.makedirs(params['WORKING_DIR'])
 except OSError as e:

@@ -282,21 +282,20 @@ def get_predictions(trainer, model, test_dataset, label_map):
     # preds -> list of token-level predictions shape = (batch_size, seq_len)
     preds_list = [[] for _ in range(batch_size)]
     for i in range(batch_size):
-        for j in range(seq_len):
+        for j in range(len(preds[i])):
             # ignore pad_tokens
             if label_ids[i, j] != nn.CrossEntropyLoss().ignore_index:
                 preds_list[i].append(label_map[preds[i][j]])
 
     return preds_list
 
-
 def run_test(trainer, model, test_dataset, test_df, label_map):
     preds_list = get_predictions(trainer, model, test_dataset, label_map)
 
     def sentences_combiner(df):
         # 'words' and 'labels' are the column names in the CSV file
-        def tupple_function(x): return [(w, t) for w, t in zip(x["words"].values.tolist(),
-                                                               x["labels"].values.tolist())]
+        tupple_function = lambda x: [(w, t) for w, t in zip(x["words"].values.tolist(),
+                                                            x["labels"].values.tolist())]
         grouped = df.groupby("sentence_id").apply(tupple_function)
         return [s for s in grouped]
 
@@ -304,11 +303,9 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
     test_labels = [[w[1] for w in s] for s in testing_sentences]
     test_tokens = [[w[0] for w in s] for s in testing_sentences]
 
-    test_labels = test_labels[:len(preds_list)]
-
     # make sure all test and pred sentences have the same length
     # for some tokenization reason cellfinder(Cellline) had a problem with 3 test sentences
-
+    test_labels = test_labels[:len(preds_list)]
     test_labels_new = []
     preds_list_new = []
 
@@ -319,8 +316,11 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
         else:
             print("ABORT")
 
-    print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
-    print(classification_report(test_labels_new, preds_list_new, digits=3))
+    try:    
+        print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
+        print(classification_report(test_labels_new, preds_list_new, digits=3))
+    except Exception as e:
+        print(f'Error - {e}')
 
 
 def main(_params):
