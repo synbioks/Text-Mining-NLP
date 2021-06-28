@@ -1,5 +1,5 @@
 from models.models_enum import ModelsType
-from run import main
+from run_v2 import main
 import argparse
 import os
 import json
