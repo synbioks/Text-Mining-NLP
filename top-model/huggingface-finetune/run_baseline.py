@@ -15,13 +15,11 @@ BATCH_SIZE = 32
 
 # All file paths have to be absolute paths #
 WORKING_DIR = "sbksvol/xiang/"
-# DATA_PATH = WORKING_DIR + "NER_data/"
 DATA_PATH = WORKING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
 CACHE_DIR = WORKING_DIR + "NER_out_baseline/"
-
 # Where model checkpoints are stored. 
-OUTPUT_DIR = WORKING_DIR + "NER_src/model_output_baseline/"
-TRAIN_ARGS_FILE = WORKING_DIR + "NER_src/train_args_baseline.json"
+OUTPUT_DIR = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/model_output_baseline/"
+TRAIN_ARGS_FILE = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/train_args_baseline.json"
 
 import os
 import gc
@@ -145,7 +143,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'num_train_epochs' : EPOCH_END2END,
         'train_batch_size': BATCH_SIZE,
         "evaluation_strategy": "epoch",
-        "load_best_model_at_end": LOAD_BEST_MODEL # Set to True
+        "load_best_model_at_end": LOAD_BEST_MODEL, # Set to True
+        "learning_rate": 5e-04
     }
     
     #### Create Trainer
@@ -222,10 +221,15 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
     
 def main():
     
+    print(DATA_PATH) 
+    print(CACHE_DIR)
+    print(OUTPUT_DIR)
+    print(TRAIN_ARGS_FILE)
+    
     # We currently do not set seeds. 
-    if args.set_seed == "Yes":
-        print("note that random seed is set to -------> ", args.seed_value)
-        random_seed_set(int(args.seed_value))
+#     if args.set_seed == "Yes":
+#         print("note that random seed is set to -------> ", args.seed_value)
+#         random_seed_set(int(args.seed_value))
 
     train_df, test_df, labels, num_labels, label_map, data_dir = prepare_data()
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map)

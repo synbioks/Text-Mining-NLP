@@ -15,15 +15,12 @@ BATCH_SIZE = 32
 PRE_TRAINED = 'dmis-lab/biobert-base-cased-v1.1'
 
 # All file paths have to be absolute paths #
-WORDING_DIR = "sbksvol/xiang/"
-# DATA_PATH = WORDING_DIR + "NER_data/"
-
-DATA_PATH = WORDING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
-CACHE_DIR = WORDING_DIR + "NER_out_end/"
-
+WORKING_DIR = "sbksvol/xiang/"
+DATA_PATH = WORKING_DIR + "sbks_gitlab/top-model/BIOBERT/NER/data/raw/"
+CACHE_DIR = WORKING_DIR + "NER_out_end/"
 # Where model checkpoints are stored. 
-OUTPUT_DIR = WORDING_DIR + "NER_src/model_output_end/"
-TRAIN_ARGS_FILE = WORDING_DIR + "NER_src/train_args_end.json"
+OUTPUT_DIR = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/model_output_end/"
+TRAIN_ARGS_FILE = WORKING_DIR + "sbks-ucsd/top-model/huggingface-finetune/train_args_end.json"
 
 import os
 import gc
@@ -225,10 +222,15 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
 
 def main():
     
+    print(DATA_PATH) 
+    print(CACHE_DIR)
+    print(OUTPUT_DIR)
+    print(TRAIN_ARGS_FILE)
+    
     # If args.dataset == True, set random seed.
-    if args.set_seed == "Yes":
-        print("note that random seed is set to -------> ", args.seed_value)
-        random_seed_set(int(args.seed_value))
+#     if args.set_seed == "Yes":
+#         print("note that random seed is set to -------> ", args.seed_value)
+#         random_seed_set(int(args.seed_value))
 
     train_df, test_df, labels, num_labels, label_map, data_dir = prepare_data()
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map)
