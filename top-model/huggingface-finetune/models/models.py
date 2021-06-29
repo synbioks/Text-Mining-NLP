@@ -11,7 +11,7 @@ actfn_lst = {
     "tanh": ["tanh"] * 3 + ["identity"],
     "softmax": ["softmax"] * 3 + ["identity"],
     "mix": ["relu", "leaky_relu", "tanh", "identity"],
-    "crf": ["identity"],
+    "id": ["identity"],
 }
 
 top_model = {
@@ -22,7 +22,13 @@ top_model = {
 top_model_crf = {
     "name": "dense_layer_crf",
     "hidden_units_list": [],
-    "activations_list": actfn_lst["crf"]
+    "activations_list": actfn_lst["id"]
+}
+
+top_model_fcn_crf = {
+    "name": "dense_layer_crf",
+    "hidden_units_list": [512,128,32],
+    "activations_list": actfn_lst["leaky_relu"]
 }
 
 activations_mapper = {
@@ -68,7 +74,7 @@ class FullyConnectedLayers(nn.Module):
         return x
 
 
-class BertNERTopModel(BertPreTrainedModel):
+class BertNERCRF(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config):
@@ -78,6 +84,66 @@ class BertNERTopModel(BertPreTrainedModel):
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
         self.top_model = top_model_crf
+        fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
+                                   config.hidden_size, config.num_labels)
+        top_layers.append(fcn)
+        self.top_layers = nn.Sequential(*top_layers)
+
+        if self.top_model["name"] == "dense_layer_crf":
+            self.crf = CRF(config.num_labels, batch_first=True)
+
+        print("Initializing weights")
+        self.init_weights()
+
+    def forward(
+            self,
+            input_ids=None,
+            attention_mask=None,
+            token_type_ids=None,
+            position_ids=None,
+            head_mask=None,
+            inputs_embeds=None,
+            labels=None,
+            output_attentions=None,
+            output_hidden_states=None,
+            return_dict=None,
+    ):
+        r"""
+        labels (:obj:`torch.LongTensor` of shape :obj:`(batch_size, sequence_length)`, `optional`):
+            Labels for computing the token classification loss. Indices should be in ``[0, ..., config.num_labels -
+            1]``.
+        """
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        outputs = self.bert(
+            input_ids,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+            inputs_embeds=inputs_embeds,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=return_dict,
+        )
+
+        sequence_output = outputs[0]
+
+        logits = self.top_layers(sequence_output)
+
+        return get_token_classifier_output(self, logits, labels, attention_mask, return_dict, outputs)
+
+
+class BertNERCRFFCN(BertPreTrainedModel):
+    _keys_to_ignore_on_load_unexpected = [r"pooler"]
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.num_labels = config.num_labels
+        self.bert = BertModel(config, add_pooling_layer=False)
+        top_layers = []
+        top_layers.append(nn.Dropout(config.hidden_dropout_prob))
+        self.top_model = top_model_fcn_crf
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
         top_layers.append(fcn)

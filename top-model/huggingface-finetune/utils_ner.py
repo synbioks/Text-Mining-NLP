@@ -21,7 +21,7 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
-
+import random
 from filelock import FileLock
 
 from transformers import PreTrainedTokenizer, is_tf_available, is_torch_available
@@ -91,7 +91,8 @@ if is_torch_available():
             max_seq_length: Optional[int] = None,
             overwrite_cache=False,
             mode: Split = Split.train,
-            data_size: int = 100
+            data_size: int = 100,
+            sf = False
         ):
             # Load data features from cache or dataset file
             cached_features_file = os.path.join(
@@ -127,6 +128,8 @@ if is_torch_available():
                         pad_token_segment_id=tokenizer.pad_token_type_id,
                         pad_token_label_id=self.pad_token_label_id,
                     )
+                    if sf:
+                        random.shuffle(self.features)
                     self.features = self.features[:(len(self.features)*self.data_size)//100]
                     logger.info(f"Saving features into cached file {cached_features_file}")
                     torch.save(self.features, cached_features_file)

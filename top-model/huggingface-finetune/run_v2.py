@@ -212,9 +212,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             'num_train_epochs': params["EPOCH_END2END"],
             'train_batch_size': params["BATCH_SIZE"],
             "evaluation_strategy": "epoch",
-            "load_best_model_at_end": params["LOAD_BEST_MODEL"],
-            "learning_rate": params["lr"],
-            "weight_decay": params["weight_decay"]
+            "load_best_model_at_end": params["LOAD_BEST_MODEL"]
         }
 
         with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
@@ -265,7 +263,7 @@ def get_predictions(trainer, model, test_dataset, label_map):
     # last layer output/activation has the shape of (batch_size, seq_len,num_of_labels)
     output, label_ids, metrics = trainer.predict(test_dataset)
 
-    if params['model_type'] == ModelsType.CRF:
+    if params['model_type'] == ModelsType.CRF or params['model_type'] == ModelsType.FCN_CRF:
         batch_size, seq_len, num_labels = output.shape
         output = torch.tensor(output).to('cuda')
 
@@ -339,7 +337,7 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],  # True
-        mode=Split.train, data_size=1)
+        mode=Split.train, data_size=100)
 
     eval_dataset = NerDataset(
         data_dir=data_args['data_dir'],

@@ -2,6 +2,8 @@ from enum import Enum
 
 
 class ModelsType(Enum):
-    FCN = 1
-    CRF = 2
-    BASELINE = 3
+    FCN = 1    
+    BASELINE = 2
+    CRF = 3
+    FCN_CRF = 4
+
