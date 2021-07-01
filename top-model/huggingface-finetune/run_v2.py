@@ -153,6 +153,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'train_batch_size': params["BATCH_SIZE"],
         "save_strategy": "epoch",
         "evaluation_strategy": "epoch",
+        "logging_strategy ": "epoch",
         "load_best_model_at_end": params["LOAD_BEST_MODEL"],
         "learning_rate": params["lr"],
         "weight_decay": params["weight_decay"]
@@ -212,6 +213,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             'num_train_epochs': params["EPOCH_END2END"],
             'train_batch_size': params["BATCH_SIZE"],
             "evaluation_strategy": "epoch",
+            "logging_strategy ": "epoch",
             "load_best_model_at_end": params["LOAD_BEST_MODEL"]
         }
 
