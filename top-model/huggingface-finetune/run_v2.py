@@ -21,6 +21,7 @@ from transformers import (
 from transformers.hf_argparser import HfArgumentParser
 from transformers import TrainingArguments
 from transformers import Trainer, EarlyStoppingCallback
+from utils import LogCallback, plot_loss_log
 
 from data_utils import convert_tsv_to_txt, get_train_test_df
 from utils_ner import NerDataset, Split
@@ -152,8 +153,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         'num_train_epochs': params["EPOCH_TOP"],
         'train_batch_size': params["BATCH_SIZE"],
         "save_strategy": "epoch",
-        "evaluation_strategy": "epoch",
-        "logging_strategy ": "epoch",
+        "evaluation_strategy": "steps",
+        "eval_steps": max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+        "logging_steps":max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+        "do_train": True,
         "load_best_model_at_end": params["LOAD_BEST_MODEL"],
         "learning_rate": params["lr"],
         "weight_decay": params["weight_decay"]
@@ -171,12 +174,14 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset, callbacks=[
-            EarlyStoppingCallback(early_stopping_patience=3)]
+            EarlyStoppingCallback(early_stopping_patience=3),
+            LogCallback(params["OUTPUT_DIR"]+"/train_log.json")]
     )
 
     # Start training
     trainOutput = trainer.train()
     trainer.save_model(params["OUTPUT_DIR"])
+    plot_loss_log(params["OUTPUT_DIR"]+"/train_log.json")
 
     if params['grad_finetune']:
 
@@ -212,8 +217,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             'output_dir': params["OUTPUT_DIR"],
             'num_train_epochs': params["EPOCH_END2END"],
             'train_batch_size': params["BATCH_SIZE"],
-            "evaluation_strategy": "epoch",
-            "logging_strategy ": "epoch",
+            "evaluation_strategy": "steps",
+            "eval_steps": max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+            "logging_steps":max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+            "do_train": True,
             "load_best_model_at_end": params["LOAD_BEST_MODEL"]
         }
 
@@ -238,11 +245,13 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
-            callbacks=[EarlyStoppingCallback(early_stopping_patience=3)]
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=3),
+            LogCallback(params["OUTPUT_DIR"]+"/train_finetune_log.json")]
         )
 
         # checkpiont is here.
         trainer.train(checkpoint)
+        plot_loss_log(params["OUTPUT_DIR"]+"/train_finetune_log.json")
     return trainer, model
 
 
