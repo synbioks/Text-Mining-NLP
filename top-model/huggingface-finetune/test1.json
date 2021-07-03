@@ -1,0 +1,1 @@
+[{"loss": 39.7785, "learning_rate": 0.00045000000000000004, "epoch": 5.0}, {"loss": 35.7785, "learning_rate": 0.00045000000000000004, "epoch": 10.0}, {"eval_loss": 31.266027450561523, "eval_runtime": 3.1009, "eval_samples_per_second": 55.468, "epoch": 5.0}]

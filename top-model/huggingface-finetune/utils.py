@@ -37,12 +37,14 @@ def plot_loss_log(log_file):
             val_loss[line['epoch']]=line['eval_loss']
     epochs_t  = list(train_loss.keys())
     loss_t = list(train_loss.values())
-    plt.plot(epochs_t, loss_t, 'o-', label="Train Loss")
+    fig1, ax1 = plt.subplots()
+    ax1.plot(epochs_t, loss_t, 'o-', label="Train Loss")
     epochs_v  = list(val_loss.keys())
     loss_v = list(val_loss.values())
-    plt.plot(epochs_v, loss_v, 'o-', label="Val Loss")
-    plt.legend()
-    plt.savefig(log_file.split('.')[0]+'.png')
+    ax1.plot(epochs_v, loss_v, 'o-', label="Val Loss")
+    ax1.legend()
+    fig1.savefig(log_file.split('.')[0]+'.png')
+    plt.close(fig1)
     
 
 
@@ -51,7 +53,14 @@ def plot_loss_log(log_file):
 #         {'loss': 39.7785, 'learning_rate': 0.00045000000000000004, 'epoch': 5.0},
 #         {'loss': 35.7785, 'learning_rate': 0.00045000000000000004, 'epoch': 10.0},
 #         {'eval_loss': 31.266027450561523, 'eval_runtime': 3.1009, 'eval_samples_per_second': 55.468, 'epoch': 5.0}]
-#     with open('test.json','w') as fp:
+#     with open('test1.json','w') as fp:
 #         json.dump(a,fp)
-#     plot_loss_log('test.json')
+#     plot_loss_log('test1.json')
+#     b = [
+#         {'loss': 30.7785, 'learning_rate': 0.00045000000000000004, 'epoch': 5.0},
+#         {'loss': 25.7785, 'learning_rate': 0.00045000000000000004, 'epoch': 10.0},
+#         {'eval_loss': 21.266027450561523, 'eval_runtime': 3.1009, 'eval_samples_per_second': 55.468, 'epoch': 5.0}]
+#     with open('test2.json','w') as fp:
+#         json.dump(b,fp)
+#     plot_loss_log('test2.json')
 
