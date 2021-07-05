@@ -159,7 +159,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         "do_train": True,
         "load_best_model_at_end": params["LOAD_BEST_MODEL"],
         "learning_rate": params["lr"],
-        "weight_decay": params["weight_decay"]
+        "weight_decay": params["weight_decay"],
+        "save_total_limit": 2
     }
     print(training_args_dict)
     with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
@@ -221,7 +222,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             "eval_steps": max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
             "logging_steps":max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
             "do_train": True,
-            "load_best_model_at_end": params["LOAD_BEST_MODEL"]
+            "load_best_model_at_end": params["LOAD_BEST_MODEL"],
+            "save_total_limit": 2
         }
 
         with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
