@@ -174,7 +174,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset, callbacks=[
-            EarlyStoppingCallback(early_stopping_patience=3),
+            EarlyStoppingCallback(early_stopping_patience=params["patience"]),
             LogCallback(params["OUTPUT_DIR"]+"/train_log.json")]
     )
 
@@ -245,7 +245,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
-            callbacks=[EarlyStoppingCallback(early_stopping_patience=3),
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=params["patience"]),
             LogCallback(params["OUTPUT_DIR"]+"/train_finetune_log.json")]
         )
 
