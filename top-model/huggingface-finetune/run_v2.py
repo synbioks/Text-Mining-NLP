@@ -5,6 +5,7 @@
 Architecture: NER Top Model Training setups (B)
               Train top model first, then fine tune BioBERT+top models. Top models: 3layer-CRF, 3layer-Softmax
 """
+from transformers.trainer_utils import set_seed
 from models.models_enum import ModelsType
 import os
 import gc
@@ -66,6 +67,7 @@ def random_seed_set(seed_value):
     torch.manual_seed(seed_value)
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
+    set_seed(seed_value)
 
 
 def prepare_data():
@@ -336,6 +338,13 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
 def main(_params):
     global params
     params = _params
+    '''
+    params['seed_value'] = args.seed_value
+    params['set_seed'] = args.set_seed
+    '''
+    if params['set_seed']:
+        random_seed_set(params['seed_value'])
+
     train_df, test_df, dev_df, labels, num_labels, label_map, data_dir = prepare_data()
 
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(

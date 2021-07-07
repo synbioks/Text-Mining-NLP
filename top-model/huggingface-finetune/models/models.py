@@ -77,8 +77,9 @@ class FullyConnectedLayers(nn.Module):
 class BertNERCRF(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, xargs):
+        super(BertNERCRF).__init__(config)
+        self.xargs = xargs
         self.num_labels = config.num_labels
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
@@ -137,9 +138,10 @@ class BertNERCRF(BertPreTrainedModel):
 class BertNERCRFFCN(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, xargs):
+        super(BertNERCRFFCN).__init__(config)
         self.num_labels = config.num_labels
+        self.xargs = xargs
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
