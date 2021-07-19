@@ -6,8 +6,8 @@ import json
 import shutil
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--seed_value", default=42)
-parser.add_argument("--set_seed", required=True)
+parser.add_argument("--seed_value", default=42, type=int)
+parser.add_argument("--set_seed", action="store_true")
 parser.add_argument("--data", required=True)
 parser.add_argument("--entity_type", required=True)
 parser.add_argument("--dataset", required=True)
@@ -17,7 +17,7 @@ parser.add_argument("--root", required=True)
 args = parser.parse_args()
 
 # code directory
-CODE_DIR = 'sbks-ucsd/top-model/huggingface-finetune/'
+CODE_DIR = 'sbks-ucsd-test/top-model/huggingface-finetune/'
 
 # exp config file
 EXP_CONFIG_FILE = os.path.join(args.root, CODE_DIR, 'exp_config.json')
@@ -55,4 +55,5 @@ try:
 except OSError as e:
     print(
         f'Dir - {params["WORKING_DIR"]} - {e.os.strerror} . It mean same directory being used for multiple exp')
+print(params)
 main(params)

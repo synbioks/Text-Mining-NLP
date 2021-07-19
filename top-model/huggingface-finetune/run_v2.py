@@ -61,7 +61,7 @@ params = {}
 
 def random_seed_set(seed_value):
     # 1. Set `PYTHONHASHSEED` environment variable at a fixed value
-    os.environ['PYTHONHASHSEED'] = str(seed_value)
+    #os.environ['PYTHONHASHSEED'] = str(seed_value)
     random.seed(seed_value)
     np.random.seed(seed_value)
     torch.manual_seed(seed_value)
@@ -69,7 +69,14 @@ def random_seed_set(seed_value):
     torch.backends.cudnn.deterministic = True
     set_seed(seed_value)
 
-
+def process_entity(tokenizer, train_df,add_to_vocab=True):
+    temp_df = train_df.copy()
+    train_df.loc[temp_df['labels']=='B',['words']] = temp_df[temp_df['labels']=='B']['words'].apply(lambda x:x.replace('-',''))
+    print('Unique Entities - ', train_df[train_df['labels']=='B']['words'].unique())
+    if add_to_vocab:
+        print('Adding entities to vocab')
+        tokenizer.add_tokens(list(train_df[train_df['labels']=='B']['words'].unique()))
+            
 def prepare_data():
     ENT = params["entity_type"]
     DATASET = params["dataset"]
@@ -134,7 +141,7 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     return data_args, model_args, config, tokenizer
 
 
-def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map):
+def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer):
     # First freeze bert weights and train
     model = get_model(
         model_path=model_args["model_name_or_path"],
@@ -145,6 +152,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     if not params['grad_e2e']:
         for param in model.base_model.parameters():
             param.requires_grad = False
+    if 'add_vocab' in params.keys():
+        model.resize_token_embeddings(len(tokenizer))
+        for param in model.bert.embeddings.parameters():
+            param.requires_grad = True
 
     # Change from default eval mode to train mode
     model.train()
@@ -185,6 +196,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     trainOutput = trainer.train()
     trainer.save_model(params["OUTPUT_DIR"])
     plot_loss_log(params["OUTPUT_DIR"]+"/train_log.json")
+    best_model = trainer.state.best_model_checkpoint
 
     if params['grad_finetune']:
 
@@ -194,10 +206,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
               params["OUTPUT_DIR"] + 'config.json')
         data = json.loads(
             open(params["OUTPUT_DIR"] + 'config.json', "r").read())
-        top_model_path = data['_name_or_path']
+        top_model_path = best_model
         checkpoint = top_model_path.split("/")[-1]
         print("checkpoint is at ... ", checkpoint)
-        print("top_model_path is at ...", params["LOAD_BEST_MODEL"])
+        print("top_model_path is at ...", top_model_path)
 
         # Config #
         config = BertConfig.from_pretrained(
@@ -210,22 +222,26 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
         # Model #
         reloaded_model = get_model(
-            model_path=top_model_path,
+            model_path=top_model_path+"/",
             cache_dir=model_args['cache_dir'],
-            config=config,
+            config=None,
             model_type=params['model_type'])
+        print("Reloaded",reloaded_model.bert.embeddings)
 
         # Training args #
         training_args_dict = {
             'output_dir': params["OUTPUT_DIR"],
-            'num_train_epochs': params["EPOCH_END2END"],
+            'num_train_epochs': params["EPOCH_TOP"] + params["EPOCH_END2END"],
             'train_batch_size': params["BATCH_SIZE"],
             "evaluation_strategy": "steps",
             "eval_steps": max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
             "logging_steps":max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
             "do_train": True,
             "load_best_model_at_end": params["LOAD_BEST_MODEL"],
-            "save_total_limit": 2
+            "save_total_limit": 2,
+            "learning_rate": params["lr_finetune"],
+            "weight_decay": params["wd_finetune"] if "wd_finetune" in params.keys() else 0,
+            "ignore_data_skip": True
         }
 
         with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
@@ -236,8 +252,13 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
         # Then unfreeze the bert weights and fine tune end-to-end
         model = reloaded_model
-        for param in model.base_model.parameters():
-            param.requires_grad = True
+        if params['grad_finetune_layers'] != -1:
+            for param in model.base_model.parameters():
+                param.requires_grad = False
+
+            for i in range(len(model.bert.encoder.layer) - params['grad_finetune_layers'], len(model.bert.encoder.layer)):
+                for param in model.bert.encoder.layer[i].parameters():
+                    param.requires_grad = True
         model.to('cuda')
 
         # Set to train mode.
@@ -254,7 +275,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         )
 
         # checkpiont is here.
-        trainer.train(checkpoint)
+        trainer.train()
         plot_loss_log(params["OUTPUT_DIR"]+"/train_finetune_log.json")
     return trainer, model
 
@@ -349,6 +370,11 @@ def main(_params):
 
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(
         data_dir, labels, num_labels, label_map)
+    
+    if 'add_vocab' in params.keys():
+        process_entity(tokenizer,train_df)
+        process_entity(tokenizer,dev_df)
+        process_entity(tokenizer,test_df)
 
     # ## Create Dataset Objects
 
@@ -359,7 +385,7 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],  # True
-        mode=Split.train, data_size=100)
+        mode=Split.train, data_size=params["data_size"])
 
     eval_dataset = NerDataset(
         data_dir=data_args['data_dir'],
@@ -374,7 +400,7 @@ def main(_params):
 
     # Train top-model using the Trainer API
     trainer, model = run_train(
-        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map)
+        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer)
 
     gc.collect()
     torch.cuda.empty_cache()

@@ -78,7 +78,7 @@ class BertNERCRF(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config, xargs):
-        super(BertNERCRF).__init__(config)
+        super(BertNERCRF,self).__init__(config)
         self.xargs = xargs
         self.num_labels = config.num_labels
         self.bert = BertModel(config, add_pooling_layer=False)
@@ -139,7 +139,7 @@ class BertNERCRFFCN(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config, xargs):
-        super(BertNERCRFFCN).__init__(config)
+        super(BertNERCRFFCN,self).__init__(config)
         self.num_labels = config.num_labels
         self.xargs = xargs
         self.bert = BertModel(config, add_pooling_layer=False)
