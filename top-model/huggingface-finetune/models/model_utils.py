@@ -1,4 +1,5 @@
 import torch
+from torch._C import device, dtype
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers.modeling_outputs import TokenClassifierOutput
@@ -25,7 +26,11 @@ def get_token_classifier_output(model, logits, labels, attention_mask, return_di
     if labels is not None:
         
         if "softmax" in model.top_model["name"]:
-            loss_fct = nn.CrossEntropyLoss()
+            if "class_wt" in model.xargs.keys():
+                wt = torch.as_tensor(model.xargs['class_wt'], dtype=logits.dtype, device=logits.device)
+                loss_fct = nn.CrossEntropyLoss(weight=wt)
+            else:
+                loss_fct = nn.CrossEntropyLoss()
             # Only keep active parts of the loss
             if attention_mask is not None:
                 active_loss = attention_mask.view(-1) == 1

@@ -100,9 +100,19 @@ def prepare_data():
     labels = np.sort(train_df['labels'].unique()).tolist()
     label_map = {i: label for i, label in enumerate(labels)}
     num_labels = len(labels)
-    print("unique labels:", labels)
 
-    return train_df, test_df, dev_df, labels, num_labels, label_map, data_dir
+    label_count = train_df.groupby('labels')['labels'].count()
+    wt = []
+    for lb in labels:
+        wt.append(label_count[lb])
+
+    # wt = (1/count)*(total/num_class)
+    wt = np.array(wt)
+    wt = np.sum(wt)/(wt*len(wt))
+    
+    print(f"unique labels: {labels} with weights {wt}")
+
+    return train_df, test_df, dev_df, labels, num_labels, label_map, data_dir, wt
 
 
 def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
@@ -141,13 +151,14 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     return data_args, model_args, config, tokenizer
 
 
-def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer):
+def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs={}):
     # First freeze bert weights and train
     model = get_model(
         model_path=model_args["model_name_or_path"],
         cache_dir=model_args['cache_dir'],
         config=config,
-        model_type=params['model_type'])
+        model_type=params['model_type'],
+        xargs=xargs)
 
     if not params['grad_e2e']:
         for param in model.base_model.parameters():
@@ -225,7 +236,8 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             model_path=top_model_path+"/",
             cache_dir=model_args['cache_dir'],
             config=None,
-            model_type=params['model_type'])
+            model_type=params['model_type'], 
+            xargs=xargs)
         print("Reloaded",reloaded_model.bert.embeddings)
 
         # Training args #
@@ -366,7 +378,7 @@ def main(_params):
     if params['set_seed']:
         random_seed_set(params['seed_value'])
 
-    train_df, test_df, dev_df, labels, num_labels, label_map, data_dir = prepare_data()
+    train_df, test_df, dev_df, labels, num_labels, label_map, data_dir, wt = prepare_data()
 
     data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(
         data_dir, labels, num_labels, label_map)
@@ -399,8 +411,10 @@ def main(_params):
     print(train_dataset.__len__(), eval_dataset.__len__())
 
     # Train top-model using the Trainer API
+    xargs = {}
+    xargs['class_wt'] = wt
     trainer, model = run_train(
-        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer)
+        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs)
 
     gc.collect()
     torch.cuda.empty_cache()
