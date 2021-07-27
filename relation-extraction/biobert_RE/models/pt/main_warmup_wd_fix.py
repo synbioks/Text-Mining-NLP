@@ -16,70 +16,44 @@ import torch.optim as optim
 import torch.nn.functional as F
 from tqdm import tqdm
 
-from transformers import BertModel, BertTokenizer
+from transformers import BertModel, BertTokenizer, get_linear_schedule_with_warmup
 
 CKPT_ROOT = "../../weights"
 DATASET_ROOT = "../../datasets"
 CHEMPROT_ROOT = os.path.join(DATASET_ROOT, "CHEMPROT")
 
-# variable learning rate
-class NoamOptim:
-    "Optim wrapper that implements rate."
-    def __init__(self, model_size, init_step, warmup, factor, optimizer):
-        self.optimizer = optimizer
-        self._step = init_step
-        self.warmup = warmup
-        self.factor = factor
-        self.model_size = model_size
-        self._rate = 0
-        
-    def step(self):
-        "Update parameters and rate"
-        self._step += 1
-        rate = self.rate2()
-        for p in self.optimizer.param_groups:
-            p['lr'] = rate
-        self._rate = rate
-        self.optimizer.step()
-    
-    def zero_grad(self):
-        self.optimizer.zero_grad()
-        
-    def rate(self, step=None):
-        "Implement `lrate` above"
-        if step is None:
-            step = self._step
-        return self.factor * (self.model_size ** (-0.5) * min(step ** (-0.5), step * self.warmup ** (-1.5)))
-    
-    def rate2(self, step=None):
-        if step is None:
-            step = self._step
-        return self.factor * min(step ** (-0.5), step * self.warmup ** (-1.5))
-
-def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optimizer, n_epochs, valid_freq, ckpt_dir, init_step):
+def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optimizer, scheduler, 
+              n_epochs, ckpt_dir, init_step):
 
     # setup training
     print(f"Running train {task_name}")
     net.train()
     train_step_count = 0
     epoch_count = 0
+    all_val_f1 = []
+    best_f1 = 0
 
     # train loop
     for epoch_count in range(n_epochs):
         print(f"Running epoch {epoch_count}\n")
         for (x, y) in tqdm(train_dataloader):
-            net.train_step(x, y, loss_fn, optimizer)
+            net.train_step_new(x, y, loss_fn, optimizer, scheduler)
         
         net.eval()
         print(f"Step {init_step + train_step_count} finished")
         test_net("TRAIN", net, train_dataloader)
-        test_net("VALIDATION", net, valid_dataloader)
-        if ckpt_dir is not None:
-            a = time.time()
-            ckpt_path = os.path.join(ckpt_dir, f"{init_step + train_step_count}")
-            torch.save(net.state_dict(), ckpt_path)
-            print(time.time() - a)
+        val_f1 = test_net("VALIDATION", net, valid_dataloader)
+        all_val_f1.append(val_f1)
+        if ckpt_dir is not None and val_f1 > best_f1:
+            best_f1 = val_f1
+            torch.save(net, ckpt_dir)
         net.train()
+
+    if ckpt_dir:          
+        net = torch.load(ckpt_dir)
+    print("Epoch wise f1 val score three classes : {}".format(str(all_val_f1)))
+    val_f1 = test_net("VALIDATION", net, valid_dataloader)
+    return net
 
 def test_net(task_name, net, test_dataloader):
 
@@ -88,7 +62,7 @@ def test_net(task_name, net, test_dataloader):
     net.eval()
     num_tested = 0
     num_correct = 0
-    num_classes = 4
+    num_classes = 14
     confusion_mat = np.zeros((num_classes, num_classes))
     with torch.no_grad():
         for i, (x_batch, y_batch) in tqdm(enumerate(test_dataloader)):
@@ -118,9 +92,10 @@ def test_net(task_name, net, test_dataloader):
     print("Precision:", precisions)
     print("Recall:", recalls)
     print("F1 Score", f1s)
-    print("F1 three cls", np.mean(f1s[:3]))
+    print("F1 three cls", np.mean(f1s[:-1]))
     print("Confusion Matrix:")
     print(confusion_mat)
+    return np.mean(f1s[:3])
 
 def predict_net(task_name, net, dataloader):
 
@@ -136,8 +111,10 @@ def predict_net(task_name, net, dataloader):
                 res.append((id1s[i], id2s[i], pred[i], score[i][pred[i]]))
     return res
 
-def train_cls_end_to_end(batch_size=32, max_seq_len=128):
+# def train_cls_end_to_end(args, batch_size=32, max_seq_len=128, epochs=10):
+def train_cls_end_to_end(batch_size=32, max_seq_len=128, epochs=8, datsetname = "CHEMPROT"):
 
+    print("Running the model for ... {} dataset".format(datsetname))
     init_state = None
     top_model_init_state = None
     # init_state = "../../weights/chemprot-cls-end-to-end/top-first-9000"
@@ -151,40 +128,13 @@ def train_cls_end_to_end(batch_size=32, max_seq_len=128):
     label_filter = ["CPR:3", "CPR:4", "CPR:9", "false"]
 
     # dataloaders
-    train_data = ChemprotTsvDataset(tokenizer, label_filter, max_seq_len)
-    train_data.load(os.path.join(CHEMPROT_ROOT, "train_4cls.tsv"))
-    train_dataloader = DataLoader(
-        dataset=train_data,
-        batch_size=batch_size,
-        num_workers=8,
-        shuffle=True,
-        collate_fn=chemprot_tsv_collate_fn
-    )
-
-    valid_data = ChemprotTsvDataset(tokenizer, label_filter, max_seq_len)
-    valid_data.load(os.path.join(CHEMPROT_ROOT, "dev_4cls.tsv"))
-    valid_dataloader = DataLoader(
-        dataset=valid_data,
-        batch_size=128,
-        num_workers=8,
-        shuffle=False,
-        collate_fn=chemprot_tsv_collate_fn
-    )
-    
-    test_data = ChemprotTsvDataset(tokenizer, label_filter, max_seq_len)
-    test_data.load(os.path.join(CHEMPROT_ROOT, "test_4cls.tsv"))
-    test_dataloader = DataLoader(
-        dataset=test_data,
-        batch_size=128,
-        num_workers=8,
-        shuffle=False,
-        collate_fn=chemprot_tsv_collate_fn
-    )
-
+    train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(
+        datsetname, tokenizer, max_seq_len, batch_size)
 
     # net
     init_step = 0
-    net = EndToEnd("../../weights/biobert-pt-v1.0-pubmed-pmc", top_model=CLSTopModel())
+    net = EndToEnd("../../weights/biobert-pt-v1.0-pubmed-pmc", top_model=CLSTopModel(datsetname))
+    net.clip_param_grad = 1.0
     if init_state is not None:
         state_filename = init_state.split("/")[-1]
         if "-" in state_filename:
@@ -196,11 +146,19 @@ def train_cls_end_to_end(batch_size=32, max_seq_len=128):
         net.top_model.load_state_dict(torch.load(top_model_init_state))
     net = net.cuda()
     loss_fn = nn.CrossEntropyLoss()
-    adam = optim.AdamW(net.parameters(), lr=0, betas=(0.9, 0.999), eps=1e-6, weight_decay=0.01)
-    optimizer = NoamOptim(768, init_step, 3000, 0.0005, adam) 
-    # current best 768, init_step, 3000, 0.0005, adam, rate2() func
-    # current best 768, init_step, 3000, 0.02, adam, rate() func
 
+    # Prepare optimizer
+    t_total = len(train_dataloader) * epochs
+    no_decay = ['bias', 'LayerNorm.weight']
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in net.named_parameters() if not any(
+            nd in n for nd in no_decay)], 'weight_decay': 0.01},
+        {'params': [p for n, p in net.named_parameters() if any(
+            nd in n for nd in no_decay)], 'weight_decay': 0.0}
+    ]
+    optimizer = optim.AdamW(optimizer_grouped_parameters,
+                            lr=1e-5, eps=1e-8)
+    scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=t_total // 10, num_training_steps=t_total)
     print(net)
 
     print("Dataset statistics : ")
@@ -208,16 +166,16 @@ def train_cls_end_to_end(batch_size=32, max_seq_len=128):
     print("Training model with params bs/seqlen : {} {}".format(batch_size, max_seq_len))
 
     # train / test loop
-    train_net(
+    net = train_net(
         "TRAIN", 
         net, 
         train_dataloader, 
         valid_dataloader, 
         loss_fn, 
         optimizer, 
-        14,  # max step
-        1000,   # vaild frequency
-        "../../weights/chemprot-cls-end-to-end", # checkpoint directory
+        scheduler,
+        epochs,  # n epochs
+        "../../weights/{}-cls-end-to-end-{}".format(datsetname, max_seq_len), # checkpoint directory
         init_step
     ) 
 
@@ -395,14 +353,14 @@ if __name__ == "__main__":
     # top layer pooling
     parser = get_parser()
 
-    if len(sys.argv) < 2:
-        parser.print_usage()
-        sys.exit(1)
+    # if len(sys.argv) < 1:
+    #     parser.print_usage()
+    #     sys.exit(1)
     
     args = parser.parse_args()
     print(args)
+    print("\n\n\n\n")
 
-    # acs_predict()
-    train_cls_end_to_end(args.batch_size, args.max_seq_len)
-    # train_cls_top_model()
+    #acs_predict()
+    train_cls_end_to_end(args.batch_size, args.max_seq_len, datsetname="DRUGPROT")
     # gen_chemprot_act("3layer-e2e-narrow-2")
