@@ -7,12 +7,18 @@ from transformers import BertModel
 
 class CLSTopModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, name="CHEMPROT"):
         super(CLSTopModel, self).__init__()
         input_size = 768
         hidden_size = 1024
-        num_class = 4
-        dropout_p = 0.3
+        assert(name in ["CHEMPROT", "DRUGPROT"])
+        
+        if name == "CHEMPROT":
+            num_class = 4
+        elif name == "DRUGPROT":
+            num_class = 14
+        dropout_p = 0.1
+        
         self.fc = nn.Sequential(
             nn.Dropout(p=dropout_p),
             nn.Linear(input_size, hidden_size),
@@ -97,6 +103,7 @@ class EndToEnd(nn.Module):
         super(EndToEnd, self).__init__()
         self.bert = BertModel.from_pretrained(state_path)
         self.top_model = top_model
+        self.clip_param_grad = None
 
     def forward(self, x):
         y = self.bert(**x, return_dict=True).last_hidden_state
@@ -111,6 +118,19 @@ class EndToEnd(nn.Module):
         loss = loss_fn(out, y)
         loss.backward()
         optimizer.step()
+        return loss
+
+    def train_step_new(self, x, y, loss_fn, optimizer, scheduler):
+        x = {k: v.cuda() for k, v in x.items()}
+        y = y.cuda()
+        optimizer.zero_grad()
+        out = self.forward(x)
+        loss = loss_fn(out, y)
+        loss.backward()
+        if self.clip_param_grad is not None:
+            torch.nn.utils.clip_grad_norm_(self.parameters(), self.clip_param_grad)
+        optimizer.step()
+        scheduler.step()
         return loss
 
     def predict(self, x, return_score=False):
