@@ -5,3 +5,7 @@
 * To get the data_words.pickle file, run `python run.py create_data_words`
 * To get the `pub_year.json` file, run `python run.py pub_year`
 * To get the Mallet-Lda/DTM model, run `python run.py model`
+
+## Running it on Nautilus
+* Start a pod using the topic-modeling.yaml
+* Run the project as mentioned above

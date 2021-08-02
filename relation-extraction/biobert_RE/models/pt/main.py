@@ -414,4 +414,3 @@ if __name__ == "__main__":
     # acs_predict()
     train_cls_end_to_end(args.batch_size, args.max_seq_len)
     # train_cls_top_model()
-    # gen_chemprot_act("3layer-e2e-narrow-2")
