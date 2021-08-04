@@ -14,16 +14,20 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import pandas as pd
 from tqdm import tqdm
+from sklearn.metrics import classification_report, f1_score, confusion_matrix
 
 from transformers import BertModel, BertTokenizer, get_linear_schedule_with_warmup
+from drugprot_evln.src.main import main as evln_main
+from drugprot_evln.src.main import parse_arguments as evln_parseargs
 
 CKPT_ROOT = "../../weights"
 DATASET_ROOT = "../../datasets"
 CHEMPROT_ROOT = os.path.join(DATASET_ROOT, "CHEMPROT")
 
 def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optimizer, scheduler, 
-              n_epochs, ckpt_dir, init_step):
+              n_epochs, ckpt_dir, init_step, label_filter):
 
     # setup training
     print(f"Running train {task_name}")
@@ -36,13 +40,13 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     # train loop
     for epoch_count in range(n_epochs):
         print(f"Running epoch {epoch_count}\n")
-        for (x, y) in tqdm(train_dataloader):
+        for (_, x, y) in tqdm(train_dataloader):
             net.train_step_new(x, y, loss_fn, optimizer, scheduler)
         
         net.eval()
         print(f"Step {init_step + train_step_count} finished")
-        test_net("TRAIN", net, train_dataloader)
-        val_f1 = test_net("VALIDATION", net, valid_dataloader)
+        test_net_drugprot("TRAINING", net, train_dataloader, label_filter)
+        val_f1 = test_net_drugprot("DEVELOPMENT", net, valid_dataloader, label_filter)
         all_val_f1.append(val_f1)
         if ckpt_dir is not None and val_f1 > best_f1:
             best_f1 = val_f1
@@ -52,10 +56,10 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     if ckpt_dir:          
         net = torch.load(ckpt_dir)
     print("Epoch wise f1 val score three classes : {}".format(str(all_val_f1)))
-    val_f1 = test_net("VALIDATION", net, valid_dataloader)
+    val_f1 = test_net_drugprot("DEVELOPMENT", net, valid_dataloader, label_filter)
     return net
 
-def test_net(task_name, net, test_dataloader):
+def test_net(task_name, net, test_dataloader, target_names):
 
     # setup testing
     print(f"Running test {task_name}")
@@ -64,8 +68,9 @@ def test_net(task_name, net, test_dataloader):
     num_correct = 0
     num_classes = 14
     confusion_mat = np.zeros((num_classes, num_classes))
+    y_true, y_pred = [], []
     with torch.no_grad():
-        for i, (x_batch, y_batch) in tqdm(enumerate(test_dataloader)):
+        for i, (minfo, x_batch, y_batch) in tqdm(enumerate(test_dataloader)):
 
             pred = net.predict(x_batch).cpu().numpy()
 
@@ -75,27 +80,80 @@ def test_net(task_name, net, test_dataloader):
 
             for p, y in zip(pred, y_batch):
                 confusion_mat[p][y] += 1
+            y_true.extend(y_batch.tolist())
+            y_pred.extend(pred.tolist())
 
     recalls = []
     precisions = []
     f1s = []
-    for i in range(num_classes):
-        recall = confusion_mat[i][i] / np.sum(confusion_mat[:, i])
-        precision = confusion_mat[i][i] / np.sum(confusion_mat[i])
-        recalls.append(recall)
-        precisions.append(precision)
-        f1s.append(2 * recall * precision / (recall + precision))
 
     print("---Results---")
     print("Total tested:", np.sum(confusion_mat))
     print("ACC:", num_correct / num_tested)
-    print("Precision:", precisions)
-    print("Recall:", recalls)
-    print("F1 Score", f1s)
-    print("F1 three cls", np.mean(f1s[:-1]))
-    print("Confusion Matrix:")
-    print(confusion_mat)
-    return np.mean(f1s[:3])
+    print(classification_report(y_true, y_pred, target_names=target_names))
+    # Confusion matrix whose i-th row and j-th column entry indicates the number of samples with true label being i-th class and predicted label being j-th class.
+    print(confusion_matrix([target_names[lbl] for lbl in y_true], 
+                           [target_names[lbl] for lbl in y_pred], labels=target_names))
+    f1_weighted = f1_score(y_true, y_pred, average="weighted")
+    f1_macro = f1_score(y_true, y_pred, average="macro")
+    f1_micro = f1_score(y_true, y_pred, average="micro")
+    print("{} Weighted f1 score : {}".format(task_name, f1_weighted))
+    print("{} Macro    f1 score : {}".format(task_name, f1_macro))
+    print("{} Micro    f1 score : {}".format(task_name, f1_micro))
+
+    return np.mean(f1_macro)
+
+def test_net_drugprot(task_name, net, test_dataloader, target_names):
+    # setup testing
+    print(f"Running test on {task_name}")
+    net.eval()
+    num_tested = 0
+    num_correct = 0
+    num_classes = 14
+    y_true, y_pred = [], []
+    allpreds = []
+    with torch.no_grad():
+        for i, (minfo_batch, x_batch, y_batch) in tqdm(enumerate(test_dataloader)):
+            pred = net.predict(x_batch).cpu().numpy()
+            y_batch = y_batch.numpy()
+            num_tested += len(y_batch)
+            num_correct += np.sum(pred == y_batch)
+            for minfo, y_ in zip(minfo_batch, pred.tolist()):
+                if target_names[y_] != "NA":
+                    allpreds.append([minfo[0], target_names[y_], minfo[1], minfo[2]])
+
+            y_true.extend(y_batch.tolist())
+            y_pred.extend(pred.tolist())
+
+    allpreds_df = pd.DataFrame(allpreds)
+    tmppath     = "/tmp/random_{}.csv".format(task_name.lower())
+    allpreds_df.to_csv(tmppath, sep="\t", index=False, header=False)
+    pmids = set([t[0] for t in allpreds])
+    with open("/tmp/pmids.txt", "w") as f:
+        f.write("\n".join(list(pmids)))
+
+    eval_args = evln_parseargs()
+    eval_args.gs_path   = "../../datasets/drugprot-gs-training-development/{}/drugprot_{}_relations.tsv".format(task_name.lower(), task_name.lower())
+    eval_args.ent_path  = "../../datasets/drugprot-gs-training-development/{}/drugprot_{}_entities.tsv".format(task_name.lower(), task_name.lower())
+    eval_args.pred_path = tmppath
+    eval_args.pmids     = "/tmp/pmids.txt"
+    eval_args.split     = task_name
+    print("Running evaluation with the official script ... ")
+    f1_official = evln_main(eval_args)
+
+    print("---Results---")
+    print("ACC:", num_correct / num_tested)
+    # print(classification_report(y_true, y_pred, labels=target_names))
+    # Confusion matrix whose i-th row and j-th column entry indicates the number of samples with true label being i-th class and predicted label being j-th class.
+    print(confusion_matrix([target_names[lbl] for lbl in y_true], [target_names[lbl] for lbl in y_pred], labels=target_names))
+    f1_weighted = f1_score(y_true, y_pred, average="weighted")
+    f1_macro = f1_score(y_true, y_pred, average="macro")
+    f1_micro = f1_score(y_true, y_pred, average="micro")
+    print("{} Weighted f1 score : {}".format(task_name, f1_weighted))
+    print("{} Macro    f1 score : {}".format(task_name, f1_macro))
+    print("{} Micro    f1 score : {}".format(task_name, f1_micro))
+
+    return f1_official
 
 def predict_net(task_name, net, dataloader):
 
@@ -112,7 +170,11 @@ def predict_net(task_name, net, dataloader):
     return res
 
 # def train_cls_end_to_end(args, batch_size=32, max_seq_len=128, epochs=10):
-def train_cls_end_to_end(batch_size=32, max_seq_len=128, epochs=8, datsetname = "CHEMPROT"):
+def train_cls_end_to_end(args, datsetname = "CHEMPROT"):
+    batch_size  = args.batch_size
+    max_seq_len = args.max_seq_len
+    epochs      = args.epochs
+    upsampling  = args.upsampling
 
     print("Running the model for ... {} dataset".format(datsetname))
     init_state = None
@@ -128,7 +190,7 @@ def train_cls_end_to_end(batch_size=32, max_seq_len=128, epochs=8, datsetname = 
     label_filter = ["CPR:3", "CPR:4", "CPR:9", "false"]
 
     # dataloaders
-    train_dataloader, valid_dataloader, test_dataloader = get_dataloaders(
+    train_dataloader, valid_dataloader, test_dataloader, label_filter = get_dataloaders(
         datsetname, tokenizer, max_seq_len, batch_size)
 
     # net
@@ -176,10 +238,12 @@ def train_cls_end_to_end(batch_size=32, max_seq_len=128, epochs=8, datsetname = 
         scheduler,
         epochs,  # n epochs
         "../../weights/{}-cls-end-to-end-{}".format(datsetname, max_seq_len), # checkpoint directory
-        init_step
+        init_step,
+        label_filter
     ) 
 
-    test_net("TEST", net, test_dataloader)
+    print("\n\n\n\nRunning final evaluaton .... ")
+    test_net("DEVELOPMENT", net, test_dataloader, label_filter)
 
 
 class activation_hook:
@@ -239,8 +303,9 @@ def gen_chemprot_act(model_name):
         np.save(fout, act2.get_act())
 
 
-def acs_predict():
+def acs_predict(max_seq_len=128, wts_path="../../weights/chemprot-cls-end-to-end/3layer-e2e-2"):
 
+    print("Predicting on ACS with seq length {} model checkpoint : {}".format(max_seq_len, wts_path))
     dataset_dir = "../../datasets/acs-20210530-gold"
 
     # tokenizer
@@ -250,7 +315,8 @@ def acs_predict():
     )
 
     net = EndToEnd("../../weights/biobert-pt-v1.0-pubmed-pmc")
-    net.load_state_dict(torch.load("../../weights/chemprot-cls-end-to-end/3layer-e2e-2"))
+    # net.load_state_dict(torch.load(wts_path))
+    net = torch.load(wts_path)
     net = net.cuda()
     net.eval()
 
@@ -270,7 +336,7 @@ def acs_predict():
             collate_fn=acs_collate_fn
         )
         output = predict_net(pub_num, net, dataloader)
-        with open(os.path.join(article_dir, "re_output.tsv"), "w", encoding="utf8") as fout:
+        with open(os.path.join(article_dir, "re_output_{}.tsv".format(max_seq_len)), "w", encoding="utf8") as fout:
             fout.write("id1\tid2\tclass\tconfidence\n")
             for _, (id1, id2, pred, score) in enumerate(output):
                 fout.write(f"{id1}\t{id2}\t{pred}\t{score}\n")
@@ -342,8 +408,12 @@ def get_parser():
     ### Training settings ###
     # mini-batch size for training: 16 (default)
     parser.add_argument('--batch_size', default=32, type=int)
+    # upsampling for training: 128 (default)
+    parser.add_argument('--upsampling', default=1, type=int)
     # max seq length for training: 128 (default)
     parser.add_argument('--max_seq_len', default=128, type=int)
+    # epcohs training: 5 (default)
+    parser.add_argument('--epochs', default=10, type=int)
 
     return parser
 
@@ -352,15 +422,10 @@ if __name__ == "__main__":
     # 5e-5 to 1e-5 early stopping
     # top layer pooling
     parser = get_parser()
-
-    # if len(sys.argv) < 1:
-    #     parser.print_usage()
-    #     sys.exit(1)
-    
     args = parser.parse_args()
+    
     print(args)
     print("\n\n\n\n")
 
-    #acs_predict()
-    train_cls_end_to_end(args.batch_size, args.max_seq_len, datsetname="DRUGPROT")
-    # gen_chemprot_act("3layer-e2e-narrow-2")
+    train_cls_end_to_end(args, datsetname="DRUGPROT")
+

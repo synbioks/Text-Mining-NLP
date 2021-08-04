@@ -125,50 +125,65 @@ def chemprot_tsv_collate_fn(items):
 
 class DrugProtDataset(Dataset):
     
-    def __init__(self, tokenizer, label_filter, max_seq_len):
+    def __init__(self, tokenizer, label_filter, max_seq_len, upsampling=1):
         super(DrugProtDataset, self).__init__()
         
         self.tokenizer = tokenizer
         self.label_filter = label_filter
         self.max_seq_len = max_seq_len
+        self.upsampling = upsampling
     
     def load(self, data_path):
         
         raw = []
-        #print("\n\n\n\n\n\n\n\nFix this \n\n\n\n\n\n\n")
+        # print("buggggggggggggg here ......\n\n\n\n")
         with open(data_path, "r", encoding="utf8") as fin:
             reader = csv.reader(fin, delimiter="\t")
             for i, row in enumerate(reader):
                 raw.append(row)
-                # if i > 10000:
+                # if i > 100:
                 #     break
         raw = raw[1:]
         
-        self.data = []
+        self.data        = []
+        self.data_NA     = []
+        self.data_not_NA = []
         for line in raw:
-            x = line[2]
-            y = line[3]
+            metainfo = (line[0], line[2], line[3])
+            x = line[4]
+            y = line[5]
             if y in self.label_filter:
-                self.data.append((x, y))
-    
+                if y == "NA":
+                    self.data_NA.append((metainfo, x, y))
+                else:
+                    self.data_not_NA.append((metainfo, x, y))
+
+        new_not_NA = []
+        for _ in range(self.upsampling):
+            new_not_NA.extend(self.data_not_NA)
+        
+        self.data = new_not_NA + self.data_NA
+        print("Upsampling ratio : {}".format(self.upsampling))
+        print("Previous / new count : {} {}".format(len(self.data_NA) + len(self.data_not_NA), len(self.data)))
+
     def __len__(self):
         return len(self.data)
     
     def __getitem__(self, index):
-        x, y = self.data[index]
+        minfo, x, y = self.data[index]
         x = self.tokenizer(x, padding="max_length", truncation=True, max_length=self.max_seq_len)
         y = self.label_filter.index(y)
-        return x, y
+        return minfo, x, y
 
 # bundle individual samples into one batch
 def drugprot_collate_fn(items):
-    print(1/0)
-    batch_x = {k: [] for k in items[0][0]}
+    batch_x = {k: [] for k in items[0][1]}
     batch_y = []
-    for x, y in items:
+    batch_minfo = []
+    for minfo, x, y in items:
         for k, v in x.items():
             batch_x[k].append(v)
-        batch_y.append(y)
+        batch_y.append(y); batch_minfo.append(minfo)
     batch_x = {
         k: torch.tensor(v, dtype=torch.double) 
         if k == "attention_mask" 
@@ -176,17 +191,22 @@ def drugprot_collate_fn(items):
         for k, v in batch_x.items()
     }
     batch_y = torch.tensor(batch_y, dtype=torch.long)
-    return batch_x, batch_y
+    return batch_minfo, batch_x, batch_y
 
 def get_dataloaders(datsetname, tokenizer, max_seq_len, batch_size):
     label_filter_map = {
         "DRUGPROT" : ['PRODUCT-OF', 'ACTIVATOR', 'ANTAGONIST', 'INDIRECT-UPREGULATOR', 'INDIRECT-DOWNREGULATOR', 'SUBSTRATE', 'PART-OF', 'DIRECT-REGULATOR', 'INHIBITOR', 'AGONIST-ACTIVATOR', 'SUBSTRATE_PRODUCT-OF', 'AGONIST', 'AGONIST-INHIBITOR', 'NA'],
-        "CHEMPORT" : ["CPR:3", "CPR:4", "CPR:9", "false"]
+        "CHEMPROT" : ["CPR:3", "CPR:4", "CPR:9", "false"]
     }
 
     dataset_fn_map = {
         "DRUGPROT" : DrugProtDataset,
         "CHEMPROT" : ChemprotTsvDataset
+    }
+
+    collate_fn_map = {
+        "DRUGPROT" : drugprot_collate_fn,
+        "CHEMPROT" : chemprot_tsv_collate_fn
     }
 
     CHEMPROT_ROOT = "../../datasets/CHEMPROT"
@@ -201,14 +221,14 @@ def get_dataloaders(datsetname, tokenizer, max_seq_len, batch_size):
     dataset_fn   = dataset_fn_map[datsetname]
     files_list   = files_map[datsetname]
 
-    train_data = dataset_fn(tokenizer, label_filter, max_seq_len)
+    train_data = dataset_fn(tokenizer, label_filter, max_seq_len, args.upsampling)
     train_data.load(files_list[0])
     train_dataloader = DataLoader(
         dataset=train_data,
         batch_size=batch_size,
         num_workers=8,
         shuffle=True,
-        collate_fn=chemprot_tsv_collate_fn
+        collate_fn=collate_fn_map[datsetname]
     )
 
     valid_data = dataset_fn(tokenizer, label_filter, max_seq_len)
@@ -218,7 +238,7 @@ def get_dataloaders(datsetname, tokenizer, max_seq_len, batch_size):
         batch_size=128,
         num_workers=8,
         shuffle=False,
-        collate_fn=chemprot_tsv_collate_fn
+        collate_fn=collate_fn_map[datsetname]
     )
     
     test_data = dataset_fn(tokenizer, label_filter, max_seq_len)
@@ -228,7 +248,7 @@ def get_dataloaders(datsetname, tokenizer, max_seq_len, batch_size):
         batch_size=128,
         num_workers=8,
         shuffle=False,
-        collate_fn=chemprot_tsv_collate_fn
+        collate_fn=collate_fn_map[datsetname]
     )
 
-    return train_dataloader, valid_dataloader, test_dataloader
+    return train_dataloader, valid_dataloader, test_dataloader, label_filter

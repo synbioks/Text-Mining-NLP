@@ -102,7 +102,7 @@ def preprocess_article(tokenizer, txt_path, ann_path, output_path):
 
 if __name__ == "__main__":
 
-    dataset_dir = abspath("../datasets/acs-20210530-gold-target")
+    dataset_dir = abspath("../../datasets/acs-20210530-gold-target")
     
     opts, args = getopt.getopt(sys.argv[1:], "", [
         "dataset_dir="
