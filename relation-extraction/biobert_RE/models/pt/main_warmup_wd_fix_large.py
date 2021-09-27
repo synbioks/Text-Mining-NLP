@@ -17,6 +17,7 @@ import torch.nn.functional as F
 import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import classification_report, f1_score, confusion_matrix
+import apex
 
 from datetime import datetime
 from transformers import BertModel, BertTokenizer, get_linear_schedule_with_warmup
@@ -47,16 +48,17 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     # train loop
     for epoch_count in range(n_epochs):
         logprint(f"Running epoch {epoch_count}\n")
+        optimizer.zero_grad()
         for (btch_no, (_, x, y, loc_ids)) in tqdm(enumerate(train_dataloader), total=len(train_dataloader)):
             # print(btch_no)
             if type(loss_fn) == nn.modules.loss.BCEWithLogitsLoss:
                 y = nn.functional.one_hot(y).float()
-            # if btch_no % n_its == n_its-1:
-            #     optimizer.zero_grad()
-            optimizer.zero_grad()
+            if btch_no % n_its == n_its-1:
+                optimizer.zero_grad()
             net.train_step_new(x, y, loc_ids, loss_fn, n_its)
-            optimizer.step()
-            scheduler.step()
+            if btch_no % n_its == n_its-1:
+                optimizer.step()
+                scheduler.step()
         
         net.eval()
         logprint(f"Step {init_step + train_step_count} finished")
@@ -129,7 +131,7 @@ def test_net_drugprot(task_name, net, test_dataloader, target_names, ckpt_dir=No
     allpreds = []
     with torch.no_grad():
         for i, (minfo_batch, x_batch, y_batch, loc_ids) in tqdm(enumerate(test_dataloader)):
-            pred = net.predict(x_batch, loc_ids).detach().cpu().numpy()
+            pred = net.predict(x_batch, loc_ids).cpu().numpy()
             y_batch = y_batch.numpy()
             num_tested += len(y_batch)
             num_correct += np.sum(pred == y_batch)
@@ -140,8 +142,6 @@ def test_net_drugprot(task_name, net, test_dataloader, target_names, ckpt_dir=No
             y_true.extend(y_batch.tolist())
             y_pred.extend(pred.tolist())
 
-    torch.cuda.empty_cache()
-
     allpreds_df = pd.DataFrame(allpreds)
     nnn = random.choice([i for i in range(100)])
     base_pth = "/tmp"
@@ -151,7 +151,6 @@ def test_net_drugprot(task_name, net, test_dataloader, target_names, ckpt_dir=No
     allpreds_df.to_csv(tmppath, sep="\t", index=False, header=False)
     pmids       = set([t[0] for t in allpreds])
     tmppath2    = "{}/pmids_{}_{}.txt".format(base_pth, task_name.lower(), nnn)
-
     if len(allpreds) == 0:
         return 0
 
@@ -217,7 +216,7 @@ def train_cls_end_to_end(args, pth, n_its, datasetname = "CHEMPROT", ckpt_dir=No
 
     # tokenizer and model net
     if args.use_bert_large:
-        net = EndToEnd("../../weights/biobert_large", top_model=CLSTopModel(datasetname, layers=int(args.layers), input_size=1024))
+        net = EndToEnd("../../weights/biobert_large", top_model=CLSTopModel(datasetname))
         tokenizer = BertTokenizer(
             # "../../weights/biobert-pt-v1.0-pubmed-pmc/vocab.txt",
             "../../weights/biobert_large/vocab_cased_pubmed_pmc_30k.txt",
@@ -235,7 +234,7 @@ def train_cls_end_to_end(args, pth, n_its, datasetname = "CHEMPROT", ckpt_dir=No
 
     # dataloaders
     train_dataloader, valid_dataloader, test_dataloader, label_filter, wts = get_dataloaders(
-        datasetname, tokenizer, max_seq_len, batch_size, args.upsampling, use_midpoint=args.use_midpoint)
+        datasetname, tokenizer, max_seq_len, batch_size, args.upsampling)
 
     if ckpt_dir is not "":
         net = torch.load(ckpt_dir + "/model")
@@ -309,7 +308,7 @@ def train_cls_end_to_end(args, pth, n_its, datasetname = "CHEMPROT", ckpt_dir=No
         for param in net.bert.parameters():
             param.requires_grad = True
 
-    # net.half()
+    net.half()
 
     # train / test loop
     net = train_net(
@@ -518,11 +517,8 @@ def get_parser():
     parser.add_argument('--use_sigmoid', action='store_true')
     # use bert large
     parser.add_argument('--use_bert_large', action='store_true')
-    # use mid points while doing tokenization
-    parser.add_argument('--use_midpoint', action='store_true')
     # freeze bert large init layers
     parser.add_argument('--freeze_bert_large_init_layers', action='store_true')
-    # specify the checkpoint directory to save the weights
     parser.add_argument('--ckpt_dir', action='store', type=str, help='The ckpt_dir to parse.', default="")
     
     return parser
@@ -554,13 +550,9 @@ if __name__ == "__main__":
 
     logprint("\n\n\n\n")
 
-    assert not (args.use_bert_large and int(args.max_seq_len) > 128), "Use anther file to use bert large with seq len > 128"
-    assert int(args.n_its) == 1
-
     train_cls_end_to_end(args, pth, args.n_its, datasetname=args.datasetname, ckpt_dir=args.ckpt_dir)
 
     logfile.close()
 
 # python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 256 --batch_size 2 --learning_rate 0.00003 --n_its 8
-# python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 128 --batch_size 12 --learning_rate 0.00003 --use_bert_large --use_midpoint
 # python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 256 --use_sigmoid --batch_size 16 --learning_rate 0.00001 > logs/basic_run_drugprot_layers1_msl_256_sigmoid_0.00001;

@@ -141,7 +141,8 @@ def prepro_relations(df, chemicals, rel_types, is_gs=False, gs_files=set()):
     """
     
     if df.shape[0] == 0:
-        raise Exception('There are not parsed annotations')
+        print('There are not parsed annotations')
+        # raise Exception('There are not parsed annotations')
     if df.shape[1] != 4:
         raise Exception('Wrong column number in the annotations file')
             
