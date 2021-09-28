@@ -187,6 +187,9 @@ class DrugProtDataset(Dataset):
                 if x_vals[i] == 137 and (x_vals[i+1] == 25075 or x_vals[i+1] == 44017):
                     gene_loc = i
    
+            # seq len 200
+            # gene 100, chem 150
+            # mid point 125 , seq inp : (125 - 128/2, 125 + 128/2)
             if len(x_vals) > self.max_seq_len:
                 start_pt = (gene_loc + chem_loc) // 2 - self.max_seq_len // 2
                 
@@ -237,6 +240,7 @@ class DrugProtDataset(Dataset):
                     gene_loc = i
 
             
+            # tokenizer.tpkenize("@GENE") // 137, 24890 or 137, 42769
 
             # try:
             #     a = (minfo, x, y, [[0], [gene_loc], [chem_loc]])

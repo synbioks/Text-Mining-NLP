@@ -53,9 +53,13 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
             # print(btch_no)
             if type(loss_fn) == nn.modules.loss.BCEWithLogitsLoss:
                 y = nn.functional.one_hot(y).float()
+            # this should be in the bottom of the loop
             if btch_no % n_its == n_its-1:
                 optimizer.zero_grad()
             net.train_step_new(x, y, loc_ids, loss_fn, n_its)
+            # gradient accumulation
+            # insted of backprop at every mini batch, backprop at batch size // mini batch size
+            # n_its 8, minibatchsize 2, backprop after 8 mini batches (i.e backprop after 16 samples)
             if btch_no % n_its == n_its-1:
                 optimizer.step()
                 scheduler.step()

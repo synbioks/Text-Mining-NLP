@@ -564,3 +564,6 @@ if __name__ == "__main__":
 # python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 256 --batch_size 2 --learning_rate 0.00003 --n_its 8
 # python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 128 --batch_size 12 --learning_rate 0.00003 --use_bert_large --use_midpoint
 # python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 256 --use_sigmoid --batch_size 16 --learning_rate 0.00001 > logs/basic_run_drugprot_layers1_msl_256_sigmoid_0.00001;
+
+
+# python -u main_warmup_wd_fix.py --layers 1 --max_seq_len 128 --batch_size 12 --learning_rate 0.00003 --use_bert_large --use_midpoint > logs/AAAA_large_run_drugprot_layers1_msl_128_midpoint_large_0.00003;
