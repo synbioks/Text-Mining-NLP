@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "dataset_to_json",
+            "type": "python",
+            "request": "launch",
+            "program": "biobert_RE_v2/dataset_processing/dataset_to_json.py",
+            "console": "integratedTerminal",
+            "args": [
+                "data/DrugProt/development/drugprot_development_entities.tsv",
+                "data/DrugProt/development/drugprot_development_relations.tsv",
+                "data/DrugProt/development/drugprot_development_abstracts.tsv",
+                "-o", "data/DrugProt/development/drugprot_dev.json",
+                "-d", "23561088",
+                "-v"
+            ]
+        }
+    ]
+}
