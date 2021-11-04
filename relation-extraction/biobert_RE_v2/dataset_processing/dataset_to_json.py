@@ -6,7 +6,7 @@ from utils import utils
 # {article_id: {ent_id: {entity information}}}
 def read_ent_file(filename):
     results = {}
-    lines = utils.read_tsv(filename, encoding='utf-8')
+    lines = utils.read_tsv(filename)
     for line in lines:
 
         assert len(line) == 6, 'each line of entity files should have 6 columns'
@@ -30,7 +30,7 @@ def read_ent_file(filename):
 # {article_id: [{relation}]}
 def read_rel_file(filename):
     results = {}
-    lines = utils.read_tsv(filename, encoding='utf-8')
+    lines = utils.read_tsv(filename)
     for line in lines:
 
         assert len(line) == 4, 'each line of relation files should have 4 columns'
@@ -53,7 +53,7 @@ def read_rel_file(filename):
 # {article_id: {title: str, sentences(sorted): [{sentence information}]}}
 def read_abs_file(filename, verbose=False):
     results = {}
-    lines = utils.read_tsv(filename, encoding='utf-8')
+    lines = utils.read_tsv(filename)
     tokenizer = utils.get_tokenizer()
 
     # enable tqdm
@@ -131,7 +131,7 @@ def process_dataset(ent_filename, rel_filename, abs_filename, verbose=False):
         ents = [e for e in ents.values()] # dict to list
 
         # sort the relation and entitiy span to help the next step
-        rels.sort(key=lambda x: x['start'])
+        rels.sort(key=lambda x: (x['start'], x['end']))
         ents.sort(key=lambda x: x['start'])
 
         # initialize article sentence 
@@ -154,6 +154,8 @@ def main(ent_file, rel_file, abs_file, out_file, verbose=False):
     utils.save_json(out_file, processed_data)
 
 if __name__ == '__main__':
+
+    # converting original datasets into json format
 
     parser = argparse.ArgumentParser()
     parser.add_argument('ent_file')
