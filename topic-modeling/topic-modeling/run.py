@@ -5,6 +5,7 @@ import pickle
 sys.path.insert(0, 'src')
 from features.data_words import save_data_words
 from models.models import run_model
+from output.topic_proportion import output_proportion_to_data
 from util import *
 
 
@@ -33,7 +34,10 @@ def main(targets):
     if 'model' in targets:
         params = load_params('config/model.json')
         run_model(**params)
-    
+
+    if 'save_to_data' in targets:
+        params = load_params('config/save_to_data.json')
+        output_proportion_to_data(**params)
 
 if __name__ == '__main__':
     targets = sys.argv[1:]
