@@ -17,6 +17,11 @@ def read_tsv(filename):
             lines.append(line.strip().split('\t'))
     return lines
 
+def save_tsv(filename, lines):
+    with open(filename, 'w', encoding='utf-8') as fout:
+        for line in lines:
+            fout.write('\t'.join(line) + '\n')
+
 # lazy tokenzier load
 tokenizer = None
 def get_tokenizer():

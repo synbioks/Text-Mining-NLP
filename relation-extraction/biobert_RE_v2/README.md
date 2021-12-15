@@ -25,6 +25,21 @@ process chemprot train
 python ../../../biobert_RE_v2/dataset_processing/dataset_to_json.py ./chemprot_training_entities.tsv ./chemprot_training_relations.tsv ./chemprot_training_abstracts.tsv -o ./chemprot_train.json -v
 ```
 
+compare chemprot and drugprot train
+```
+python compare_datasets.py ../../data/DrugProt/training/drugprot_train.json ../../data/ChemProt/chemprot_training/chemprot_train.json
+```
+
+generate input sentences from json drugprot
+```
+python json_to_input.py ../../data/DrugProt/training/drugprot_train.json ../../data/DrugProt/training/drugprot_train.txt
+```
+
+generate input sentences from json chemprot
+```
+python json_to_input.py ../../data/ChemProt/chemprot_training/chemprot_train.json ../../data/ChemProt/chemprot_training/chemprot_train.txt
+```
+
 Some notes:
 
 1. article ids are unique even across datasets

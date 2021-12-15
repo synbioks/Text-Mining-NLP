@@ -2,6 +2,7 @@ from os.path import basename
 import argparse
 
 from utils import utils
+from utils import json_to_brat
 
 def article_id_overlap_check(id_list1, id_list2):
 
@@ -93,29 +94,30 @@ def compare_abstract(abs1, abs2):
         rels_in1not2.extend(rel_in1not2)
         rels_in2not1.extend(rel_in2not1)
         
-    # print the final results
+    return ents_in1not2, ents_in2not1, rels_in1not2, rels_in2not1
+
+def print_diff(diff):
+    ents_in1not2, ents_in2not1, rels_in1not2, rels_in2not1 = diff
+    # print the diff
     if ents_in1not2:
-        reason.append('entities in 1 not in 2')
+        print('entities in 1 not in 2')
         for item in ents_in1not2:
-            reason.append(f'{item}')
+            print(f'{item}')
     if ents_in2not1:
-        reason.append('entities in 2 not in 1')
+        print('entities in 2 not in 1')
         for item in ents_in2not1:
-            reason.append(f'{item}')
+            print(f'{item}')
     
     if rels_in1not2:
-        reason.append('relations in 1 not in 2')
+        print('relations in 1 not in 2')
         for item in rels_in1not2:
-            reason.append(f'{item}')
+            print(f'{item}')
     if rels_in2not1:
-        reason.append('relations in 2 not in 1')
+        print('relations in 2 not in 1')
         for item in rels_in2not1:
-            reason.append(f'{item}')
-        
-    return reason
+            print(f'{item}')
 
-
-def main(json_filename1, json_filename2):
+def main(json_filename1, json_filename2, brat_diff_dir=None):
 
     dataset1 = utils.read_json(json_filename1)
     dataset2 = utils.read_json(json_filename2)
@@ -135,11 +137,17 @@ def main(json_filename1, json_filename2):
         if article_id in dataset2:
             abstract_other = dataset2[article_id]['abstract']
             diff = compare_abstract(abstract, abstract_other)
-            if diff:
+            if any([len(x) > 0 for x in diff]):
                 print(f'article id {article_id}')
-                for line in diff:
-                    print(line)
-
+                print_diff(diff)
+                if brat_diff_dir:
+                    txt, ann = json_to_brat.article_brat_repr(data, include_entities=True)
+                    rels_in1not2, rels_in2not1 = diff[2], diff[3]
+                    for i, rel in enumerate(rels_in1not2):
+                        ann.append(json_to_brat.rel_brat_repr(rel, i, type_suffix='_1'))
+                    for i, rel in enumerate(rels_in2not1):
+                        ann.append(json_to_brat.rel_brat_repr(rel, i + len(rels_in1not2), type_suffix='_2'))
+                    json_to_brat.write_brat(article_id, brat_diff_dir, txt, ann)
 
 if __name__ == '__main__':
 
@@ -149,5 +157,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('json_filename1')
     parser.add_argument('json_filename2')
+    parser.add_argument('-d', '--brat_diff_dir')
     args = parser.parse_args()
-    main(args.json_filename1, args.json_filename2)
+    main(args.json_filename1, args.json_filename2, args.brat_diff_dir)
