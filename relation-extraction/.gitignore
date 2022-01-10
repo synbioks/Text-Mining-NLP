@@ -1,9 +1,10 @@
 datasets/
 weights/
+data/
 misc/
 *.pyc
-models/tf/output
 __pycache__/
+playground.ipynb
 
 # latex related
 *.pdf
