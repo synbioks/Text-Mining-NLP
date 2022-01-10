@@ -33,7 +33,20 @@
             "console": "integratedTerminal",
             "args": [
                 "data/DrugProt/training/drugprot_train.json",
-                "data/ChemProt/chemprot_training/chemprot_train.json"
+                "data/ChemProt/chemprot_training/chemprot_train.json",
+                "-d", "data/cp_vs_dp/train/"
+            ]
+        },
+        {
+            "name": "json_to_input",
+            "type": "python",
+            "request": "launch",
+            "program": "biobert_RE_v2/dataset_processing/json_to_input.py",
+            "console": "integratedTerminal",
+            "args": [
+                "data/DrugProt/training/drugprot_train.json",
+                "output.txt",
+                "-i", "23000445"
             ]
         }
     ]

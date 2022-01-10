@@ -12,7 +12,7 @@ def get_ent_by_id(ent_id, ents):
     assert False, 'failed to find matching entity'
 
 # this can be faster, but rels is usually very short
-# given known relation, return whether ent1 and ent2 are related
+# given known relations, return whether ent1 and ent2 are related
 def is_related(ent1, ent2, rels):
     for rel in rels:
         cond1 = ent1['id'] == rel['ent_id1'] and ent2['id'] == rel['ent_id2']

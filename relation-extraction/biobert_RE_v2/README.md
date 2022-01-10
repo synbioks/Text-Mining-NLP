@@ -40,6 +40,15 @@ generate input sentences from json chemprot
 python json_to_input.py ../../data/ChemProt/chemprot_training/chemprot_train.json ../../data/ChemProt/chemprot_training/chemprot_train.txt
 ```
 
+merge chemprot with drugprot
+```
+python biobert_RE_v2/dataset_processing/merge_json_datasets.py --datasets data/DrugProt/training/drugprot_train.json data/ChemProt/chemprot_training/chemprot_train.json --output data/merged/training/merged.json
+```
+
+```
+python biobert_RE_v2/dataset_processing/merge_json_datasets.py --datasets data/ChemProt/chemprot_training/chemprot_train.json data/DrugProt/training/drugprot_train.json --output data/merged/training/merged.json
+```
+
 Some notes:
 
 1. article ids are unique even across datasets

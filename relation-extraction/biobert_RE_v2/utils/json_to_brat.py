@@ -8,6 +8,8 @@ def rel_brat_repr(rel, rel_id, type_suffix=''):
     return f'R{rel_id}\t{rel_type} Arg1:{rel["ent_id1"]} Arg2:{rel["ent_id2"]}'
 
 def article_brat_repr(article, include_entities=False, include_relations=False):
+    # either include_entities or include_relations should be set to True
+    # otherwise the ann output will be empty
     txt = []
     ann = []
     for sent in article['abstract']:
