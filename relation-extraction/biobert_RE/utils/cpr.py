@@ -32,3 +32,15 @@ cpr_map = {
     'NOT': 'NOT',
     'UNDEFINED': 'NOT' # there is only two UNDEFINED in the dataset, we will ignore them
 }
+
+cpr_label_id = {
+    'CPR-1': 0,
+    'CPR-2': 1,
+    'CPR-3': 2,
+    'CPR-4': 3,
+    'CPR-5': 4,
+    'CPR-6': 5,
+    # CPR-7 and 8 are not used because they have too few samples
+    'CPR-9': 6,
+    'NOT': 7
+}

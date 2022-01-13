@@ -1,26 +1,23 @@
 # variable learning rate
-class NoamOptim:
+class VarLROptim:
     "Optim wrapper that implements rate."
-    def __init__(self, optimizer, warmup, factor):
+    def __init__(self, optimizer, warmup, factor, init_step):
         self.optimizer = optimizer
-        self._step = 0
+        self.step_count = init_step
         self.warmup = warmup
         self.factor = factor
-        self._rate = 0
         
     def step(self):
         "Update parameters and rate"
-        self._step += 1
+        self.step_count += 1
         rate = self.rate()
         for p in self.optimizer.param_groups:
             p['lr'] = rate
-        self._rate = rate
         self.optimizer.step()
     
     def zero_grad(self):
         self.optimizer.zero_grad()
     
-    def rate(self, step=None):
-        if step is None:
-            step = self._step
-        return self.factor * min(step ** (-0.5), step * self.warmup ** (-1.5))
+    def rate(self):
+        # min(decay, linear warmup)
+        return self.factor * min(self.step_count ** (-0.5), self.step_count * self.warmup ** (-1.5))

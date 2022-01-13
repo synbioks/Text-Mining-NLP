@@ -1,3 +1,4 @@
+from numpy.lib.function_base import append
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,24 +7,34 @@ from transformers import BertModel
 
 class CLSTopModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, bert_hidden_size, top_hidden_size, top_hidden_layers, out_size):
         super(CLSTopModel, self).__init__()
 
-        input_size = 1024
-        hidden_size = 1024
         dropout_p = 0.1
-        num_class = 14
 
-        self.fc = nn.Sequential(
+        # initialize hidden layers
+        layers = []
+        for i in range(top_hidden_layers):
+            if i == 0:
+                layers.extend([
+                    nn.Dropout(p=dropout_p),
+                    nn.Linear(bert_hidden_size, top_hidden_size),
+                    nn.Tanh()
+                ])
+            else:
+                layers.extend([
+                    nn.Dropout(p=dropout_p),
+                    nn.Linear(top_hidden_size, top_hidden_size),
+                    nn.Tanh()
+                ])
+        
+        # initialize output layers
+        layers.extend([
             nn.Dropout(p=dropout_p),
-            nn.Linear(input_size, hidden_size),
-            nn.Tanh(),
-            nn.Dropout(p=dropout_p),
-            nn.Linear(hidden_size, hidden_size),
-            nn.Tanh(),
-            nn.Dropout(p=dropout_p),
-            nn.Linear(hidden_size, num_class)
-        )
+            nn.Linear(top_hidden_size, out_size)
+        ])
+
+        self.fc = nn.Sequential(*layers)
     
     def forward(self, x):
         return self.fc(x)
@@ -59,8 +70,12 @@ class EndToEnd(nn.Module):
             return pred, score
         else:
             return pred
+    
+    def bert_grad_required(self, required):
+        for params in self.bert.parameters():
+            params.requires_grad = required
 
-def get_end_to_end_net(bert_weights_filename):
-    top_model = CLSTopModel()
+def get_end_to_end_net(bert_weights_filename, bert_hidden_size, out_size, args):
+    top_model = CLSTopModel(bert_hidden_size, args.top_hidden_size, args.top_hidden_layers, out_size)
     net = EndToEnd(bert_weights_filename, top_model)
     return net.cuda()
