@@ -140,7 +140,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume-from-ckpt', type=str)
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
-    parser.add_argument('--ckpt-dir', type=str, default='D:/tmp_weight_dir')
+    parser.add_argument('--ckpt-dir', type=str, default='weights/tmp_weight_dir')
     args = parser.parse_args()
 
     # calculate gradient accumulation parameter
