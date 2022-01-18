@@ -262,8 +262,8 @@ train.py
     * Adjust `lr_factor` using the `lr` option.
     * This option is ignore if `freeze-bert` is True
 * `lr`: learning rate/variable lr factor (see note)
-    * If `freeze-bert` is True, this will set the `lr_factor` above.
-    * If `freeze-bert` is False, this will set the learning rate of the optimizer.
+    * If `freeze-bert` is False, this will set the `lr_factor` above.
+    * If `freeze-bert` is True, this will set the learning rate of the optimizer.
 * `batch-size`: number of samples per forward pass during training
 * `valid-batch-size`: number of samples per forward pass during validation
     * We usually can fit more sample per batch during validation because it doesn't cost as much memory.
@@ -271,14 +271,13 @@ train.py
 * `ga-batch-size`: (gradient accumulation) minimum number of samples the model sees before an update step
     * There is a counter in the script counting how many samples the model has seen since the last step. If the count is greater or equal to `ga-batch-size`, the model will take a step, and the counter will be zeroed.
     * If not specified, it will be set to `batch-size`
-* `datalodaer-workers`: number of CPU threads dedicated to data loading
+* `dataloader-workers`: number of CPU threads dedicated to data loading
 * `seq-len`: maximum input sentence length
     * Anything longer than `seq-len` is truncated.
 * `bert-state-path`: path to the pretrained bert directory
 * `use-bert-large`: whether to use bert large instead of bert base
-* `top-hidden-size`: number of hidden units in every hidden layer in the top model
-* `top-hidden-layers`: number of hidden layers in the top model
-    * This number doesn't include the output layer. If `top-hidden-layers` is 3, there will be 4 fully connected layers in the top model (3 hidden + 1 output)
+* `top-hidden-size`: array of integer specifying the size of each hidden layer
+    * the length of the array determines the number of hidden layers
 * `freeze-bert`: whether to freeze the weights of the entire bert encoder
     * Achieved by disabling the gradient of bert.
 * `resume-from-ckpt`: path to the saved checkpoint
@@ -286,6 +285,14 @@ train.py
     * Doesn't matter if you are resuming for top model training.
     * **Does matter** if you are resuming for end-to-end training, this tells the optimizer to calculate the learning rate correctly.
 * `train-data`: path to the input data
+    * ignored when `do-train` is false
+* `inference-data`: path to the data for inference task (e.g. ACS data)
+    * ignored when `do-inference` is false
+* `balance-dataset`: whether or not to use stratified sampling during training
+* `do-train`: train the model on train data
+* `do-inference`: make prediction on the inference data with the model
+    * by setting `do-train` and `do-inference` to True, you can train and predict in one go
+    * if you want to do prediciton using a specific checkpoint, set `do-train` to False and make sure to set the `resume-from-ckpt` parameter
 * `ckpt-dir`: path to the folder that stores model as checkpoints
 
 ### Example output

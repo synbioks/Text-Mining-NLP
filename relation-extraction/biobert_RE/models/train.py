@@ -1,5 +1,4 @@
 import os
-from random import sample
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,6 +9,7 @@ from tqdm import tqdm
 
 from models.nets import get_end_to_end_net
 from models.dataloader import get_train_valid
+from models.dataloader import get_acs_inference
 from models.optimizer import VarLROptim
 
 from utils import cpr
@@ -59,6 +59,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     
     # final test
     print('Train finished')
+    test_net('TRAIN', net, train_dataloader)
     test_net('VALIDATION', net, valid_dataloader)
     if args.ckpt_dir is not None:
         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
@@ -67,7 +68,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
 def test_net(task_name, net, test_dataloader, limit=None):
 
     # setup testing
-    print(f"Running test {task_name}")
+    print(f'Running test {task_name}')
     net.eval()
     num_tested = 0
     num_correct = 0
@@ -108,6 +109,37 @@ def test_net(task_name, net, test_dataloader, limit=None):
     print('Confusion Matrix:')
     print(confusion_mat)
 
+def inference_net(task_name, net, args):
+
+    # setup inference
+    print(f'Running inference {task_name}')
+    net.eval()
+
+    vocab_filename = os.path.join(args.bert_state_path, 'vocab.txt')
+    for pub_num in tqdm(os.listdir(args.inference_data)): # find all data folder in the dataset directory
+        article_dir = os.path.join(args.inference_data, pub_num)
+        assert os.path.isdir(article_dir)
+
+        # one dataloader per acs files
+        dataloader = get_acs_inference(
+            data_filename=article_dir,
+            vocab_filename=vocab_filename,
+            max_seq_len=args.seq_len,
+            batch_size=args.valid_batch_size
+        )
+        output = []
+        with torch.no_grad():
+            for _, (id1s, id2s, batch_x) in enumerate(dataloader):
+                pred, score = net.predict(batch_x, return_score=True)
+                score = score.cpu().tolist()
+                pred = pred.cpu().tolist()
+                for i in range(len(id1s)):
+                    output.append((id1s[i], id2s[i], pred[i], score[i][pred[i]]))
+        with open(os.path.join(article_dir, 're_output.tsv'), 'w', encoding="utf8") as fout:
+            fout.write("id1\tid2\tclass\tconfidence\n")
+            for _, (id1, id2, pred, score) in enumerate(output):
+                fout.write(f"{id1}\t{id2}\t{pred}\t{score}\n")
+
 
 # for the reason of why we are not using type=bool in add_argument:
 # see https://docs.python.org/3/library/argparse.html#type
@@ -134,13 +166,16 @@ if __name__ == '__main__':
     parser.add_argument('--seq-len', type=int, default=256)
     parser.add_argument('--bert-state-path', type=str, default='weights/biobert_large_v1.1_pubmed_torch/')
     parser.add_argument('--use-bert-large', type=bool_string, default='True')
-    parser.add_argument('--top-hidden-size', type=int, default=1024)
-    parser.add_argument('--top-hidden-layers', type=int, default=2)
+    parser.add_argument('--top-hidden-size', nargs='+', default=[1024, 1024])
     parser.add_argument('--freeze-bert', type=bool_string, default='False')
     parser.add_argument('--resume-from-ckpt', type=str)
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
+    parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
     parser.add_argument('--ckpt-dir', type=str, default='weights/tmp_weight_dir')
+    parser.add_argument('--balance-dataset', type=bool_string, default='False')
+    parser.add_argument('--do-train', type=bool_string, default='True')
+    parser.add_argument('--do-inference', type=bool_string, default='False')
     args = parser.parse_args()
 
     # calculate gradient accumulation parameter
@@ -152,6 +187,9 @@ if __name__ == '__main__':
     # set valid batch size
     if args.valid_batch_size is None:
         args.valid_batch_size = args.batch_size
+
+    # parse top hidden size
+    args.top_hidden_size = [int(x) for x in args.top_hidden_size]
 
     print('Arguments:')
     print(args)
@@ -175,6 +213,7 @@ if __name__ == '__main__':
         os.path.join(args.bert_state_path, 'vocab.txt'),
         cpr.cpr_label_id,
         args.seq_len,
+        balance_data=args.balance_dataset,
         batch_size=args.batch_size,
         valid_batch_size=args.valid_batch_size,
         num_workers=args.dataloader_workers
@@ -189,12 +228,20 @@ if __name__ == '__main__':
     if not args.freeze_bert:
         optimizer = VarLROptim(adam, args.warm_up, args.lr, args.resume_from_step)
     
-    train_net(
-        'TRAIN', 
-        net, 
-        train_dataloader, 
-        valid_dataloader, 
-        loss_fn,
-        optimizer,
-        args
-    )
+    if args.do_train:
+        train_net(
+            'TRAIN', 
+            net, 
+            train_dataloader, 
+            valid_dataloader, 
+            loss_fn,
+            optimizer,
+            args
+        )
+    
+    if args.do_inference:
+        inference_net(
+            'INFERENCE',
+            net,
+            args
+        )
