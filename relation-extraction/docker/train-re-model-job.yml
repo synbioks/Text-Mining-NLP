@@ -20,11 +20,11 @@ spec:
         resources:
           limits:
             memory: "8G"
-            cpu: 1
+            cpu: 2
             nvidia.com/gpu: 1
           requests:
             memory: "8G"
-            cpu: 1
+            cpu: 2
             nvidia.com/gpu: 1
         volumeMounts:
           - mountPath: "/sbksvol"

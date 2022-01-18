@@ -194,7 +194,7 @@ if __name__ == '__main__':
     print('Arguments:')
     print(args)
 
-    print(f'cuda availability: {torch.cuda.is_available()}')
+    print(f'CUDA availability: {torch.cuda.is_available()}')
     if torch.cuda.is_available():
         for i in range(torch.cuda.device_count()):
             print(f'GPU name: {torch.cuda.get_device_name(i)}')
