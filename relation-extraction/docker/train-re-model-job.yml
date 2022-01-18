@@ -15,16 +15,16 @@ spec:
         command:
         - "/bin/bash"
         - "-c"
-        - "cd /sbksvol/jiawei/sbks-ucsd/relation-extraction && python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16"
+        - "cd /sbksvol/jiawei/sbks-ucsd/relation-extraction && python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --epoch 1 --ckpt-dir ."
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "8G"
-            cpu: 2
+            memory: "6G"
+            cpu: 1.5
             nvidia.com/gpu: 1
           requests:
-            memory: "8G"
-            cpu: 2
+            memory: "6G"
+            cpu: 1.5
             nvidia.com/gpu: 1
         volumeMounts:
           - mountPath: "/sbksvol"

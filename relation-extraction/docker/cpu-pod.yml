@@ -13,11 +13,11 @@ spec:
     args: ["sleep", "36500000"]
     resources:
       limits:
-        memory: "8G"
+        memory: "4G"
         cpu: 1
         nvidia.com/gpu: 0
       requests:
-        memory: "8G"
+        memory: "4G"
         cpu: 1
         nvidia.com/gpu: 0
     volumeMounts:
