@@ -2,12 +2,20 @@
 
 This folder contains all the necessary scripts to perform relation extraction on DrugProt and ChemProt
 
+* `assets`: contains figures and diagrams for this README
+* `biobert_RE/dataset_processing`: contains dataset preprocessing codes that convert raw DrugProt and ChemProt data into training/testing datasets
+* `biobert_RE/models`: dataloader, RE model definition, and training logics
+* `biobert_RE/utils`: frequently used utility function
+* `biobert_RE_chemprot`: legacy code for ChemProt datasets, functionalities are already integrated into the new module `biobert_RE`
+* `docker`: contains DockerFile used to build containers to run RE models on Nautilus, and yaml files for batch training job on Nautilus
+
 ## Environment setup
 
 Run the following command to setup via Anaconda. For PyTorch installation, make sure the pick the correct cudatoolkit version for your GPU.
 
 ```
 conda create -n torch python=3.8
+conda activate torch
 conda install -y scipy=1.6.1
 conda install -y -c conda-forge notebook scikit-learn tqdm matplotlib ipywidgets
 conda install -y -c pytorch pytorch torchvision torchaudio cudatoolkit=11.3
@@ -17,9 +25,13 @@ conda install -y -c huggingface transformers
 Run this to install SciSpacy models. If the second command failed to install en_core_sci_sm due to SciSpacy version constraints, check [here](https://allenai.github.io/scispacy/) for the latest en_core_sci_sm model.
 
 ```
-pip install scispacy
+pip install scispacy==0.4.0
 pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.4.0/en_core_sci_sm-0.4.0.tar.gz
 ```
+
+## Setting path variable
+
+Make sure the append the path to folder (relation-extraction/biobert_RE) to `PYTHONPATH`. You will get local package not found errors if it is not set up correctly.
 
 ## Data source
 
@@ -45,10 +57,6 @@ ChemProt has also been processed by [Sun et. al.](https://arxiv.org/abs/1911.094
 [BioBert](https://github.com/dmis-lab/biobert)
 
 Use `transformers-cli` binary come with the `transformers` package to convert Tensorflow weights to PyTorch weights
-
-## Setting path variable
-
-Make sure the append the path to folder (relation-extraction/biobert_RE) to `PYTHONPATH`. You will get local package not found errors if it is not set up correctly.
 
 **All the example code snippets this tutorial are to be run from this folder.**
 
@@ -244,13 +252,16 @@ train.py
         [--seq-len SEQ_LEN] 
         [--bert-state-path BERT_STATE_PATH]
         [--use-bert-large USE_BERT_LARGE] 
-        [--top-hidden-size TOP_HIDDEN_SIZE]
-        [--top-hidden-layers TOP_HIDDEN_LAYERS] 
-        [--freeze-bert FREEZE_BERT]
-        [--resume-from-ckpt RESUME_FROM_CKPT] 
+        [--top-hidden-size TOP_HIDDEN_SIZE [TOP_HIDDEN_SIZE ...]]
+        [--freeze-bert FREEZE_BERT] 
+        [--resume-from-ckpt RESUME_FROM_CKPT]
         [--resume-from-step RESUME_FROM_STEP] 
-        [--train-data TRAIN_DATA]
-        [--ckpt-dir CKPT_DIR]
+        [--train-data TRAIN_DATA] 
+        [--inference-data INFERENCE_DATA]
+        [--ckpt-dir CKPT_DIR] 
+        [--balance-dataset BALANCE_DATASET] 
+        [--do-train DO_TRAIN]
+        [--do-inference DO_INFERENCE]
 ```
 
 * `epochs`: total number of training epochs
