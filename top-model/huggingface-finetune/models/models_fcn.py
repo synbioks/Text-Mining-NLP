@@ -20,12 +20,23 @@ top_model_fcn = {
     "activations_list": actfn_lst["leaky_relu"]
 }
 
-top_model = {
+top_model_0 = {
     "name": "dense_layer_softmax",
     "hidden_units_list": [],
     "activations_list": ["identity"]
 }
 
+top_model_1 = {
+    "name": "dense_layer_softmax",
+    "hidden_units_list": [250],
+    "activations_list": ["leaky_relu", "identity"]
+}
+
+top_model = {
+    0: top_model_0,
+    1: top_model_1,
+    3: top_model_fcn
+}
 
 activations_mapper = {
     "relu": nn.ReLU(),
@@ -80,7 +91,7 @@ class BertNERTopModel(BertPreTrainedModel):
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
-        self.top_model = top_model
+        self.top_model = top_model[xargs.get("top_model",0)]
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
         top_layers.append(fcn)
@@ -89,7 +100,7 @@ class BertNERTopModel(BertPreTrainedModel):
         if self.top_model["name"] == "dense_layer_crf":
             self.crf = CRF(config.num_labels, batch_first=True)
 
-        print("Initializing weights")
+        print("Initializing weights with xargs",self.xargs)
         self.init_weights()
 
     def forward(
@@ -111,7 +122,7 @@ class BertNERTopModel(BertPreTrainedModel):
             1]``.
         """
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
+        output_hidden_states = self.xargs.get('bert_h',1) > 1
         outputs = self.bert(
             input_ids,
             attention_mask=attention_mask,
@@ -125,6 +136,17 @@ class BertNERTopModel(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
+        for i in range(self.xargs.get('bert_h',1)-1):
+            sequence_output += outputs.hidden_states[-i-2]
+        
+        if self.xargs.get('hmask',False):
+            labels_copy = labels.detach().clone()
+            labels_copy[labels_copy != -100] = 1
+            labels_copy[labels_copy == -100] = 0
+            labels_copy = labels_copy.unsqueeze(-1)
+            tar_size = sequence_output.shape
+            labels_copy.expand(*tar_size)
+            sequence_output = sequence_output*labels_copy
 
         logits = self.top_layers(sequence_output)
 
@@ -141,7 +163,7 @@ class BertNERTopModelFCN(BertPreTrainedModel):
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
-        self.top_model = top_model_fcn
+        self.top_model = top_model[xargs.get("top_model",0)]
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
         top_layers.append(fcn)
@@ -188,6 +210,15 @@ class BertNERTopModelFCN(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
+        
+        if self.xargs.get('hmask',False):
+            labels_copy = labels.detach().clone()
+            labels_copy[labels_copy != -100] = 1
+            labels_copy[labels_copy == -100] = 0
+            labels_copy = labels_copy.unsqueeze(-1)
+            tar_size = sequence_output.shape
+            labels_copy = labels_copy.expand(*tar_size)
+            sequence_output = sequence_output*labels_copy
 
         logits = self.top_layers(sequence_output)
 

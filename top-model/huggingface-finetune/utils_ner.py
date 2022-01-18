@@ -23,6 +23,7 @@ from enum import Enum
 from typing import List, Optional, Union
 import random
 from filelock import FileLock
+import numpy as np
 
 from transformers import PreTrainedTokenizer, is_tf_available, is_torch_available
 
@@ -92,7 +93,8 @@ if is_torch_available():
             overwrite_cache=False,
             mode: Split = Split.train,
             data_size: int = 100,
-            sf = False
+            sf = False,
+            xargs = {}
         ):
             # Load data features from cache or dataset file
             cached_features_file = os.path.join(
@@ -131,6 +133,9 @@ if is_torch_available():
                     if sf:
                         random.shuffle(self.features)
                     self.features = self.features[:(len(self.features)*self.data_size)//100]
+                    if xargs.get('down_sample',False) and mode == Split.train:
+                        self.downsample(xargs.get('down_sample'))
+                        print('Down Sample at fator - ',xargs.get('down_sample'))
                     logger.info(f"Saving features into cached file {cached_features_file}")
                     torch.save(self.features, cached_features_file)
 
@@ -139,6 +144,24 @@ if is_torch_available():
 
         def __getitem__(self, i) -> InputFeatures:
             return self.features[i]
+        
+        def downsample(self,pos_factor):
+            _features = []
+            neg = []
+            for i in range(len(self.features)):
+                _pos_count = np.sum(np.array(self.features[i].label_ids)==0)
+                if _pos_count != 0:
+                    _features.append(self.features[i])
+                else:
+                    neg.append(self.features[i])
+            neg_size = (len(_features)*(100-pos_factor))//pos_factor
+            print(f"DownSample: Len: pos {len(_features)}, neg {len(neg)}, neg_size{neg_size}")
+            if len(neg) <= neg_size:
+                return
+            random.shuffle(neg)
+            _features.extend(neg[:neg_size])
+            self.features = _features
+                
 
 
 if is_tf_available():
@@ -303,11 +326,20 @@ def convert_examples_to_features(
         for word, label in zip(example.words, example.labels):
             word_tokens = tokenizer.tokenize(word)
 
+#             # bert-base-multilingual-cased sometimes output "nothing ([]) when calling tokenize with just a space.
+#             if len(word_tokens) > 0:
+#                 tokens.extend([word_tokens[0]])
+#                 # Use the real label id for the first token of the word, and padding ids for the remaining tokens
+#                 label_ids.extend([label_map[label]])
+
             # bert-base-multilingual-cased sometimes output "nothing ([]) when calling tokenize with just a space.
             if len(word_tokens) > 0:
                 tokens.extend(word_tokens)
                 # Use the real label id for the first token of the word, and padding ids for the remaining tokens
-                label_ids.extend([label_map[label]] + [pad_token_label_id] * (len(word_tokens) - 1))
+                curr_pad_token_label_id = pad_token_label_id
+#                 if label_map[label] != 2:
+#                     curr_pad_token_label_id = 1
+                label_ids.extend([label_map[label]] + [curr_pad_token_label_id] * (len(word_tokens) - 1))
 
         # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
         special_tokens_count = tokenizer.num_special_tokens_to_add()

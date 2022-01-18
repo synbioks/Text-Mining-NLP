@@ -13,9 +13,9 @@ export WANDB_API_KEY
 
 for var in $(seq 1 $5)
 do
-    st=`date +%s`
     echo "**********************************************************************************************************************"
-    echo "#################################### NOW STARTING $2 $var $3 ####################################"
-    /root/anaconda3/bin/python3.7 "${ROOT}${NAME}.py" --seed_value 42 --entity_type $2 --dataset $3 --data "/sbksvol/nikhil/" --exp_name "$2-$3-$var-$1-$st" --exp_config $4 --root "/sbksvol/nikhil/"
+    echo $var
+    echo "#################################### NOW STARTING $3 $var ####################################"
+    /root/anaconda3/bin/python3.7 "${ROOT}${NAME}.py" --seed_value 42 --entity_type $2 --dataset $3 --data "/sbksvol/nikhil/" --exp_name $1 --exp_config $4 --root "/sbksvol/nikhil/"
 done
 

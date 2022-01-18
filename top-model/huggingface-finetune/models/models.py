@@ -25,9 +25,21 @@ top_model_crf = {
     "activations_list": actfn_lst["id"]
 }
 
+top_model_crf_1 = {
+    "name": "dense_layer_crf",
+    "hidden_units_list": [250],
+    "activations_list": ["leaky_relu", "identity"]
+}
+
+top_model_crf_1_500 = {
+    "name": "dense_layer_crf",
+    "hidden_units_list": [500],
+    "activations_list": ["leaky_relu", "identity"]
+}
+
 top_model_fcn_crf = {
     "name": "dense_layer_crf",
-    "hidden_units_list": [512,128,32],
+    "hidden_units_list": [500, 250, 125],
     "activations_list": actfn_lst["leaky_relu"]
 }
 
@@ -40,6 +52,12 @@ activations_mapper = {
     "identity": nn.Identity()
 }
 
+top_model = {
+    0: top_model_crf,
+    1: top_model_crf_1,
+    3: top_model_fcn_crf,
+    1500:top_model_crf_1_500
+}
 
 class FullyConnectedLayers(nn.Module):
     """
@@ -84,7 +102,7 @@ class BertNERCRF(BertPreTrainedModel):
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
-        self.top_model = top_model_crf
+        self.top_model = top_model[xargs.get("top_model",0)]
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
         top_layers.append(fcn)
@@ -145,7 +163,7 @@ class BertNERCRFFCN(BertPreTrainedModel):
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
-        self.top_model = top_model_fcn_crf
+        self.top_model = top_model[xargs.get("top_model",0)]
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
         top_layers.append(fcn)
@@ -192,6 +210,16 @@ class BertNERCRFFCN(BertPreTrainedModel):
         )
 
         sequence_output = outputs[0]
+        
+        if self.xargs.get('hmask',False):
+            labels_copy = labels.detach().clone()
+            labels_copy[labels_copy != -100] = 1
+            labels_copy[labels_copy == -100] = 0
+            labels_copy = labels_copy.unsqueeze(-1)
+            tar_size = sequence_output.shape
+            labels_copy.expand(*tar_size)
+            sequence_output = sequence_output*labels_copy
+            
 
         logits = self.top_layers(sequence_output)
 

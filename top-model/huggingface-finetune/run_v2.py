@@ -12,6 +12,7 @@ import gc
 import json
 import random
 import numpy as np
+import copy
 
 import torch
 import torch.nn as nn
@@ -28,6 +29,7 @@ from data_utils import convert_tsv_to_txt, get_train_test_df
 from utils_ner import NerDataset, Split
 from models_factory import get_model
 from seqeval.metrics import f1_score, classification_report
+import wandb
 params = {}
 # Important parameters:
 # params["LOWER_CASE"] = False
@@ -92,6 +94,7 @@ def prepare_data():
     num_test_sents = len(all_data["test"]["words"])
     print("num_train_sents, num_dev_sents, num_test_sents = ",
           num_train_sents, num_dev_sents, num_test_sents)
+#     wandb.log({"num_train_sents, num_dev_sents, num_test_sents":[num_train_sents, num_dev_sents, num_test_sents]})
 
     print("First 10 words in test data:")
     print(test_df.head(10))
@@ -111,6 +114,7 @@ def prepare_data():
     wt = np.sum(wt)/(wt*len(wt))
     
     print(f"unique labels: {labels} with weights {wt}")
+#     wandb.log({"unique labels, with weights":[labels,wt]})
 
     return train_df, test_df, dev_df, labels, num_labels, label_map, data_dir, wt
 
@@ -119,7 +123,10 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     # Model Definition
     model_args = dict()
     # Path to pretrained model or model identifier from huggingface.co/models
-    model_args['model_name_or_path'] = 'dmis-lab/biobert-base-cased-v1.1'
+    if params.get('model_name_or_path'):
+        model_args['model_name_or_path'] = params['model_name_or_path']
+    else:
+        model_args['model_name_or_path'] = 'dmis-lab/biobert-base-cased-v1.1'
     # Where do you want to store the pretrained models downloaded from s3
     model_args['cache_dir'] = params["CACHE_DIR"]
     model_args['do_basic_tokenize'] = False
@@ -151,27 +158,32 @@ def prepare_config_and_tokenizer(data_dir, labels, num_labels, label_map):
     return data_args, model_args, config, tokenizer
 
 
-def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs={}):
-    # First freeze bert weights and train
-    model = get_model(
-        model_path=model_args["model_name_or_path"],
-        cache_dir=model_args['cache_dir'],
+def freeze_model(model):
+    if params['grad_finetune_layers'] != -1:
+        for param in model.base_model.parameters():
+            param.requires_grad = False
+
+        for i in range(len(model.bert.encoder.layer) - params['grad_finetune_layers'], len(model.bert.encoder.layer)):
+            for param in model.bert.encoder.layer[i].parameters():
+                param.requires_grad = True
+
+def model_init():
+    train_df, test_df, dev_df, labels, num_labels, label_map, data_dir, wt = prepare_data()
+    data_args, model_args, config, tokenizer = prepare_config_and_tokenizer(
+        data_dir, labels, num_labels, label_map)
+    xargs = {}
+    xargs['tf'] = params.get('tf',False)
+    xargs["top_model"] = params.get("top_model")
+    return get_model(
+        model_path=params["model_name_or_path"],
+        cache_dir=params["CACHE_DIR"],
         config=config,
         model_type=params['model_type'],
         xargs=xargs)
-
-    if not params['grad_e2e']:
-        for param in model.base_model.parameters():
-            param.requires_grad = False
-    if 'add_vocab' in params.keys():
-        model.resize_token_embeddings(len(tokenizer))
-        for param in model.bert.embeddings.parameters():
-            param.requires_grad = True
-
-    # Change from default eval mode to train mode
-    model.train()
-    print(model)
-
+    
+def run_hyperp(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs={}):
+    wandb.log({"params":params})
+    wandb.log({"xargs":xargs})
     training_args_dict = {
         'output_dir': params["OUTPUT_DIR"],
         'num_train_epochs': params["EPOCH_TOP"],
@@ -195,6 +207,75 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
     # Initialize the Trainer
     trainer = Trainer(
+        model_init=model_init,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset, callbacks=[
+            EarlyStoppingCallback(early_stopping_patience=params["patience"]),
+            LogCallback(params["OUTPUT_DIR"]+"/train_log.json")]
+    )
+    best_t =  trainer.hyperparameter_search(
+        backend="ray",
+        # Choose among many libraries:
+        # https://docs.ray.io/en/latest/tune/api_docs/suggestion.html
+        n_trials=10)
+    print(best_t)
+                
+def run_train(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs={}):
+    # First freeze bert weights and train
+#     log_params = copy.copy(params)
+#     log_params['model_type']= params['model_type'].name
+#     wandb.log({"params":log_params})
+#     wandb.log({"xargs":xargs})
+
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True)
+    xargs['tf'] = params.get('tf',False)
+    model = get_model(
+        model_path=model_args["model_name_or_path"],
+        cache_dir=model_args['cache_dir'],
+        config=config,
+        model_type=params['model_type'],
+        xargs=xargs)
+
+    if not params['grad_e2e']:
+        for param in model.base_model.parameters():
+            param.requires_grad = False
+    else:
+        freeze_model(model)
+    if 'add_vocab' in params.keys():
+        model.resize_token_embeddings(len(tokenizer))
+        for param in model.bert.embeddings.parameters():
+            param.requires_grad = True
+
+    # Change from default eval mode to train mode
+    model.train()
+    print(model)
+    
+    training_args_dict = {
+        'output_dir': params["OUTPUT_DIR"],
+        'num_train_epochs': params["EPOCH_TOP"],
+        'train_batch_size': params["BATCH_SIZE"],
+        "save_strategy": "epoch",
+        "evaluation_strategy": "steps",
+        "eval_steps": max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+        "logging_steps":max(10,train_dataset.__len__()//params["BATCH_SIZE"]),
+        "do_train": True,
+        "load_best_model_at_end": params["LOAD_BEST_MODEL"],
+        "learning_rate": params["lr"],
+        "weight_decay": params["weight_decay"],
+        "save_total_limit": 2,
+        "report_to": "wandb",  # enable logging to W&B
+        "run_name": params['exp_name']+"_top_model"
+    }
+    print(training_args_dict)
+    with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
+        json.dump(training_args_dict, fp)
+    parser = HfArgumentParser(TrainingArguments)
+    training_args = parser.parse_json_file(
+        json_file=params["TRAIN_ARGS_FILE"])[0]
+
+    # Initialize the Trainer
+    trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
@@ -208,11 +289,15 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
     trainer.save_model(params["OUTPUT_DIR"])
     plot_loss_log(params["OUTPUT_DIR"]+"/train_log.json")
     best_model = trainer.state.best_model_checkpoint
+    print("top_model_path is at ...", best_model)
+    wb_run.finish()
 
     if params['grad_finetune']:
 
         # Now reload the model from best model we have found
         # Reading from file
+        
+        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True)
         print("The file is loaded from ---------------------------> ",
               params["OUTPUT_DIR"] + 'config.json')
         data = json.loads(
@@ -232,6 +317,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         )
 
         # Model #
+        xargs['tf']=False
         reloaded_model = get_model(
             model_path=top_model_path+"/",
             cache_dir=model_args['cache_dir'],
@@ -239,7 +325,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             model_type=params['model_type'], 
             xargs=xargs)
         print("Reloaded",reloaded_model.bert.embeddings)
-
+        
+        adam_beta1 = 0.9
+        if params.get('xargs') and params.get('xargs').get('beta1_finetune'):
+            adam_beta1 = params.get('xargs').get('beta1_finetune')
         # Training args #
         training_args_dict = {
             'output_dir': params["OUTPUT_DIR"],
@@ -253,7 +342,10 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             "save_total_limit": 2,
             "learning_rate": params["lr_finetune"],
             "weight_decay": params["wd_finetune"] if "wd_finetune" in params.keys() else 0,
-            "ignore_data_skip": True
+            "ignore_data_skip": True,
+            "report_to": "wandb",  # enable logging to W&B
+            "run_name": params['exp_name']+"_full_model",
+            "adam_beta1": adam_beta1
         }
 
         with open(params["TRAIN_ARGS_FILE"], 'w') as fp:
@@ -264,13 +356,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
         # Then unfreeze the bert weights and fine tune end-to-end
         model = reloaded_model
-        if params['grad_finetune_layers'] != -1:
-            for param in model.base_model.parameters():
-                param.requires_grad = False
-
-            for i in range(len(model.bert.encoder.layer) - params['grad_finetune_layers'], len(model.bert.encoder.layer)):
-                for param in model.bert.encoder.layer[i].parameters():
-                    param.requires_grad = True
+        freeze_model(model)
         model.to('cuda')
 
         # Set to train mode.
@@ -282,13 +368,15 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
             args=training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
-            callbacks=[EarlyStoppingCallback(early_stopping_patience=params["patience"]),
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=params["patience"],
+                                             early_stopping_threshold=params.get('esth',0)),
             LogCallback(params["OUTPUT_DIR"]+"/train_finetune_log.json")]
         )
 
         # checkpiont is here.
         trainer.train()
         plot_loss_log(params["OUTPUT_DIR"]+"/train_finetune_log.json")
+        wb_run.finish()
     return trainer, model
 
 
@@ -318,27 +406,33 @@ def get_predictions(trainer, model, test_dataset, label_map):
         all_attention_masks = []
         for sample in test_dataset:
             all_attention_masks.append(sample.attention_mask)
-        all_attention_masks = torch.tensor(all_attention_masks).to('cuda')
+        attention_mask = torch.tensor(all_attention_masks).to('cuda')
+        attention_mask_copy = attention_mask.detach().clone()
+        if params.get('xargs') and params['xargs'].get('skip_subset',False):
+            attention_mask_copy[label_ids == -100]=0
+            attention_mask_copy[:,0]=1
 
         # get the best tag sequences using CRF's Viterbi decode algorithm
-        preds = model.crf.decode(output, all_attention_masks.type(torch.uint8))
+        preds = model.crf.decode(output, attention_mask_copy.type(torch.uint8))
     else:
         preds = np.argmax(output, axis=2)
         batch_size, seq_len = preds.shape
 
     # preds -> list of token-level predictions shape = (batch_size, seq_len)
     preds_list = [[] for _ in range(batch_size)]
+    label_list = [[] for _ in range(batch_size)]
     for i in range(batch_size):
         for j in range(len(preds[i])):
             # ignore pad_tokens
             if label_ids[i, j] != nn.CrossEntropyLoss().ignore_index:
                 preds_list[i].append(label_map[preds[i][j]])
+                label_list[i].append(label_map[label_ids[i,j]])
 
-    return preds_list
+    return preds_list,label_list
 
 
 def run_test(trainer, model, test_dataset, test_df, label_map):
-    preds_list = get_predictions(trainer, model, test_dataset, label_map)
+    preds_list, label_list = get_predictions(trainer, model, test_dataset, label_map)
 
     def sentences_combiner(df):
         # 'words' and 'labels' are the column names in the CSV file
@@ -353,19 +447,29 @@ def run_test(trainer, model, test_dataset, test_df, label_map):
 
     # make sure all test and pred sentences have the same length
     # for some tokenization reason cellfinder(Cellline) had a problem with 3 test sentences
-    test_labels = test_labels[:len(preds_list)]
-    test_labels_new = []
-    preds_list_new = []
+#     test_labels = test_labels[:len(preds_list)]
+#     test_labels_new = []
+#     preds_list_new = []
 
-    for i, x in enumerate(test_labels):
-        if len(x) == len(preds_list[i]):
-            test_labels_new.append(x)
-            preds_list_new.append(preds_list[i])
-        else:
-            print("ABORT")
+#     for i, x in enumerate(test_labels):
+#         if len(x) == len(preds_list[i]):
+#             test_labels_new.append(x)
+#             preds_list_new.append(preds_list[i])
+#         else:
+#             print("ABORT")
+#             print('Gt-',len(x),test_tokens[i])
+#             print('Gt-',len(x),x)
+#             print('Pred-',len(preds_list[i]),preds_list[i])
 
-    print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
-    print(classification_report(test_labels_new, preds_list_new, digits=3))
+    print("F1-score: {:.1%}".format(f1_score(label_list, preds_list)))
+    report = classification_report(label_list, preds_list, digits=3,output_dict=True)
+    print(report)
+    return report
+#     print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
+#     report = classification_report(test_labels_new, preds_list_new, digits=3,output_dict=True)
+#     print(report)
+#     return report
+
 
 
 def main(_params):
@@ -375,6 +479,7 @@ def main(_params):
     params['seed_value'] = args.seed_value
     params['set_seed'] = args.set_seed
     '''
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_init")
     if params['set_seed']:
         random_seed_set(params['seed_value'])
 
@@ -390,6 +495,13 @@ def main(_params):
 
     # ## Create Dataset Objects
 
+    xargs = {}
+    if params.get('xargs'):
+        xargs = params['xargs']
+    xargs['wt'] = wt
+    print('Got class weights')
+    xargs["top_model"] = params.get("top_model")
+    
     train_dataset = NerDataset(
         data_dir=data_args['data_dir'],
         tokenizer=tokenizer,
@@ -397,7 +509,7 @@ def main(_params):
         model_type=config.model_type,
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],  # True
-        mode=Split.train, data_size=params["data_size"])
+        mode=Split.train, data_size=params["data_size"], xargs=xargs)
 
     eval_dataset = NerDataset(
         data_dir=data_args['data_dir'],
@@ -407,17 +519,6 @@ def main(_params):
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=data_args['overwrite_cache'],
         mode=Split.dev, data_size=100)
-
-    print(train_dataset.__len__(), eval_dataset.__len__())
-
-    # Train top-model using the Trainer API
-    xargs = {}
-    xargs['class_wt'] = wt
-    trainer, model = run_train(
-        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs)
-
-    gc.collect()
-    torch.cuda.empty_cache()
 
     # ## Prepare test data, run trainer over test data and print metrics
 
@@ -430,9 +531,38 @@ def main(_params):
         max_seq_length=data_args['max_seq_length'],
         overwrite_cache=True,
         mode=Split.test, data_size=100)
-    run_test(trainer, model, train_dataset, train_df, label_map)
-    run_test(trainer, model, eval_dataset, dev_df, label_map)
-    run_test(trainer, model, test_dataset, test_df, label_map)
+    
+    print(train_dataset.__len__(), eval_dataset.__len__(),test_dataset.__len__())
+    wb_run.finish()
+
+    
+    # Train top-model using the Trainer API
+    if params.get("hyp"):
+        run_hyperp(train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs)
+        return
+    
+    trainer, model = run_train(
+        train_dataset, eval_dataset, config, model_args, labels, num_labels, label_map,tokenizer, xargs)
+
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary")
+    report = run_test(trainer, model, train_dataset, train_df, label_map)
+    wandb.run.summary["train_report"]=report
+    report = run_test(trainer, model, eval_dataset, dev_df, label_map)
+    wandb.run.summary["val_report"]=report
+    report = run_test(trainer, model, test_dataset, test_df, label_map)
+    wandb.run.summary["test_report"]=report
+    wandb.run.summary["model"]=model.__repr__()
+    wandb.run.summary["data"]={"train":train_dataset.__len__(),
+                               "val":eval_dataset.__len__(),
+                               "test":test_dataset.__len__(),
+                               "wt":wt}
+    params["model_type"]=params["model_type"].name
+    wandb.run.summary["params"]=params
+    wb_run.finish()
 
 
 # if __name__ == "__main__":

@@ -8,6 +8,7 @@ def get_model(model_path, cache_dir, config, model_type: ModelsType = ModelsType
         model = BertNERTopModelFCN.from_pretrained(
             model_path,
             xargs = xargs,
+            from_tf=xargs.get('tf'),
             config=config,
             cache_dir=cache_dir,
         )
@@ -15,6 +16,7 @@ def get_model(model_path, cache_dir, config, model_type: ModelsType = ModelsType
         model = BertNERCRF.from_pretrained(
             model_path,
             xargs = xargs,
+            from_tf=xargs.get('tf'),
             config=config,
             cache_dir=cache_dir,
         )
@@ -22,6 +24,7 @@ def get_model(model_path, cache_dir, config, model_type: ModelsType = ModelsType
         model = BertNERCRFFCN.from_pretrained(
             model_path,
             xargs = xargs,
+            from_tf=xargs.get('tf'),
             config=config,
             cache_dir=cache_dir,
         )
@@ -29,6 +32,7 @@ def get_model(model_path, cache_dir, config, model_type: ModelsType = ModelsType
         model = BertNERTopModel.from_pretrained(
             model_path,
             xargs = xargs,
+            from_tf=xargs.get('tf'),
             config=config,
             cache_dir=cache_dir,
         )

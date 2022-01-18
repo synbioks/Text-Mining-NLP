@@ -5,6 +5,8 @@ import os
 import json
 import shutil
 
+os.environ["WANDB_API_KEY"]="90852721fdf4fb388c7f75ad45a5a0629bfc4bbf"
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed_value", default=42, type=int)
 parser.add_argument("--set_seed", action="store_true")
