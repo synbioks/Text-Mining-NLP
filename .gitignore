@@ -4,3 +4,5 @@ checkpoints/
 acs-data
 data
 biobert_RE/datasets/
+.idea/
+.vscode/

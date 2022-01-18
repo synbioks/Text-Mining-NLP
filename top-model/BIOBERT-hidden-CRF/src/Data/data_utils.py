@@ -16,23 +16,29 @@ EMBEDDING = 768
 N_TAGS = 3
 CHUNK_SIZE = 16
 
-def chunks(lst, n):    
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
-            
+def chunks(iterable, chunk_size):
+    """
+    input: 
+        iterable: iterable that can be iterated over. 
+        chunk_size: number of sentences of each chunk.
+    output: 
+        generator
+    """
+    for i in range(0, len(iterable), chunk_size):
+        yield iterable[i:i+chunk_size]
+    
+    
 count = 0       
 for dataset in DATASETs:
-    
-#     if dataset != "biosemantics":
-#         continue 
-    
+        
     embd = os.path.join(EMBD_DIR, dataset)
 
+    # load the entire embeddding into RAM
     X_train = np.load(os.path.join(embd, "X_train.npy")) 
     y_train = np.load(os.path.join(embd, "y_train.npy"))
 
-    X_train_gen = list(chunks(X_train, CHUNK_SIZE))
-    y_train_gen = list(chunks(y_train, CHUNK_SIZE))
+    X_train_gen = chunks(X_train, CHUNK_SIZE)
+    y_train_gen = chunks(y_train, CHUNK_SIZE)
 
     for i,j in zip(X_train_gen, y_train_gen):
         count += 1
