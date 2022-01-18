@@ -58,13 +58,19 @@ def get_train_test_df(all_data):
     for i,(tokens,tags) in enumerate(zip(all_data["train"]["words"],all_data["train"]["ner"])):
         for token,tag in zip(tokens,tags):
             train_tuples.append([i,token,tag])
-
+    
+    dev_tuples = []
+    for i,(tokens,tags) in enumerate(zip(all_data["dev"]["words"],all_data["dev"]["ner"])):
+        for token,tag in zip(tokens,tags):
+            dev_tuples.append([i,token,tag])
+            
     test_tuples = []
     for i,(tokens,tags) in enumerate(zip(all_data["test"]["words"],all_data["test"]["ner"])):
         for token,tag in zip(tokens,tags):
             test_tuples.append([i,token,tag])
 
     train_df = pd.DataFrame(train_tuples, columns=['sentence_id', 'words', 'labels'])
+    dev_df = pd.DataFrame(dev_tuples, columns=['sentence_id', 'words', 'labels'])
     test_df = pd.DataFrame(test_tuples, columns=['sentence_id', 'words', 'labels'])
     
-    return train_df, test_df
+    return train_df, test_df, dev_df
