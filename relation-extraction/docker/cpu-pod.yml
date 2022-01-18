@@ -14,12 +14,12 @@ spec:
     resources:
       limits:
         memory: "8G"
-        cpu: 2
-        nvidia.com/gpu: 1
+        cpu: 1
+        nvidia.com/gpu: 0
       requests:
         memory: "8G"
-        cpu: 2
-        nvidia.com/gpu: 1
+        cpu: 1
+        nvidia.com/gpu: 0
     volumeMounts:
       - mountPath: "/sbksvol"
         name: sbksvol
@@ -31,16 +31,6 @@ spec:
     - name: sbksvol
       persistentVolumeClaim:
         claimName: sbksvol
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: gpu-type
-            operator: In
-            values:
-            - 2080Ti
-            - 1080Ti
 ---
 kind: Service
 apiVersion: v1

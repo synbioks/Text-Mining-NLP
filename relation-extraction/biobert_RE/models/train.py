@@ -194,6 +194,11 @@ if __name__ == '__main__':
     print('Arguments:')
     print(args)
 
+    print(f'cuda availability: {torch.cuda.is_available()}')
+    if torch.cuda.is_available():
+        for i in range(torch.cuda.device_count()):
+            print(f'GPU name: {torch.cuda.get_device_name(i)}')
+
     # initialize top model
     bert_hidden_size = 1024 if args.use_bert_large else 768
     out_size = len(cpr.cpr_label_id) # calculate the output size
