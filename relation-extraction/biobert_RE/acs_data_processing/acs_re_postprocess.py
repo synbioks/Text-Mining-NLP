@@ -50,7 +50,7 @@ def process_file(res_path, ann_path):
 if __name__ == '__main__':
 
     parser = ArgumentParser()
-    parser.add_argument('--dataset-dir')
+    parser.add_argument('--dataset-dir', required=True)
 
     args = parser.parse_args()
 

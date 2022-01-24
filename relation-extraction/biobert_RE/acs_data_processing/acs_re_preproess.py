@@ -99,7 +99,7 @@ def preprocess_article(tokenizer, txt_path, ann_path, output_path):
 if __name__ == "__main__":
 
     parser = ArgumentParser()
-    parser.add_argument('--dataset-dir')
+    parser.add_argument('--dataset-dir', required=True)
     args = parser.parse_args()
 
     # handle the paths
