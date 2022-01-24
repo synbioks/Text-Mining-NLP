@@ -4,6 +4,7 @@ This folder contains all the necessary scripts to perform relation extraction on
 
 * `assets`: contains figures and diagrams for this README
 * `biobert_RE/dataset_processing`: contains dataset preprocessing codes that convert raw DrugProt and ChemProt data into training/testing datasets
+* `biobert_RE/acs_data_processing`: containts the data proprocessing codes for ACS inference
 * `biobert_RE/models`: dataloader, RE model definition, and training logics
 * `biobert_RE/utils`: frequently used utility function
 * `biobert_RE_chemprot`: legacy code for ChemProt datasets, functionalities are already integrated into the new module `biobert_RE`
@@ -64,7 +65,7 @@ Use `transformers-cli` binary come with the `transformers` package to convert Te
 
 First, make sure use your VSCode's "Files -> Open Folders..." options to open `relation-extraction` folder (Note: not the root folder of this project, it's `sbks-ucsd/relation-extraction`). To set up vscode debugging with argument, [create run configurations](https://code.visualstudio.com/docs/python/debugging). You see the existing run configuration in `.vscode/launch.json`
 
-# Data processing pipeline
+# Data Processing Pipeline
 
 This section is about everything in `biobert_RE/dataset_processing`. The two goals of the data processing pipeline are:
 
@@ -355,3 +356,78 @@ lr = lr_factor * min(step ** (-0.5), step * warm_up ** (-1.5))
 The following is the learning rate curve with lr_factor=0.0005, warm_up=1000. During the warm up stage, the learning rate increases linearly. Once the warm up finishes, the learning rate is equal to the inversed squared-root of step count.
 
 ![var_lr.png](assets/var_lr.png)
+
+# ACS Data Processing
+
+This module contains all the necessary codes to run inference on ACS data. The overall workflow of the ACS inference task is as follows:
+
+![acs_data_processing.png](assets/acs_data_processing.png)
+
+## acs-re-preprocess.py
+
+This scripts reads ACS data with NER annotation in brat format, converts them into model inputs.
+
+```
+acs_re_preproess.py --dataset-dir DATASET_DIR
+```
+
+* `dataset-dir`: the directory to the ACS data in brat format
+
+### Note
+
+The ACS data folder has to be in a specific structure for this script to work. Namely, the .txt and .ann files need to be group into separate sub-folders by their article ids. For example:
+
+```
+acs-data-folder
+    + 00001
+        + 00001.txt
+        + 00001.ann
+    + 00002
+        + 00002.txt
+        + 00002.ann
+    ...
+```
+
+Once the script finishes, a `re_input.tsv` will be created under each sub-folder:
+
+```
+acs-data-folder
+    + 00001
+        + 00001.txt
+        + 00001.ann
+        + re_input.tsv
+    + 00002
+        + 00002.txt
+        + 00002.ann
+        + re_input.tsv
+    ...
+```
+
+You can leave the .tsv files as they are; the `train.py` script will handle the dataloading.
+
+## acs-re-postprocess.py
+
+Once the model finishes inference, a `re_output.tsv` will be created underr each sub-folder:
+
+```
+acs-data-folder
+    + 00001
+        + 00001.txt
+        + 00001.ann
+        + re_input.tsv
+        + re_output.tsv
+    + 00002
+        + 00002.txt
+        + 00002.ann
+        + re_input.tsv
+        + re_output.tsv
+    ...
+```
+
+Running this scripts will put all the results in re_output.tsv back into the .ann files. At the end the .ann file should have relations detected by the model.
+
+```
+acs_re_postproess.py --dataset-dir DATASET_DIR
+```
+
+* `dataset-dir`: the directory to the ACS data.
