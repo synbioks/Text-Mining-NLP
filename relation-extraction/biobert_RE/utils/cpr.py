@@ -44,3 +44,5 @@ cpr_label_id = {
     'CPR-9': 6,
     'NOT': 7
 }
+
+cpr_id_label = {v: k for k, v in cpr_label_id.items()}
