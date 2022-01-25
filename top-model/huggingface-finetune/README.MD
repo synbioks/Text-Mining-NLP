@@ -23,7 +23,7 @@ Code Structure:
 - models.py/models_fcn.py:
     - Models.py create CRF models
     - Models_fcn.py creates models with Softmax
-- Exp_config.py: description in bold
+- Exp_config.py: description in [square brackets]
 ```
 "fcn_crf_v10_lr6_7_wd5_wdf5_ft5_pt10_tp0": {
         "LOWER_CASE": false, [Cased or Uncased model]
@@ -66,3 +66,9 @@ Code Structure:
         - This consist of BERT + 4 linear layers[500,250,125,3] + Softmax
     - CRF
         - This consist of BERT + 4 linear layers[500,250,125,3] + CRF
+
+#### How to run ?
+Create a batch file using bert_job.yaml from your machine like 
+```
+kubectl create -f bert_job.yaml
+```
