@@ -24,7 +24,7 @@ Code Structure:
     - Models.py create CRF models
     - Models_fcn.py creates models with Softmax
 - Exp_config.py: description in bold
-'''
+```
 "fcn_crf_v10_lr6_7_wd5_wdf5_ft5_pt10_tp0": {
         "LOWER_CASE": false, [Cased or Uncased model]
         "LOAD_BEST_MODEL": true,[Load best model for evaluation]
@@ -52,7 +52,7 @@ Code Structure:
             "beta1_finetune": 0.95 [beta1 in optimizer]
         }
     }
-'''
+```
 - Bert_job.yaml 
     - This is executed using kubectl to create a batch job which runs the run_test.sh file as a command.
     - Models files are created under sbksvol/<user_dir>
