@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gary-re-job
+  labels:
+    k8s-app: gary-re-job
+  namespace: sbks
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: gary-re-job
+        image: jiaweitang/sbks-torch:latest
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "cd /sbksvol/jiawei/sbks-ucsd/relation-extraction && python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --epoch 1 --ckpt-dir ."
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "6G"
+            cpu: 1.5
+            nvidia.com/gpu: 1
+          requests:
+            memory: "6G"
+            cpu: 1.5
+            nvidia.com/gpu: 1
+        volumeMounts:
+          - mountPath: "/sbksvol"
+            name: sbksvol
+        env:
+        - name: PYTHONPATH
+          value: "/sbksvol/jiawei/sbks-ucsd/relation-extraction/biobert_RE"
+      restartPolicy: Never
+      volumes:
+        - name: sbksvol
+          persistentVolumeClaim:
+            claimName: sbksvol
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: gpu-type
+                operator: In
+                values:
+                - 2080Ti
+                - 1080Ti

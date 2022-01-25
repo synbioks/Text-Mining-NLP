@@ -40,7 +40,7 @@ def convert_tf_checkpoint_to_pytorch(tf_checkpoint_path, bert_config_file, pytor
     torch.save(model.state_dict(), pytorch_dump_path)
 
 
-def converterMain():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Required parameters
     parser.add_argument(

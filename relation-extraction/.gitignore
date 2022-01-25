@@ -1,0 +1,13 @@
+datasets/
+weights/
+data/
+misc/
+*.pyc
+__pycache__/
+playground.ipynb
+
+# latex related
+*.pdf
+*.gz
+*.log
+*.aux

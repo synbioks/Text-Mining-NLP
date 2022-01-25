@@ -1,0 +1,6 @@
+{
+    "doc_lda_path": "data/saved_results/corpus/lda_k=5_abstract_doc_lda.pickle",
+    "data_json_path": "data/json-files",
+    "article_sequence_path": "data/saved_results/data_words/article_sq.pickle",
+    "topic_interpretations": ["gene expression", "biosensors", "metabolic engineering", "genetic circuit design", "strain construction"]
+}
