@@ -1,2 +1,0 @@
-gary-re-end-to-end	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end
-gary-re-2-stage	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --epoch 1 --top-hidden-size 1024 1024 --ckpt-dir weights/2-stage --freeze-bert True

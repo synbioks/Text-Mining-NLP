@@ -27,6 +27,7 @@ spec:
     - name: PYTHONPATH
       value: "/sbksvol/jiawei/sbks-ucsd/relation-extraction/biobert_RE"
   restartPolicy: Never
+  automountServiceAccountToken: false
   volumes:
     - name: sbksvol
       persistentVolumeClaim:
