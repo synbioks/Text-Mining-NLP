@@ -172,7 +172,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
     parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
-    parser.add_argument('--ckpt-dir', type=str, default='weights/tmp_weight_dir')
+    parser.add_argument('--ckpt-dir', type=str, default=None)
     parser.add_argument('--balance-dataset', type=bool_string, default='False')
     parser.add_argument('--do-train', type=bool_string, default='True')
     parser.add_argument('--do-inference', type=bool_string, default='False')
@@ -190,6 +190,16 @@ if __name__ == '__main__':
 
     # parse top hidden size
     args.top_hidden_size = [int(x) for x in args.top_hidden_size]
+
+    # handle default checkpoint directory
+    if args.ckpt_dir is None:
+        args.ckpt_dir = 'weights/most_recent'
+        print(f'WARNING: --ckpt-dir not provided, defaulting to {args.ckpt_dir}')
+    if not os.path.exists(args.ckpt_dir):
+        print(f'Creating ckpt_dir: {args.ckpt_dir}')
+        os.makedirs(args.ckpt_dir)
+    else:
+        assert os.path.isdir(args.ckpt_dir), f'{args.ckpt_dir} has to be a directory'
 
     print('Arguments:')
     print(args)
