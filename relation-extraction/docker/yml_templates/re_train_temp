@@ -1,21 +1,28 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: gary-re-job
+  name: [[[[ARG:0]]]]
   labels:
-    k8s-app: gary-re-job
+    k8s-app: [[[[ARG:0]]]]
   namespace: sbks
 spec:
   backoffLimit: 0
   template:
     spec:
+      automountServiceAccountToken: false
       containers:
-      - name: gary-re-job
+      - name: [[[[ARG:0]]]]
         image: jiaweitang/sbks-torch:latest
         command:
         - "/bin/bash"
         - "-c"
-        - "cd /sbksvol/jiawei/sbks-ucsd/relation-extraction && python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --epoch 5"
+        - >
+          cd /root &&
+          git clone https://oauth2:glpat-esfm7EV9is4tQ8socDDg@gitlab.com/mhn-ucsd/sbks-ucsd.git &&
+          cd /root/sbks-ucsd/relation-extraction &&
+          ln -s /sbksvol/jiawei/re-model-data/weights weights &&
+          ln -s /sbksvol/jiawei/re-model-data/data data &&
+          [[[[ARG:1]]]]
         imagePullPolicy: Always
         resources:
           limits:
@@ -31,7 +38,7 @@ spec:
             name: sbksvol
         env:
         - name: PYTHONPATH
-          value: "/sbksvol/jiawei/sbks-ucsd/relation-extraction/biobert_RE"
+          value: "/root/sbks-ucsd/relation-extraction/biobert_RE"
       restartPolicy: Never
       volumes:
         - name: sbksvol
