@@ -431,3 +431,42 @@ acs_re_postproess.py --dataset-dir DATASET_DIR
 ```
 
 * `dataset-dir`: the directory to the ACS data.
+
+# Training with Nautilus
+
+`docker/generate_yml_files.py` is a tool for generating multiple yml manifests using a template file and an argument file. It is useful for running multiple experiments/jobs on Nautilus.
+
+```
+generate_yml_files.py 
+    --yml-temp YML_TEMP 
+    --yml-args YML_ARGS 
+    --output OUTPUT
+```
+
+* `yml-temp` path to the yml template file
+* `yml-args` path to the yml arguement file
+* `output` output directory
+
+A yml argument file is a tsv file and each line is defined as the following
+
+```
+argument_0    argument_1    argument_2    ...
+```
+
+Each line should have the same number of arguments separated by the tab character.
+
+The yml template file should contain special patterns which will be replaced by the actual arguments
+
+```
+This is an example template file [[[[ARG:0]]]]:
+patterns will be replaced by the actual arguments [[[[ARG:2]]]]
+[[[[ARG:1]]]]
+```
+
+Running the script using the examples above will yield the following result
+
+```
+This is an example template file argument_0:
+patterns will be replaced by the actual arguments argument_2
+argument_1
+```
