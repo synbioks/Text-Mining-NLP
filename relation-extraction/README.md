@@ -12,7 +12,7 @@ This folder contains all the necessary scripts to perform relation extraction on
 
 ## Environment setup
 
-Run the following command to setup via Anaconda. For PyTorch installation, make sure the pick the correct cudatoolkit version for your GPU.
+Run the following command to setup via Anaconda. For PyTorch installation, make sure to pick the correct cudatoolkit version for your GPU.
 
 ```
 conda create -n torch python=3.8
