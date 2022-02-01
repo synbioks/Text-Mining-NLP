@@ -19,7 +19,7 @@ class CLSTopModel(nn.Module):
             layers.extend([
                 nn.Dropout(p=dropout_p),
                 nn.Linear(prev_hsize, hsize),
-                activation_func
+                eval("nn.{}()".format(activation_func))
             ])
             prev_hsize = hsize
         

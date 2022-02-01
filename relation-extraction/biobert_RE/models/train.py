@@ -203,7 +203,8 @@ if __name__ == '__main__':
         assert os.path.isdir(args.ckpt_dir), f'{args.ckpt_dir} has to be a directory'
         
     # set activation function for top model
-    args.activation = eval("nn.{}()".format(args.activation))
+    assert args.activation in ['ReLU', 'Tanh', 'GELU'], 'Activation function should be either ReLU, Tanh, or GELU.'
+
 
     print('Arguments:')
     print(args)

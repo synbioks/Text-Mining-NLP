@@ -306,6 +306,7 @@ train.py
     * by setting `do-train` and `do-inference` to True, you can train and predict in one go
     * if you want to do prediciton using a specific checkpoint, set `do-train` to False and make sure to set the `resume-from-ckpt` parameter
 * `ckpt-dir`: path to the folder that stores model as checkpoints
+* `activation`: activation method for the top model. Options include `['ReLU', 'Tanh', 'GELU']`.
 
 ### Example output
 
