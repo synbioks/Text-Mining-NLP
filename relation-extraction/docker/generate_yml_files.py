@@ -31,7 +31,7 @@ if __name__ == '__main__':
     
     for i, generated_yml in enumerate(generated_ymls):
         # file name is defined by the name of the template file and the name of the argument file
-        output_filename = f'{os.path.basename(args.yml_temp)}_{os.path.basename(args.yml_args)}_{i}.yml'
+        output_filename = f'{os.path.basename(args.yml_temp)}_{os.path.basename(args.yml_args)}_{i+1}.yml'
         output_filename = os.path.join(args.output, output_filename)
         with open(output_filename, 'w') as fout:
             fout.write(generated_yml)
