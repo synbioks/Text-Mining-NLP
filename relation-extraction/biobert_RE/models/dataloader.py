@@ -159,7 +159,7 @@ def get_acs_inference(data_filename, vocab_filename, max_seq_len, batch_size):
 
 if __name__ == '__main__':
     tokenizer = BertTokenizer('weights/biobert_large_v1.1_pubmed_torch/vocab.txt', do_lower_case=False)
-    label_map = cpr.cpr_label_id
+    label_map = cpr.cpr_label_id_chemprot
     label_map = {k: i for i, k in enumerate(label_map)}
     data = TsvDataset(
         data_filename='data/merged/training/merged.txt',

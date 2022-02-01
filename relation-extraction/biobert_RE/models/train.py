@@ -72,7 +72,7 @@ def test_net(task_name, net, test_dataloader, limit=None):
     net.eval()
     num_tested = 0
     num_correct = 0
-    num_classes = len(cpr.cpr_label_id)
+    num_classes = len(cpr.cpr_label_id_chemprot)
     confusion_mat = np.zeros((num_classes, num_classes))
     with torch.no_grad():
         for i, (x_batch, y_batch) in enumerate(tqdm(test_dataloader)):
@@ -215,7 +215,7 @@ if __name__ == '__main__':
 
     # initialize top model
     bert_hidden_size = 1024 if args.use_bert_large else 768
-    out_size = len(cpr.cpr_label_id) # calculate the output size
+    out_size = len(cpr.cpr_label_id_chemprot) # calculate the output size
     net = get_end_to_end_net(args.bert_state_path, bert_hidden_size, out_size, args)
     if args.resume_from_ckpt is not None:
         print(f'Loading existing checkpoint: {args.resume_from_ckpt}')
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     train_dataloader, valid_dataloader = get_train_valid(
         args.train_data,
         os.path.join(args.bert_state_path, 'vocab.txt'),
-        cpr.cpr_label_id,
+        cpr.cpr_label_id_chemprot,
         args.seq_len,
         balance_data=args.balance_dataset,
         batch_size=args.batch_size,
