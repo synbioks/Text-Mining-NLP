@@ -7,7 +7,7 @@ from transformers import BertModel
 
 class CLSTopModel(nn.Module):
 
-    def __init__(self, bert_hidden_size, top_hidden_size, out_size):
+    def __init__(self, bert_hidden_size, top_hidden_size, out_size, activation_func):
         super(CLSTopModel, self).__init__()
 
         dropout_p = 0.1
@@ -19,7 +19,7 @@ class CLSTopModel(nn.Module):
             layers.extend([
                 nn.Dropout(p=dropout_p),
                 nn.Linear(prev_hsize, hsize),
-                nn.Tanh()
+                activation_func
             ])
             prev_hsize = hsize
         
@@ -71,6 +71,6 @@ class EndToEnd(nn.Module):
             params.requires_grad = required
 
 def get_end_to_end_net(bert_weights_filename, bert_hidden_size, out_size, args):
-    top_model = CLSTopModel(bert_hidden_size, args.top_hidden_size, out_size)
+    top_model = CLSTopModel(bert_hidden_size, args.top_hidden_size, out_size, args.activation)
     net = EndToEnd(bert_weights_filename, top_model)
     return net.cuda()

@@ -176,6 +176,7 @@ if __name__ == '__main__':
     parser.add_argument('--balance-dataset', type=bool_string, default='False')
     parser.add_argument('--do-train', type=bool_string, default='True')
     parser.add_argument('--do-inference', type=bool_string, default='False')
+    parser.add_argument('--activation', type=str, default='Tanh')
     args = parser.parse_args()
 
     # calculate gradient accumulation parameter
@@ -190,6 +191,9 @@ if __name__ == '__main__':
 
     # parse top hidden size
     args.top_hidden_size = [int(x) for x in args.top_hidden_size]
+
+    # set activation function for top model
+    args.activation = eval("nn.{}()".format(args.activation))
 
     print('Arguments:')
     print(args)
