@@ -7,9 +7,9 @@ export WANDB_API_KEY
 
 /root/anaconda3/bin/python3.7 -m pip install --upgrade pip
 /root/anaconda3/bin/python3.7 -m pip install transformers==4.6.0
-/root/anaconda3/bin/python3.7 -m pip install pytorch-crf
-/root/anaconda3/bin/python3.7 -m pip install "ray[tune]"
-/root/anaconda3/bin/python3.7 -m pip install wandb
+/root/anaconda3/bin/python3.7 -m pip install pytorch-crf=0.7.2
+/root/anaconda3/bin/python3.7 -m pip install "ray[tune]"==1.9.2
+/root/anaconda3/bin/python3.7 -m pip install wandb=0.12.9
 
 for var in $(seq 1 $5)
 do
