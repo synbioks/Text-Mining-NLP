@@ -2,8 +2,11 @@
 # coding: utf-8
 
 """
-Architecture: NER Top Model Training setups (B)
-              Train top model first, then fine tune BioBERT+top models. Top models: 3layer-CRF, 3layer-Softmax
+transformers==4.6.0 
+pytorch-crf==0.7.2 
+"ray[tune]"==1.9.2 
+wandb==0.12.9
+
 """
 from transformers.trainer_utils import set_seed
 from models.models_enum import ModelsType
