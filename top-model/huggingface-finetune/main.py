@@ -1,3 +1,10 @@
+"""
+transformers==4.6.0 
+pytorch-crf==0.7.2 
+"ray[tune]"==1.9.2 
+wandb==0.12.9
+"""
+
 from models.models_enum import ModelsType
 from run_v2 import main
 import argparse
