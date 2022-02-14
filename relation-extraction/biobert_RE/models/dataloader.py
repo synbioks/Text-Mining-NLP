@@ -42,13 +42,15 @@ class TsvDataset(Dataset):
     
     def __getitem__(self, index):
         
-        # x = self.tokenizer(x, padding='max_length', truncation=True, max_length=self.max_seq_len)
-        # y = self.label_map[y]
+        # if data balancing is enabled, we want to return samples from each class in equal probability
+        # here we partitioned the index space into equal slides and map each slides to each class
+        # note that __len__ in this case is the largest class size times the number of classes
         if self.balance_data:
             label = index // self.largest_set_size
             index = index % self.largest_set_size
             x, y, _, _ = self.data[label][index % self.set_size[label]]
             return x, y
+        # if data balancing is disabled, we index the data set as expected
         else:
             for label, size in enumerate(self.set_size):
                 if index >= size:
@@ -79,21 +81,35 @@ def tsv_collate_fn(items):
     # batch_y: list of label
     return batch_x, batch_y
 
-def get_train_valid(data_filename, vocab_filename, label_map, max_seq_len, balance_data, train_p=0.8, batch_size=4, valid_batch_size=4, num_workers=1):
+def get_train_valid(train_data_filename, valid_data_filename, vocab_filename, label_map, max_seq_len, 
+                    balance_data, train_p=0.8, batch_size=4, valid_batch_size=4, num_workers=1):
     tokenizer = BertTokenizer(vocab_filename, do_lower_case=False)
-    dataset = TsvDataset(
-        data_filename=data_filename,
+    train_dataset = TsvDataset(
+        data_filename=train_data_filename,
         tokenizer=tokenizer,
         label_map=label_map,
         max_seq_len=max_seq_len,
         balance_data=balance_data
     )
+    valid_dataset = None
 
-    # randomly split the dataset
-    total_size = len(dataset)
-    train_size = int(total_size * train_p)
-    valid_size = total_size - train_size
-    train_dataset, valid_dataset = torch.utils.data.random_split(dataset, [train_size, valid_size])
+    # if validation data is not specified, randomly split the train dataset
+    if valid_data_filename is None:
+        total_size = len(train_dataset)
+        train_size = int(total_size * train_p)
+        valid_size = total_size - train_size
+        train_dataset, valid_dataset = torch.utils.data.random_split(train_dataset, [train_size, valid_size])
+    # if validation data is specified, load it directly
+    else:
+        valid_dataset = TsvDataset(
+            data_filename=valid_data_filename,
+            tokenizer=tokenizer,
+            label_map=label_map,
+            max_seq_len=max_seq_len,
+            balance_data=False # should always be false, we are not balancing validation data
+        )
+
+    print(f'dataset loading finished: train={len(train_dataset)}, valid={len(valid_dataset)}')
 
     # create train validation dataloaders
     train_dataloader = DataLoader(
@@ -103,6 +119,7 @@ def get_train_valid(data_filename, vocab_filename, label_map, max_seq_len, balan
         shuffle=True,
         collate_fn=tsv_collate_fn
     )
+
     valid_dataloader = DataLoader(
         dataset=valid_dataset,
         batch_size=valid_batch_size,
@@ -156,28 +173,3 @@ def get_acs_inference(data_filename, vocab_filename, max_seq_len, batch_size):
         collate_fn=acs_collate_fn
     )
     return dataloader
-
-if __name__ == '__main__':
-    tokenizer = BertTokenizer('weights/biobert_large_v1.1_pubmed_torch/vocab.txt', do_lower_case=False)
-    label_map = cpr.cpr_label_id
-    label_map = {k: i for i, k in enumerate(label_map)}
-    data = TsvDataset(
-        data_filename='data/merged/training/merged.txt',
-        tokenizer=tokenizer,
-        label_map=label_map,
-        max_seq_len=256,
-        balance_data=True
-    )
-    dataloader = DataLoader(
-        dataset=data,
-        batch_size=16,
-        num_workers=1,
-        shuffle=True,
-        collate_fn=tsv_collate_fn
-    )
-    for i, (x, y) in enumerate(dataloader):
-        print(y)
-        break
-    for i, (x, y) in enumerate(dataloader):
-        print(y)
-        break

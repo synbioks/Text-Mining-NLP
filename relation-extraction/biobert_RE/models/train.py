@@ -72,7 +72,7 @@ def test_net(task_name, net, test_dataloader, limit=None):
     net.eval()
     num_tested = 0
     num_correct = 0
-    num_classes = len(cpr.cpr_label_id)
+    num_classes = len(cpr.get_label_map())
     confusion_mat = np.zeros((num_classes, num_classes))
     with torch.no_grad():
         for i, (x_batch, y_batch) in enumerate(tqdm(test_dataloader)):
@@ -143,6 +143,11 @@ def inference_net(task_name, net, args):
 
 # for the reason of why we are not using type=bool in add_argument:
 # see https://docs.python.org/3/library/argparse.html#type
+# "
+# The bool() function is not recommended as a type converter. 
+# All it does is convert empty strings to False and non-empty strings to True. 
+# This is usually not what is desired.
+# "
 def bool_string(s):
     if s == 'True':
         return True
@@ -171,6 +176,8 @@ if __name__ == '__main__':
     parser.add_argument('--resume-from-ckpt', type=str)
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
+    parser.add_argument('--valid-data', type=str, default=None)
+    parser.add_argument('--label-map-name', type=str, default='merged')
     parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
     parser.add_argument('--ckpt-dir', type=str, default=None)
     parser.add_argument('--balance-dataset', type=bool_string, default='False')
@@ -214,9 +221,12 @@ if __name__ == '__main__':
         for i in range(torch.cuda.device_count()):
             print(f'GPU name: {torch.cuda.get_device_name(i)}')
 
+    # call get label map once to set the default label map
+    cpr.get_label_map(args.label_map_name)
+
     # initialize top model
     bert_hidden_size = 1024 if args.use_bert_large else 768
-    out_size = len(cpr.cpr_label_id) # calculate the output size
+    out_size = len(cpr.get_label_map()) # calculate the output size
     net = get_end_to_end_net(args.bert_state_path, bert_hidden_size, out_size, args)
     if args.resume_from_ckpt is not None:
         print(f'Loading existing checkpoint: {args.resume_from_ckpt}')
@@ -228,10 +238,12 @@ if __name__ == '__main__':
     print(net.top_model)
 
     # init datasets
+    # if validation data is not specified, we will do a train/valid 80-20 split on the train data
     train_dataloader, valid_dataloader = get_train_valid(
         args.train_data,
+        args.valid_data,
         os.path.join(args.bert_state_path, 'vocab.txt'),
-        cpr.cpr_label_id,
+        cpr.get_label_map(),
         args.seq_len,
         balance_data=args.balance_dataset,
         batch_size=args.batch_size,

@@ -46,3 +46,26 @@ cpr_label_id = {
 }
 
 cpr_id_label = {v: k for k, v in cpr_label_id.items()}
+
+chemprot_sun2019_label_id = {
+    'CPR:3': 0,
+    'CPR:4': 1,
+    'CPR:9': 2,
+    'false': 3,
+    # CPR 5 and 6 are ignored
+}
+
+# get label map, if name is not specified, return the most recently used
+# TODO: make this into a decorator
+cached_choice = None
+def get_label_map(label_map_name=None):
+    global cached_choice
+    if label_map_name is None:
+        pass # do nothing
+    elif label_map_name == 'merged':
+        cached_choice = cpr_label_id
+    elif label_map_name == 'chemprot_sun2019':
+        cached_choice = chemprot_sun2019_label_id
+    else:
+        assert False, f'unknown label map name {label_map_name}'
+    return cached_choice
