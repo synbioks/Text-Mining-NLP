@@ -107,7 +107,9 @@ def test_net(task_name, net, test_dataloader, limit=None):
     print('Recall:', recalls)
     print('F1 Scores', f1s)
     print('Confusion Matrix:')
-    print(confusion_mat)
+    for row in confusion_mat:
+        print('\t'.join([str(x) for x in row]))
+    # print(confusion_mat)
 
 def inference_net(task_name, net, args):
 
