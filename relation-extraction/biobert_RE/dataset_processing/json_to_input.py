@@ -28,10 +28,16 @@ def is_gene(ent):
     return ent['type'] in ['GENE', 'GENE-Y', 'GENE-N']
 
 # check if the entities are a pair of chemical and gene
+# if there is an overlap between these two entities
+# it is not a chem gene pair
 def is_chem_gene_pair(ent1, ent2):
-    cond1 = is_chem(ent1) and is_gene(ent2)
-    cond2 = is_chem(ent2) and is_gene(ent1)
-    return cond1 or cond2
+    # check overlap
+    if ent1['start'] >= ent2['end'] or ent2['start'] >= ent1['end']:
+        cond1 = is_chem(ent1) and is_gene(ent2)
+        cond2 = is_chem(ent2) and is_gene(ent1)
+        return cond1 or cond2
+    else:
+        return False
 
 # mask the entities in the sentence
 # return the masked sentence
