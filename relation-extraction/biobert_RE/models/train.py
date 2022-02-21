@@ -49,8 +49,8 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                 if train_step_count > args.resume_from_step and train_step_count % args.valid_freq == 0:
                     net.eval()
                     print(f'\nStep {train_step_count} finished')
-                    test_net('TRAIN', net, train_dataloader, limit=100)
-                    test_net('VALIDATION', net, valid_dataloader, limit=100)
+                    test_net('TRAIN', net, train_dataloader, limit=200)
+                    test_net('VALIDATION', net, valid_dataloader, limit=200)
                     if args.ckpt_dir is not None:
                         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
                         torch.save(net.state_dict(), ckpt_path) 
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume-from-ckpt', type=str)
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
-    parser.add_argument('--valid-data', type=str, default=None)
+    parser.add_argument('--valid-data', type=str, default='data/merged/dev/merged.txt')
     parser.add_argument('--label-map-name', type=str, default='merged')
     parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
     parser.add_argument('--ckpt-dir', type=str, default=None)
@@ -187,6 +187,10 @@ if __name__ == '__main__':
     parser.add_argument('--do-inference', type=bool_string, default='False')
     parser.add_argument('--activation', type=str, default='Tanh')
     args = parser.parse_args()
+
+    # print out all package versions and name
+    print('Installed packages:')
+    print(os.system('pip list'))
 
     # calculate gradient accumulation parameter
     # if ga_batch_size is not specified, it will be set equal to batch_size
