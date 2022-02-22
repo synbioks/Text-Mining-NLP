@@ -49,8 +49,8 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                 if train_step_count > args.resume_from_step and train_step_count % args.valid_freq == 0:
                     net.eval()
                     print(f'\nStep {train_step_count} finished')
-                    test_net('TRAIN', net, train_dataloader, limit=200)
-                    test_net('VALIDATION', net, valid_dataloader, limit=200)
+                    test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
+                    test_net('VALIDATION', net, valid_dataloader, limit=(3000 // args.batch_size))
                     if args.ckpt_dir is not None:
                         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
                         torch.save(net.state_dict(), ckpt_path) 
