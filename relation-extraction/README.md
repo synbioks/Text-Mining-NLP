@@ -298,6 +298,8 @@ train.py
     * **Does matter** if you are resuming for end-to-end training, this tells the optimizer to calculate the learning rate correctly.
 * `train-data`: path to the input data
     * ignored when `do-train` is false
+* `valid-data`: path to the validation data
+    * if not specified, it will be a random split of the training and validation (80/20 split).
 * `inference-data`: path to the data for inference task (e.g. ACS data)
     * ignored when `do-inference` is false
 * `balance-dataset`: whether or not to use stratified sampling during training
@@ -307,6 +309,9 @@ train.py
     * if you want to do prediciton using a specific checkpoint, set `do-train` to False and make sure to set the `resume-from-ckpt` parameter
 * `ckpt-dir`: path to the folder that stores model as checkpoints
 * `activation`: activation method for the top model. Options include `['ReLU', 'Tanh', 'GELU']`.
+* `record-activation`: a list of layers' activations to be recorded and plotted.
+    * input type: integer(s) which denotes the layer index(indices)
+* `record-wandb`: whether to use wandb to log the training process, defaulted to set to False
 
 ### Example output
 

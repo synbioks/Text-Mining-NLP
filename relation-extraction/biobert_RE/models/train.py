@@ -14,9 +14,14 @@ from models.optimizer import VarLROptim
 
 from utils import cpr
 from utils.activation_vis import ActivationHook
+import wandb
 
 def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optimizer, args):
 
+    if args.record_wandb:
+        # use wandb to record weights
+        wb_run = wandb.init(project="wandb_test", config = args)
+        wandb.watch(net, log='all', log_freq=100)
     # setup training
     print(f'Running train {task_name}')
     net.train()
@@ -57,7 +62,10 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                         torch.save(net.state_dict(), ckpt_path) 
                     net.train()
                     print(f'Resume epoch {epoch_count}')
-    
+
+                if args.record_wandb:
+                    wandb.log({'epoch': epoch_count, 'loss': loss})
+
     # final test
 
     # register activation hook if specified
@@ -78,7 +86,10 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
 
     # show recorded activations
     for hook in hooks:
-        hook.vis_activation(args.ckpt_dir)
+        hook.vis_activation(args.ckpt_dir, to_wandb=args.record_wandb)
+
+    if args.record_wandb:
+        wb_run.finish()
 
 def test_net(task_name, net, test_dataloader, limit=None):
 
@@ -193,7 +204,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume-from-ckpt', type=str)
     parser.add_argument('--resume-from-step', type=int, default=0)
     parser.add_argument('--train-data', type=str, default='data/merged/training/merged.txt')
-    parser.add_argument('--valid-data', type=str, default='data/merged/dev/merged.txt')
+    parser.add_argument('--valid-data', type=str, default=None)
     parser.add_argument('--label-map-name', type=str, default='merged')
     parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
     parser.add_argument('--ckpt-dir', type=str, default=None)
@@ -202,6 +213,7 @@ if __name__ == '__main__':
     parser.add_argument('--do-inference', type=bool_string, default='False')
     parser.add_argument('--activation', type=str, default='Tanh')
     parser.add_argument('--record-activation', nargs='+', default=[])
+    parser.add_argument('--record-wandb', type=bool_string, default='False')
     args = parser.parse_args()
 
     # print out all package versions and name

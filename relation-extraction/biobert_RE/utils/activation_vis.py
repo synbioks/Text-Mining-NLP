@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import wandb
 
 class ActivationHook:
 
@@ -18,7 +19,7 @@ class ActivationHook:
                 res.append(item)
         return np.array(res)
 
-    def vis_activation(self, save_directory=None):
+    def vis_activation(self, save_directory=None, to_wandb=False):
         data = self.get_activation()
         data = np.sort(np.var(data, axis=0))
         width = len(data)
@@ -34,6 +35,8 @@ class ActivationHook:
         fig, ax = plt.subplots()
         im = ax.imshow(data)
         fig.colorbar(im)
+        if to_wandb:
+            wandb.log({"activation_vis_{}".format(self.name): plt})
         if save_directory is None:
             plt.show()
         else:
