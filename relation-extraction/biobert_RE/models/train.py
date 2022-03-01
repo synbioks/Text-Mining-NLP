@@ -13,6 +13,7 @@ from models.dataloader import get_acs_inference
 from models.optimizer import VarLROptim
 
 from utils import cpr
+from utils.activation_vis import ActivationHook
 
 def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optimizer, args):
 
@@ -58,12 +59,26 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                     print(f'Resume epoch {epoch_count}')
     
     # final test
+
+    # register activation hook if specified
+    hooks = []
+    for layer in args.record_activation:
+        print(f'recording activation for layer: {layer}')
+        hook = ActivationHook(layer)
+        net.top_model.record_activation(layer, hook)
+        hooks.append(hook)
+
     print('Train finished')
     test_net('TRAIN', net, train_dataloader)
     test_net('VALIDATION', net, valid_dataloader)
-    if args.ckpt_dir is not None:
+    
+    if args.ckpt_dir is not None and train_step_count > 0:
         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
         torch.save(net.state_dict(), ckpt_path)
+
+    # show recorded activations
+    for hook in hooks:
+        hook.vis_activation(args.ckpt_dir)
 
 def test_net(task_name, net, test_dataloader, limit=None):
 
@@ -186,6 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--do-train', type=bool_string, default='True')
     parser.add_argument('--do-inference', type=bool_string, default='False')
     parser.add_argument('--activation', type=str, default='Tanh')
+    parser.add_argument('--record-activation', nargs='+', default=[])
     args = parser.parse_args()
 
     # print out all package versions and name
@@ -218,6 +234,8 @@ if __name__ == '__main__':
     # set activation function for top model
     assert args.activation in ['ReLU', 'Tanh', 'GELU'], 'Activation function should be either ReLU, Tanh, or GELU.'
 
+    # parse activation hook args
+    args.record_activation = [int(x) for x in args.record_activation]
 
     print('Arguments:')
     print(args)

@@ -33,6 +33,9 @@ class CLSTopModel(nn.Module):
     
     def forward(self, x):
         return self.fc(x)
+    
+    def record_activation(self, layer, hook):
+        self.fc[layer].register_forward_hook(hook)
 
 class EndToEnd(nn.Module):
 
