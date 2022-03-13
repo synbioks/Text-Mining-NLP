@@ -73,7 +73,7 @@ class EndToEnd(nn.Module):
         for params in self.bert.parameters():
             params.requires_grad = required
 
-def get_end_to_end_net(bert_weights_filename, bert_hidden_size, out_size, args):
-    top_model = CLSTopModel(bert_hidden_size, args.top_hidden_size, out_size, args.activation)
+def get_end_to_end_net(bert_weights_filename, bert_hidden_size, top_hidden_size, out_size, activation):
+    top_model = CLSTopModel(bert_hidden_size, top_hidden_size, out_size, activation)
     net = EndToEnd(bert_weights_filename, top_model)
     return net.cuda()

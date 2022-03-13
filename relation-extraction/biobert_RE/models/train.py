@@ -263,7 +263,7 @@ if __name__ == '__main__':
     # initialize top model
     bert_hidden_size = 1024 if args.use_bert_large else 768
     out_size = len(cpr.get_label_map()) # calculate the output size
-    net = get_end_to_end_net(args.bert_state_path, bert_hidden_size, out_size, args)
+    net = get_end_to_end_net(args.bert_state_path, bert_hidden_size, args.top_hidden_size, out_size, args.activation)
     if args.resume_from_ckpt is not None:
         print(f'Loading existing checkpoint: {args.resume_from_ckpt}')
         net.load_state_dict(torch.load(args.resume_from_ckpt))
