@@ -52,6 +52,10 @@ chemprot_sun2019_label_id = {
     'CPR:4': 1,
     'CPR:9': 2,
     'false': 3,
+    'CPR-3': 0,
+    'CPR-4': 1,
+    'CPR-9': 2,
+    'NOT': 3
     # CPR 5 and 6 are ignored
 }
 
