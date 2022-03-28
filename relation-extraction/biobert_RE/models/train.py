@@ -41,7 +41,6 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
             loss = loss_fn(out, y)
             loss.backward()
             sample_counter += args.batch_size
-
             # gradient accumulation
             # if ga is not enabled, it will just be set equal to batch_size
             # resulting in updates after every batch
@@ -50,13 +49,12 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                 optimizer.zero_grad()
                 sample_counter = 0
                 train_step_count += 1
-
                 # do validation and save model
                 if train_step_count > args.resume_from_step and train_step_count % args.valid_freq == 0:
                     net.eval()
                     print(f'\nStep {train_step_count} finished')
                     test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
-                    test_net('VALIDATION', net, valid_dataloader, limit=(3000 // args.batch_size))
+                    test_net('VALIDATION', net, valid_dataloader, limit=(3000 // args.batch_size), record_to_wandbd = args.record_wandb)
                     if args.ckpt_dir is not None:
                         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
                         torch.save(net.state_dict(), ckpt_path) 
@@ -64,8 +62,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                     print(f'Resume epoch {epoch_count}')
 
                 if args.record_wandb:
-                    wandb.log({'epoch': epoch_count, 'loss': loss})
-
+                    wandb.log({'epoch': epoch_count, 'train_loss': loss})
     # final test
 
     # register activation hook if specified
@@ -91,7 +88,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     if args.record_wandb:
         wb_run.finish()
 
-def test_net(task_name, net, test_dataloader, limit=None):
+def test_net(task_name, net, test_dataloader, limit=None, record_to_wandbd=False):
 
     # setup testing
     print(f'Running test {task_name}')
@@ -100,6 +97,7 @@ def test_net(task_name, net, test_dataloader, limit=None):
     num_correct = 0
     num_classes = len(cpr.get_label_map())
     confusion_mat = np.zeros((num_classes, num_classes))
+    vali_loss = []
     with torch.no_grad():
         for i, (x_batch, y_batch) in enumerate(tqdm(test_dataloader)):
             
@@ -108,13 +106,24 @@ def test_net(task_name, net, test_dataloader, limit=None):
                 break
 
             pred = net.predict(x_batch).cpu().numpy()
-
-            y_batch = y_batch.numpy()
-            num_tested += len(y_batch)
-            num_correct += np.sum(pred == y_batch)
+            y = y_batch.numpy()
+            num_tested += len(y)
+            num_correct += np.sum(pred == y)
+            
 
             for p, y in zip(pred, y_batch):
                 confusion_mat[y][p] += 1
+
+            if record_to_wandbd:
+                loss_fn = nn.CrossEntropyLoss()
+                x = {k: v.cuda() for k, v in x_batch.items()}
+                out = net(x)
+                y = y_batch.cuda()
+                loss = loss_fn(out, y)
+                vali_loss.append(loss.item())
+
+    if record_to_wandbd:
+        wandb.log({'vali_loss': np.mean(vali_loss)})
 
     recalls = []
     precisions = []
