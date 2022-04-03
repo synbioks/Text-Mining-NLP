@@ -20,8 +20,8 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
 
     if args.record_wandb:
         # use wandb to record weights
-        wb_run = wandb.init(project="wandb_test", config = args)
-        wandb.watch(net, log='all', log_freq=100)
+        wb_run = wandb.init(project=args.record_wandb, config = args)
+        wandb.watch(net, log='all', log_freq=500)
     # setup training
     print(f'Running train {task_name}')
     net.train()
@@ -53,16 +53,19 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
                 if train_step_count > args.resume_from_step and train_step_count % args.valid_freq == 0:
                     net.eval()
                     print(f'\nStep {train_step_count} finished')
-                    test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
-                    test_net('VALIDATION', net, valid_dataloader, limit=(3000 // args.batch_size), record_to_wandbd = args.record_wandb)
+                    train_loss = test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
+                    vali_loss = test_net('VALIDATION', net, valid_dataloader, limit=(.3*len(valid_dataloader.dataset)/args.batch_size))
                     if args.ckpt_dir is not None:
                         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
-                        torch.save(net.state_dict(), ckpt_path) 
+                        torch.save(net.state_dict(), ckpt_path)
                     net.train()
                     print(f'Resume epoch {epoch_count}')
 
+                    if args.record_wandb:
+                        wandb.log({'train loss': train_loss, 'vali loss': vali_loss}, step=train_step_count)
+
                 if args.record_wandb:
-                    wandb.log({'epoch': epoch_count, 'train_loss': loss})
+                    wandb.log({'epoch': epoch_count}, step=train_step_count)
     # final test
 
     # register activation hook if specified
@@ -88,7 +91,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, loss_fn, optim
     if args.record_wandb:
         wb_run.finish()
 
-def test_net(task_name, net, test_dataloader, limit=None, record_to_wandbd=False):
+def test_net(task_name, net, test_dataloader, limit=None):
 
     # setup testing
     print(f'Running test {task_name}')
@@ -97,7 +100,7 @@ def test_net(task_name, net, test_dataloader, limit=None, record_to_wandbd=False
     num_correct = 0
     num_classes = len(cpr.get_label_map())
     confusion_mat = np.zeros((num_classes, num_classes))
-    vali_loss = []
+    loss_lst = []
     with torch.no_grad():
         for i, (x_batch, y_batch) in enumerate(tqdm(test_dataloader)):
             
@@ -114,16 +117,14 @@ def test_net(task_name, net, test_dataloader, limit=None, record_to_wandbd=False
             for p, y in zip(pred, y_batch):
                 confusion_mat[y][p] += 1
 
-            if record_to_wandbd:
-                loss_fn = nn.CrossEntropyLoss()
-                x = {k: v.cuda() for k, v in x_batch.items()}
-                out = net(x)
-                y = y_batch.cuda()
-                loss = loss_fn(out, y)
-                vali_loss.append(loss.item())
-
-    if record_to_wandbd:
-        wandb.log({'vali_loss': np.mean(vali_loss)})
+            
+            # calculate loss
+            loss_fn = nn.CrossEntropyLoss()
+            x = {k: v.cuda() for k, v in x_batch.items()}
+            out = net(x)
+            y = y_batch.cuda()
+            loss = loss_fn(out, y)
+            loss_lst.append(loss.item())
 
     recalls = []
     precisions = []
@@ -141,10 +142,12 @@ def test_net(task_name, net, test_dataloader, limit=None, record_to_wandbd=False
     print('Precision:', precisions)
     print('Recall:', recalls)
     print('F1 Scores', f1s)
+    print('Loss: ', np.mean(loss_lst))
     print('Confusion Matrix:')
     for row in confusion_mat:
         print('\t'.join([str(x) for x in row]))
     # print(confusion_mat)
+    return np.mean(loss_lst)
 
 def inference_net(task_name, net, args):
 
@@ -222,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('--do-inference', type=bool_string, default='False')
     parser.add_argument('--activation', type=str, default='Tanh')
     parser.add_argument('--record-activation', nargs='+', default=[])
-    parser.add_argument('--record-wandb', type=bool_string, default='False')
+    parser.add_argument('--record-wandb', type=str, default='')
     args = parser.parse_args()
 
     # print out all package versions and name

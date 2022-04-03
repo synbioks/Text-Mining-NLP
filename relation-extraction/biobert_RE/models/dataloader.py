@@ -124,7 +124,7 @@ def get_train_valid(train_data_filename, valid_data_filename, vocab_filename, la
         dataset=valid_dataset,
         batch_size=valid_batch_size,
         num_workers=num_workers,
-        shuffle=True,
+        shuffle=False,
         collate_fn=tsv_collate_fn
     )
     return train_dataloader, valid_dataloader
