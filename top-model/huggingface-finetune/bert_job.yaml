@@ -32,6 +32,10 @@ spec:
         volumeMounts:
           - mountPath: "/sbksvol"
             name: sbksvol
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "ls && eval $(ssh-agent -s) && mkdir -p ~/.ssh && ssh-add ~/../etc/secret-volume/ssh-privatekey && /root/anaconda3/bin/python3.7 -m pip install transformers==4.6.0 pytorch-crf==0.7.2 \"ray[tune]\"==1.9.2 wandb=0.12.9"]
       restartPolicy: Never
       volumes:
         - name: sbksvol
