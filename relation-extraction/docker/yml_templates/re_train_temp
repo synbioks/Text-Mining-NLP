@@ -57,8 +57,8 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: gpu-type
+              - key: nvidia.com/gpu.product
                 operator: In
                 values:
-                - 2080Ti
-                - 1080Ti
+                - NVIDIA-GeForce-RTX-2080-Ti
+                - NVIDIA-GeForce-GTX-1080-Ti
