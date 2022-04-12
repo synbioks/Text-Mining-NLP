@@ -81,7 +81,7 @@ def tsv_collate_fn(items):
     # batch_y: list of label
     return batch_x, batch_y
 
-def get_train_valid(train_data_filename, valid_data_filename, vocab_filename, label_map, max_seq_len, 
+def get_train_valid_test(train_data_filename, valid_data_filename, test_data_filename, vocab_filename, label_map, max_seq_len, 
                     balance_data, train_p=0.8, batch_size=4, valid_batch_size=4, num_workers=1):
     tokenizer = BertTokenizer(vocab_filename, do_lower_case=False)
     train_dataset = TsvDataset(
@@ -109,7 +109,15 @@ def get_train_valid(train_data_filename, valid_data_filename, vocab_filename, la
             balance_data=False # should always be false, we are not balancing validation data
         )
 
-    print(f'dataset loading finished: train={len(train_dataset)}, valid={len(valid_dataset)}')
+    test_dataset = TsvDataset(
+            data_filename=test_data_filename,
+            tokenizer=tokenizer,
+            label_map=label_map,
+            max_seq_len=max_seq_len,
+            balance_data=False # should always be false, we are not balancing test data
+        )
+
+    print(f'dataset loading finished: train={len(train_dataset)}, valid={len(valid_dataset)}, test={len(test_dataset)}')
 
     # create train validation dataloaders
     train_dataloader = DataLoader(
@@ -127,7 +135,15 @@ def get_train_valid(train_data_filename, valid_data_filename, vocab_filename, la
         shuffle=False,
         collate_fn=tsv_collate_fn
     )
-    return train_dataloader, valid_dataloader
+
+    test_dataloader = DataLoader(
+        dataset=test_dataset,
+        batch_size=valid_batch_size,
+        num_workers=num_workers,
+        shuffle=False,
+        collate_fn=tsv_collate_fn
+    )
+    return train_dataloader, valid_dataloader, test_dataloader
 
 class ACSDataset(Dataset):
 
