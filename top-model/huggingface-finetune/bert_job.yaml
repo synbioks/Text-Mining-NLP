@@ -1,14 +1,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: nikhil-fcn-8 # name this like <user>-<extra>
+  name: eric-test # name this like <user>-<extra>
   namespace: sbks
 spec:
   template:
     spec:
       nodeSelector:
         # nodeName: k8s-bharadia-03
-        nautilus.io/region: ucsd
+        # nautilus.io/region: ucsd
       containers:
       - name: bert-xl-alias
         image: nakumgaurav/sbks:dev8
@@ -17,7 +17,7 @@ spec:
         - sh
         - -c
         args:
-        - "bash /sbksvol/nikhil/sbks-ucsd-test/top-model/huggingface-finetune/run_test_v2.sh Species_miRNA_softmax_v10_lr5_6_wd3_ft5_pt5_2607_1 Species miRNA softmax_v10_lr5_6_wd3_ft5_pt5 > /sbksvol/nikhil/res_2607_1/Species_miRNA_softmax_v10_lr5_6_wd3_ft5_pt5.txt"
+        - "bash /sbksvol/eric/sbks-ucsd/top-model/huggingface-finetune/run_test.sh Cellline_cellfinder_baseline_v10_lr5_6_wd3_ft5_pt10_tp3 Cellline cellfinder baseline_v10_lr5_6_wd3_ft5_pt10_tp3 1 > /sbksvol/eric/Cellline_cellfinder_baseline_v10_lr5_6_wd3_ft5_pt10_tp3.txt"
         resources:
           limits:
             memory: "8G"
