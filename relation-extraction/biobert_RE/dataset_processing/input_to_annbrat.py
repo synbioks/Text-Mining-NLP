@@ -20,8 +20,9 @@ def input_to_re(json_file, input_file, ann_folder):
     json_file = utils.read_json(json_file)
 
     for line in tqdm(data):
-    
-        input_id, cls, _, _ = line.split('\t')
+
+        input_id, cls = line.split()[:2]
+
         input_breakdown = input_id.split('_')
         
         if len(input_breakdown) == 3: # case of there is a relation
@@ -30,6 +31,10 @@ def input_to_re(json_file, input_file, ann_folder):
             rel = json_file[article_id]['abstract'][int(sentence_num)]['relations'][int(rel_num)]
             rel_type = cls
             
+            # Input excludes CPR 7 & 8 due to small sample sets
+            if rel_type == 'CPR-7' or rel_type == 'CPR-8':
+                continue
+
             # write the relations to the ann file
             ann_file_to_append = os.path.join(ann_folder, article_id + '.ann')
 
@@ -40,7 +45,6 @@ def input_to_re(json_file, input_file, ann_folder):
                     rel_id = 0
                 else:
                     rel_id = int(prev_re_id[1:])+1
-                    
                 re_to_write = f'R{rel_id}\t{rel_type} Arg1:{rel["ent_id1"]} Arg2:{rel["ent_id2"]}'
                 f.writelines('\n'+re_to_write)
             
@@ -70,13 +74,17 @@ def input_to_re(json_file, input_file, ann_folder):
                 f.writelines('\n'+re_to_write)
 
 
+
 if __name__ == '__main__':
     '''
     Command do turn validation.txt input to validation_gold_standard:
-    python biobert_RE\dataset_processing\input_to_annbrat.py data\merged\training_original\merged.json data\merged\training\vali.txt data\merged\vali_gold
+    python biobert_RE\dataset_processing\input_to_annbrat.py data\merged\training_original\merged.json data\merged\training\vali.txt data\merged\brat_eval\vali_gold
     
     Turn dev.txt input to dev_gold_standard:
-    python biobert_RE\dataset_processing\input_to_annbrat.py data\merged\dev\merged.json data\merged\dev\merged.txt data\merged\dev_gold
+    python biobert_RE\dataset_processing\input_to_annbrat.py data\merged\dev\merged.json data\merged\dev\merged.txt data\merged\brat_eval\dev_gold
+    
+    Turn re-output.txt to folder:
+    python biobert_RE\dataset_processing\input_to_annbrat.py data\merged\training_original\merged.json data\merged\brat_eval\re_output.tsv data\merged\brat_eval\vali_pred
     '''
     parser = argparse.ArgumentParser()
     parser.add_argument('json_filename')

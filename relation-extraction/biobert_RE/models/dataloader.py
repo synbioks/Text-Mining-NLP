@@ -189,3 +189,61 @@ def get_acs_inference(data_filename, vocab_filename, max_seq_len, batch_size):
         collate_fn=acs_collate_fn
     )
     return dataloader
+
+class BratEvalDataset(Dataset):
+    
+    def __init__(self, data_filename, tokenizer, label_map, max_seq_len):
+        super(BratEvalDataset, self).__init__()
+        
+        self.tokenizer = tokenizer
+        self.label_map = label_map # label to idx map
+        self.max_seq_len = max_seq_len
+        # the data will be grouped by classes
+        # useful for stratified sampling
+        self.data = []
+        raw = utils.read_tsv(data_filename)
+        for row in tqdm(raw, desc='tokenizing dataset'):
+            input_id, y, x, original_sent = row
+
+            # only the samples in label map are used
+            if y in self.label_map:
+                x = self.tokenizer(x, padding='max_length', truncation=True, max_length=self.max_seq_len)
+                y = self.label_map[y]
+                self.data.append((x, y, input_id, original_sent))
+
+        self.actual_data_size = len(self.data)
+        
+    def __len__(self):
+        return self.actual_data_size
+    
+    def __getitem__(self, index):
+        x, y, input_id, _ = self.data[index]
+        return x, input_id
+
+def get_brat_eval(data_filename, vocab_filename, label_map, max_seq_len, batch_size):
+    tokenizer = BertTokenizer(vocab_filename, do_lower_case=False)
+    dataset = BratEvalDataset(
+        data_filename=data_filename,
+        tokenizer=tokenizer,
+        label_map=label_map,
+        max_seq_len=max_seq_len,
+    )
+    dataloader = DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        num_workers=2,
+        shuffle=False,
+        collate_fn=brat_collate_fn
+    )
+    return dataloader
+
+
+def brat_collate_fn(items):
+    x_batch = {k: [] for k in items[0][0]}
+    y = []
+    for x, input_id in items:
+        for k, v in x.items():
+            x_batch[k].append(v)
+        y.append(input_id)
+    x_batch = {k: torch.FloatTensor(v) if k == "attention_mask" else torch.LongTensor(v) for k, v in x_batch.items()}
+    return x_batch, y

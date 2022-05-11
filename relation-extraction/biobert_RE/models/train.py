@@ -1,4 +1,5 @@
 import os
+from black import err
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,11 +11,13 @@ from tqdm import tqdm
 from models.nets import get_end_to_end_net
 from models.dataloader import get_train_valid_test
 from models.dataloader import get_acs_inference
+from models.dataloader import get_brat_eval
 from models.optimizer import VarLROptim
 
-from utils import cpr, early_stop
+from utils import cpr
 from utils.activation_vis import ActivationHook
 from utils.early_stop import EarlyStopping
+from dataset_processing.input_to_annbrat import convert_json_to_brat, input_to_re
 import wandb
 
 def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloader, loss_fn, optimizer, args):
@@ -29,7 +32,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     train_step_count = args.resume_from_step
     epoch_count = 0
     sample_counter = 0 # number of sample seen since last optimizer update
-    early_stop = EarlyStopping(net, patience=3)
+    early_stop = EarlyStopping(net, patience=6)
 
     # train loop
     for epoch_count in range(args.epochs):
@@ -40,7 +43,6 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
 
         print(f'Begin epoch {epoch_count}')
         for i, (x, y) in enumerate(tqdm(train_dataloader)):
-            
             # net.train_step(x, y, loss_fn, optimizer)
             x = {k: v.cuda() for k, v in x.items()}
             y = y.cuda()
@@ -62,7 +64,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
                     print(f'\nStep {train_step_count} finished')
                     train_loss = test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
                     vali_loss = test_net('VALIDATION', net, valid_dataloader, limit=(.3*len(valid_dataloader.dataset)/args.batch_size))
-                    early_stop(vali_loss, net)
+                    early_stop(vali_loss, net, train_step_count)
 
                     if early_stop.early_stop:
                         break
@@ -81,7 +83,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     # final test
 
     # get best model
-    net = early_stop.get_best_model()
+    net, best_step_count = early_stop.get_best_model()
 
     # register activation hook if specified
     hooks = []
@@ -94,10 +96,12 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     print('Train finished')
     test_net('TRAIN', net, train_dataloader)
     test_net('VALIDATION', net, valid_dataloader)
+    brat_eval('VALIDATION', net, args)
     test_net('TEST', net, test_dataloader)
+    brat_eval('TEST', net, args)
     
-    if args.ckpt_dir is not None and train_step_count > 0:
-        ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{train_step_count}')
+    if args.ckpt_dir is not None and best_step_count > 0:
+        ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{best_step_count}')
         torch.save(net.state_dict(), ckpt_path)
 
     # show recorded activations
@@ -119,16 +123,14 @@ def test_net(task_name, net, test_dataloader, limit=None):
     loss_lst = []
     with torch.no_grad():
         for i, (x_batch, y_batch) in enumerate(tqdm(test_dataloader)):
-            
             # stop after a certain number of batch to save time
             if limit and i >= limit:
                 break
-
+            
             pred = net.predict(x_batch).cpu().numpy()
             y = y_batch.numpy()
             num_tested += len(y)
             num_correct += np.sum(pred == y)
-            
 
             for p, y in zip(pred, y_batch):
                 confusion_mat[y][p] += 1
@@ -197,6 +199,60 @@ def inference_net(task_name, net, args):
                 fout.write(f"{id1}\t{id2}\t{pred}\t{score}\n")
 
 
+def brat_eval(task_name, net, args):
+
+    # set up
+    print(f'Running inference {task_name}')
+    net.eval()
+
+    if task_name == 'TEST':
+        vocab_filename = os.path.join(args.bert_state_path, 'vocab.txt')
+        dataloader = get_brat_eval(
+                data_filename=args.test_data,
+                vocab_filename=vocab_filename,
+                label_map = cpr.get_label_map(),
+                max_seq_len=args.seq_len,
+                batch_size=args.valid_batch_size
+            )
+        json_filename = 'data/merged/dev/merged.json'
+        ann_folder = 'data/merged/brat_eval/dev_pred'
+
+    elif task_name == 'VALIDATION':
+        vocab_filename = os.path.join(args.bert_state_path, 'vocab.txt')
+        dataloader = get_brat_eval(
+                data_filename=args.valid_data,
+                vocab_filename=vocab_filename,
+                label_map = cpr.get_label_map(),
+                max_seq_len=args.seq_len,
+                batch_size=args.valid_batch_size
+            )
+        json_filename = 'data/merged/training_original/merged.json'
+        ann_folder = 'data/merged/brat_eval/vali_pred'
+        
+    else:
+        assert False, f"task name must be either 'TEST' or 'VALIDATION'"
+
+    output = []
+    idx_to_label = {v:k for k,v in cpr.get_label_map().items()}
+    with torch.no_grad():
+        for _, (x_batch, input_ids) in enumerate(tqdm(dataloader)):
+            pred = net.predict(x_batch)
+            pred = pred.cpu().tolist()
+            for i in range(len(pred)):
+                output.append((pred[i], input_ids[i]))
+
+    # write results to file
+    output_path = f'data/merged/brat_eval/re_{task_name}_output.tsv'
+    with open(output_path, 'w', encoding="utf8") as fout:
+        for _, (pred, input_id) in enumerate(output):
+            fout.write(f"{input_id}\t{idx_to_label[pred]}\n")
+    
+    # transform the output to folder with .anns
+    print('----Transform the output to folder with .anns----')
+    convert_json_to_brat(json_filename, ann_folder)
+    input_to_re(json_filename, output_path, ann_folder)
+
+
 # for the reason of why we are not using type=bool in add_argument:
 # see https://docs.python.org/3/library/argparse.html#type
 # "
@@ -240,6 +296,7 @@ if __name__ == '__main__':
     parser.add_argument('--balance-dataset', type=bool_string, default='False')
     parser.add_argument('--do-train', type=bool_string, default='True')
     parser.add_argument('--do-inference', type=bool_string, default='False')
+    parser.add_argument('--do-brateval', type=bool_string, default='False')
     parser.add_argument('--activation', type=str, default='Tanh')
     parser.add_argument('--record-activation', nargs='+', default=[])
     parser.add_argument('--record-wandb', type=str, default='')
@@ -341,6 +398,13 @@ if __name__ == '__main__':
     if args.do_inference:
         inference_net(
             'INFERENCE',
+            net,
+            args
+        )
+    
+    if args.do_brateval:
+        brat_eval(
+            'TEST',
             net,
             args
         )
