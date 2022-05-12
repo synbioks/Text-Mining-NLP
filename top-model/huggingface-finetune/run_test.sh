@@ -1,7 +1,7 @@
 ROOT="/sbksvol/nikhil/sbks-ucsd-test/top-model/huggingface-finetune/"
 NAME="main"
 
-WANDB_API_KEY = "90852721fdf4fb388c7f75ad45a5a0629bfc4bbf"
+WANDB_API_KEY="90852721fdf4fb388c7f75ad45a5a0629bfc4bbf"
 export WANDB_API_KEY
 
 
