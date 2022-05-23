@@ -21,6 +21,7 @@ conda install -y scipy=1.6.1
 conda install -y -c conda-forge notebook scikit-learn tqdm matplotlib ipywidgets
 conda install -y -c pytorch pytorch torchvision torchaudio cudatoolkit=11.3
 conda install -y -c huggingface transformers
+pip install wandb (if needed)
 ```
 
 Run this to install SciSpacy models. If the second command failed to install en_core_sci_sm due to SciSpacy version constraints, check [here](https://allenai.github.io/scispacy/) for the latest en_core_sci_sm model.
@@ -40,6 +41,8 @@ Make sure the append the path to folder (relation-extraction/biobert_RE) to `PYT
 
 [DrugProt](https://zenodo.org/record/5119892#.YdyOd_7MIUE)
 
+Merged (created by merging ChemProt and DrugProt)
+
 Recommended: after downloading the zip files, unzip them and place them under `relation-extraction/data`. This tutorial will assume the following file structure:
 
 ```
@@ -47,11 +50,24 @@ relation-extraction
     + data
         + ChemProt
         + DrugProt
+        + Merged
 ```
 
-Check to make sure both datasets have development set and traing set.
+Check to make sure all datasets have development set and traing set.
 
 ChemProt has also been processed by [Sun et. al.](https://arxiv.org/abs/1911.09487). We are currently not using this processed version and choose to process ChemProt data by ourselves because Sun's version only has CPR 3,4,5,6 and 9.
+
+We are currently using the merged dataset to train our model:
+```
+merged
+    + merged
+        + training_original
+        + training
+            + train.txt
+            + vali.txt
+        + dev
+```
+**Note:** Because the dataset don't contain the test set, we will instead use the development set as our test set. The **training-original** contains the original training data; **dev** contains the original development set. We used **train_vali_split.py** to split our training data into 80/20 split to create the **training** which contains the training data and validation data.
 
 ## Pretrained weights
 
@@ -233,7 +249,7 @@ The content of the output is a tsv file with the following columns in order:
 
 ## input_to_annbrat.py
 
-This script converts model input files to .ann files for BRATEval. BRATEval requires two folders: predictions and ground-truth. The script goes through the input file line by line and use the json file to locate back to each entity and the relations. The output folder will contain all .ann files for each article and its respective entities and relations.
+This script converts model input format files to .ann files for BRATEval. BRATEval requires two folders: predictions and ground-truth. The script goes through the input file line by line and use the json file to locate back to each entity and the relations. The output folder will contain all .ann files for each article and its respective entities and relations. (It is also used for converting model's output.tsv to the annbrat formats.)
 
 ```
 input_to_annbrat.py --json_filename JSON_PATH --input_file INPUT_PATH --ann_folder FOLDER_PATH
@@ -341,6 +357,7 @@ train.py
 * `do-inference`: make prediction on the inference data with the model
     * by setting `do-train` and `do-inference` to True, you can train and predict in one go
     * if you want to do prediciton using a specific checkpoint, set `do-train` to False and make sure to set the `resume-from-ckpt` parameter
+* `do-brateval`: This will perform prep code for doing BratEval. It will make predictions using the model and write results to `re_output.tsv` and then using that to create .ann files in the `eval` folder.
 * `ckpt-dir`: path to the folder that stores model as checkpoints
 * `activation`: activation method for the top model. Options include `['ReLU', 'Tanh', 'GELU']`.
 * `record-activation`: a list of layers' activations to be recorded and plotted.
@@ -396,6 +413,95 @@ lr = lr_factor * min(step ** (-0.5), step * warm_up ** (-1.5))
 The following is the learning rate curve with lr_factor=0.0005, warm_up=1000. During the warm up stage, the learning rate increases linearly. Once the warm up finishes, the learning rate is equal to the inversed squared-root of step count.
 
 ![var_lr.png](assets/var_lr.png)
+
+# BratEval
+
+[BratEval](https://github.com/aalbahem/brateval) is a tool that performs pairwise comparison of annotation sets done on the same set of documents. 
+
+## Requirement
+- BratEval modules from its github page
+- maven
+- java JDK
+
+## How-To on a local machine
+- Required Format:
+    - two folders: gold (ground truth) & eval (predictions)
+
+For example, if we want to evaluate using the validation dataset: we would have two folders in the following format:
+```
+vali_gold
+    + 00001.ann
+    + 00002.ann
+    + 00003.ann
+    ...
+
+vali_eval
+    + 00001.ann
+    + 00002.ann
+    + 00003.ann
+    ...
+```
+BratEval will try to match each .ann within each folder and perform pairwise comparison with strict match.
+
+- Example of running the BratEval Tool and output:
+
+Command to Run the BratEval on the Test(Dev) set (must be in the folder of BratEval): 
+```
+mvn exec:java -Dexec.mainClass=au.com.nicta.csp.brateval.CompareRelations -Dexec.args="-e ../dev_pred -g ../dev_gold -s exact"
+```
+Output:
+```
+Summary:
+CPR-1|CHEMICAL|GENE|tp:166|fp:10|fn:30|precision:0.9432|recall:0.8469|f1:0.8925|fpm:0|fnm:0   
+CPR-1|CHEMICAL|GENE-N|tp:38|fp:6|fn:3|precision:0.8636|recall:0.9268|f1:0.8941|fpm:0|fnm:0    
+CPR-1|CHEMICAL|GENE-Y|tp:107|fp:11|fn:5|precision:0.9068|recall:0.9554|f1:0.9304|fpm:0|fnm:0  
+CPR-1|GENE-N|CHEMICAL|tp:0|fp:3|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-1|GENE-Y|CHEMICAL|tp:0|fp:9|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-1|GENE|CHEMICAL|tp:0|fp:2|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0       
+CPR-2|CHEMICAL|GENE|tp:283|fp:235|fn:117|precision:0.5463|recall:0.7075|f1:0.6166|fpm:0|fnm:0 
+CPR-2|CHEMICAL|GENE-N|tp:49|fp:9|fn:181|precision:0.8448|recall:0.2130|f1:0.3403|fpm:0|fnm:0  
+CPR-2|CHEMICAL|GENE-Y|tp:208|fp:32|fn:340|precision:0.8667|recall:0.3796|f1:0.5279|fpm:0|fnm:0
+CPR-2|GENE-N|CHEMICAL|tp:0|fp:2|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-2|GENE-Y|CHEMICAL|tp:0|fp:4|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-2|GENE|CHEMICAL|tp:0|fp:129|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-3|CHEMICAL|GENE|tp:343|fp:36|fn:91|precision:0.9050|recall:0.7903|f1:0.8438|fpm:0|fnm:0   
+CPR-3|CHEMICAL|GENE-N|tp:128|fp:8|fn:31|precision:0.9412|recall:0.8050|f1:0.8678|fpm:0|fnm:0  
+CPR-3|CHEMICAL|GENE-Y|tp:327|fp:17|fn:64|precision:0.9506|recall:0.8363|f1:0.8898|fpm:0|fnm:0 
+CPR-3|GENE-N|CHEMICAL|tp:0|fp:1|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-3|GENE-Y|CHEMICAL|tp:0|fp:4|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0     
+CPR-3|GENE|CHEMICAL|tp:0|fp:16|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-4|CHEMICAL|GENE|tp:1023|fp:104|fn:96|precision:0.9077|recall:0.9142|f1:0.9110|fpm:0|fnm:0
+CPR-4|CHEMICAL|GENE-N|tp:372|fp:9|fn:38|precision:0.9764|recall:0.9073|f1:0.9406|fpm:0|fnm:0
+CPR-4|CHEMICAL|GENE-Y|tp:621|fp:33|fn:67|precision:0.9495|recall:0.9026|f1:0.9255|fpm:0|fnm:0
+CPR-4|GENE-N|CHEMICAL|tp:0|fp:10|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-4|GENE-Y|CHEMICAL|tp:0|fp:9|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-4|GENE|CHEMICAL|tp:0|fp:28|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-5|CHEMICAL|GENE|tp:93|fp:2|fn:17|precision:0.9789|recall:0.8455|f1:0.9073|fpm:0|fnm:0
+CPR-5|CHEMICAL|GENE-N|tp:21|fp:1|fn:0|precision:0.9545|recall:1.0000|f1:0.9767|fpm:0|fnm:0
+CPR-5|CHEMICAL|GENE-Y|tp:95|fp:0|fn:0|precision:1.0000|recall:1.0000|f1:1.0000|fpm:0|fnm:0
+CPR-5|GENE-N|CHEMICAL|tp:0|fp:1|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-5|GENE-Y|CHEMICAL|tp:0|fp:8|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-5|GENE|CHEMICAL|tp:0|fp:9|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-6|CHEMICAL|GENE|tp:161|fp:8|fn:9|precision:0.9527|recall:0.9471|f1:0.9499|fpm:0|fnm:0
+CPR-6|CHEMICAL|GENE-N|tp:40|fp:2|fn:2|precision:0.9524|recall:0.9524|f1:0.9524|fpm:0|fnm:0
+CPR-6|CHEMICAL|GENE-Y|tp:145|fp:9|fn:11|precision:0.9416|recall:0.9295|f1:0.9355|fpm:0|fnm:0
+CPR-6|GENE-N|CHEMICAL|tp:0|fp:2|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-6|GENE|CHEMICAL|tp:0|fp:6|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-9|CHEMICAL|GENE|tp:338|fp:16|fn:121|precision:0.9548|recall:0.7364|f1:0.8315|fpm:0|fnm:0
+CPR-9|CHEMICAL|GENE-N|tp:105|fp:10|fn:7|precision:0.9130|recall:0.9375|f1:0.9251|fpm:0|fnm:0
+CPR-9|CHEMICAL|GENE-Y|tp:275|fp:14|fn:70|precision:0.9516|recall:0.7971|f1:0.8675|fpm:0|fnm:0
+CPR-9|GENE-N|CHEMICAL|tp:0|fp:9|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-9|GENE-Y|CHEMICAL|tp:0|fp:64|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+CPR-9|GENE|CHEMICAL|tp:0|fp:39|fn:0|precision:0.0000|recall:0.0000|f1:0.0000|fpm:0|fnm:0
+NOT|CHEMICAL|GENE|tp:3196|fp:432|fn:362|precision:0.8809|recall:0.8983|f1:0.8895|fpm:0|fnm:0
+NOT|CHEMICAL|GENE-N|tp:1360|fp:246|fn:29|precision:0.8468|recall:0.9791|f1:0.9082|fpm:0|fnm:0
+NOT|CHEMICAL|GENE-Y|tp:2359|fp:501|fn:60|precision:0.8248|recall:0.9752|f1:0.8937|fpm:0|fnm:0
+NOT|GENE-N|CHEMICAL|tp:1122|fp:0|fn:28|precision:1.0000|recall:0.9757|f1:0.9877|fpm:0|fnm:0
+NOT|GENE-Y|CHEMICAL|tp:2198|fp:0|fn:98|precision:1.0000|recall:0.9573|f1:0.9782|fpm:0|fnm:0
+NOT|GENE|CHEMICAL|tp:2853|fp:0|fn:229|precision:1.0000|recall:0.9257|f1:0.9614|fpm:0|fnm:0
+all|tp:18026|fp:2106|fn:2106|precision:0.8954|recall:0.8954|f1:0.8954|fpm:0|fnm:0
+```
+**Note: This result should match exactly as our model's code.**
 
 # ACS Data Processing
 
