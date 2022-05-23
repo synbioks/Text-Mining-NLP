@@ -57,7 +57,7 @@ def input_to_re(json_file, input_file, ann_folder):
 
             ent1 = json_file[article_id]['abstract'][int(sentence_num)]['entities'][int(ent1)]['id']
             ent2 = json_file[article_id]['abstract'][int(sentence_num)]['entities'][int(ent2)]['id']
-            rel_type = 'NOT'
+            rel_type = cls
             
             # write the relations to the ann file
             ann_file_to_append = os.path.join(ann_folder, article_id + '.ann')
