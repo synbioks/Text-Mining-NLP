@@ -202,7 +202,7 @@ def inference_net(task_name, net, args):
 def brat_eval(task_name, net, args):
 
     # set up
-    print(f'Running inference {task_name}')
+    print(f'Running BratEval {task_name}')
     net.eval()
 
     if task_name == 'TEST':
@@ -228,7 +228,7 @@ def brat_eval(task_name, net, args):
             )
         json_filename = 'data/merged/training_original/merged.json'
         ann_folder = 'data/merged/brat_eval/vali_pred'
-        
+
     else:
         assert False, f"task name must be either 'TEST' or 'VALIDATION'"
 
@@ -403,6 +403,12 @@ if __name__ == '__main__':
         )
     
     if args.do_brateval:
+        test_net(
+            'TEST',
+            net,
+            test_dataloader
+            )
+
         brat_eval(
             'TEST',
             net,
