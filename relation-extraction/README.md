@@ -424,6 +424,19 @@ The following is the learning rate curve with lr_factor=0.0005, warm_up=1000. Du
 - java JDK
 
 ## How-To on a local machine
+- File Format:
+```
++ data
+    + merged
+        + brat_eval
+            + brateval-toolkit
+            + dev_gold
+            + dev_pred
+            + vali_gold
+            + vali_pred
+            re_TEST_output.tsv (produced as output after your run do-brateval in the training script)
+```
+
 - Required Format:
     - two folders: gold (ground truth) & eval (predictions)
 
@@ -441,6 +454,8 @@ vali_eval
     + 00003.ann
     ...
 ```
+**Note:** To generate the gold folder, you will need to run the `input_to_annbrat.py` described above. 
+
 BratEval will try to match each .ann within each folder and perform pairwise comparison with strict match.
 
 - Example of running the BratEval Tool and output:
