@@ -95,9 +95,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     print('Train finished')
     test_net('TRAIN', net, train_dataloader)
     test_net('VALIDATION', net, valid_dataloader)
-    brat_eval('VALIDATION', net, args)
     test_net('TEST', net, test_dataloader)
-    brat_eval('TEST', net, args)
     
     if args.ckpt_dir is not None and best_step_count > 0:
         ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{best_step_count}')
