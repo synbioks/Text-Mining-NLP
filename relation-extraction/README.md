@@ -631,3 +631,15 @@ This is an example template file argument_0:
 patterns will be replaced by the actual arguments argument_2
 argument_1
 ```
+
+## Some useful commands for Nautilus
+
+-- Creating/Deleting pods:
+
+`kubectl create/delete -f file.yaml`
+
+-- Start a interactive bash with the pod:
+
+`kubectl exec podname -it -- /bin/bash`
+
+For more commands, refer to [Nautilus Setup](https://docs.google.com/document/d/1WRi9hVpUuFzOkLeF7fkk55jFCRSOa_i3wkTivctt_Os/edit).
