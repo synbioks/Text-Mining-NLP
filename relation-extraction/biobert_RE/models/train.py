@@ -1,4 +1,5 @@
 import os
+from importlib_metadata import entry_points
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -23,7 +24,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
 
     if args.record_wandb:
         # use wandb to record weights
-        wb_run = wandb.init(project=args.record_wandb, config = args)
+        wb_run = wandb.init(project='RE', name=args.record_wandb, entity="ucsd_sbks", config = args)
         wandb.watch(net, log='all', log_freq=500)
     # setup training
     print(f'Running train {task_name}')
