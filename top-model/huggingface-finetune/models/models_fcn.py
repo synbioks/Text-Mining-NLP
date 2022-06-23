@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers import BertPreTrainedModel, BertModel
 from torchcrf import CRF
-
+import torch
 from models.model_utils import get_token_classifier_output
 
 actfn_lst = {
@@ -80,6 +80,38 @@ class FullyConnectedLayers(nn.Module):
 
         return x
 
+    
+class CNNLayers(nn.Module):
+    """
+       hidden_units is a list containing the # units in each hidden layer
+       The length of the list denotes the number of hidden layers 
+    """
+
+    def __init__(self, hidden_units_list, activations_list, input_embedding_size, num_classes):
+        super(CNNLayers, self).__init__()
+        layers = []
+        self.activations_list = activations_list
+
+        self.num_units_list = [input_embedding_size,
+                               *hidden_units_list, num_classes]
+
+        for i in range(len(self.num_units_list) - 1):
+            units1 = self.num_units_list[i]
+            units2 = self.num_units_list[i + 1]
+            layer = nn.Conv1d(units1, units2, 5,padding='same')
+            layers.append(layer)
+            layers.append(activations_mapper[activations_list[i]])
+            if i < len(self.num_units_list) - 2:
+                layers.append(nn.LayerNorm(256))
+                layers.append(nn.Dropout(p=0.2))
+        self.layers = nn.Sequential(*layers)
+
+    def forward(self, x):
+        # for softmax models, it is assumed that the last layer activation would always be
+        # identity since nn.CrossEntropyLoss applies softmax
+        x = self.layers(x)
+
+        return x
 
 class BertNERTopModel(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
@@ -90,7 +122,7 @@ class BertNERTopModel(BertPreTrainedModel):
         self.xargs = xargs
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
-        top_layers.append(nn.Dropout(config.hidden_dropout_prob))
+#         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
         self.top_model = top_model[xargs.get("top_model",0)]
         fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
@@ -153,20 +185,20 @@ class BertNERTopModel(BertPreTrainedModel):
         return get_token_classifier_output(self, logits, labels, attention_mask, return_dict, outputs)
 
 
-class BertNERTopModelFCN(BertPreTrainedModel):
+class BertNERTopModelCNN(BertPreTrainedModel):
     _keys_to_ignore_on_load_unexpected = [r"pooler"]
 
     def __init__(self, config, xargs):
-        super(BertNERTopModelFCN, self).__init__(config)
+        super(BertNERTopModelCNN, self).__init__(config)
         self.num_labels = config.num_labels
         self.xargs = xargs
         self.bert = BertModel(config, add_pooling_layer=False)
         top_layers = []
         top_layers.append(nn.Dropout(config.hidden_dropout_prob))
         self.top_model = top_model[xargs.get("top_model",0)]
-        fcn = FullyConnectedLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
+        cnn_l = CNNLayers(self.top_model["hidden_units_list"], self.top_model["activations_list"],
                                    config.hidden_size, config.num_labels)
-        top_layers.append(fcn)
+        top_layers.append(cnn_l)
         self.top_layers = nn.Sequential(*top_layers)
 
         if self.top_model["name"] == "dense_layer_crf":
@@ -209,7 +241,7 @@ class BertNERTopModelFCN(BertPreTrainedModel):
             return_dict=return_dict,
         )
 
-        sequence_output = outputs[0]
+        sequence_output = torch.movedim(outputs[0],2,1)
         
         if self.xargs.get('hmask',False):
             labels_copy = labels.detach().clone()
@@ -221,5 +253,7 @@ class BertNERTopModelFCN(BertPreTrainedModel):
             sequence_output = sequence_output*labels_copy
 
         logits = self.top_layers(sequence_output)
+        
+        logits = torch.movedim(logits,2,1)
 
         return get_token_classifier_output(self, logits, labels, attention_mask, return_dict, outputs)

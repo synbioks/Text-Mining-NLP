@@ -1,11 +1,11 @@
 from models.models_enum import ModelsType
 from models.models import BertNERCRFFCN, BertNERCRF
-from models.models_fcn import BertNERTopModel, BertNERTopModelFCN
+from models.models_fcn import BertNERTopModel, BertNERTopModelCNN
 
 
 def get_model(model_path, cache_dir, config, model_type: ModelsType = ModelsType.BASELINE, xargs={}):
-    if model_type == ModelsType.FCN:
-        model = BertNERTopModelFCN.from_pretrained(
+    if model_type == ModelsType.CNN:
+        model = BertNERTopModelCNN.from_pretrained(
             model_path,
             xargs = xargs,
             from_tf=xargs.get('tf'),
