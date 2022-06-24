@@ -18,12 +18,12 @@
 
 import logging
 import os
+import pdb
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
-import random
+
 from filelock import FileLock
-import numpy as np
 
 from transformers import PreTrainedTokenizer, is_tf_available, is_torch_available
 
@@ -61,6 +61,11 @@ class InputFeatures:
     label_ids: Optional[List[int]] = None
 
 
+# class Split(Enum):
+#     train = "train_dev"
+#     dev = "devel"
+#     test = "test"
+
 class Split(Enum):
     train = "train"
     dev = "dev"
@@ -92,15 +97,12 @@ if is_torch_available():
             max_seq_length: Optional[int] = None,
             overwrite_cache=False,
             mode: Split = Split.train,
-            data_size: int = 100,
-            sf = False,
-            xargs = {}
         ):
             # Load data features from cache or dataset file
             cached_features_file = os.path.join(
                 data_dir, "cached_{}_{}_{}".format(mode.value, tokenizer.__class__.__name__, str(max_seq_length)),
             )
-            self.data_size = data_size
+
             # Make sure only the first process in distributed training processes the dataset,
             # and the others will use the cache.
             lock_path = cached_features_file + ".lock"
@@ -130,38 +132,14 @@ if is_torch_available():
                         pad_token_segment_id=tokenizer.pad_token_type_id,
                         pad_token_label_id=self.pad_token_label_id,
                     )
-                    if sf:
-                        random.shuffle(self.features)
-                    self.features = self.features[:(len(self.features)*self.data_size)//100]
-                    if xargs.get('down_sample',False) and mode == Split.train:
-                        self.downsample(xargs.get('down_sample'))
-                        print('Down Sample at fator - ',xargs.get('down_sample'))
                     logger.info(f"Saving features into cached file {cached_features_file}")
                     torch.save(self.features, cached_features_file)
 
         def __len__(self):
-            return len(self.features)#(len(self.features)*self.data_size)//100
+            return len(self.features)
 
         def __getitem__(self, i) -> InputFeatures:
             return self.features[i]
-        
-        def downsample(self,pos_factor):
-            _features = []
-            neg = []
-            for i in range(len(self.features)):
-                _pos_count = np.sum(np.array(self.features[i].label_ids)==0)
-                if _pos_count != 0:
-                    _features.append(self.features[i])
-                else:
-                    neg.append(self.features[i])
-            neg_size = (len(_features)*(100-pos_factor))//pos_factor
-            print(f"DownSample: Len: pos {len(_features)}, neg {len(neg)}, neg_size{neg_size}")
-            if len(neg) <= neg_size:
-                return
-            random.shuffle(neg)
-            _features.extend(neg[:neg_size])
-            self.features = _features
-                
 
 
 if is_tf_available():
@@ -274,12 +252,16 @@ def read_examples_from_file(data_dir, mode: Union[Split, str]) -> List[InputExam
                     guid_index += 1
                     words = []
                     labels = []
-#                     print("$#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
             else:
                 splits = line.split("\t")
                 words.append(splits[0])
                 if len(splits) > 1:
-                    labels.append(splits[-1].replace("\n", ""))
+                    splits_replace = splits[-1].replace("\n", "")
+                    if splits_replace == 'O':
+                        labels.append(splits_replace)
+                    else:
+                        labels.append(splits_replace)
+#                         labels.append(splits_replace + "-bio")
                 else:
                     # Examples could have no label for mode = "test"
                     labels.append("O")
@@ -314,10 +296,8 @@ def convert_examples_to_features(
     # TODO clean up all this to leverage built-in features of tokenizers
 
     label_map = {label: i for i, label in enumerate(label_list)}
-
     features = []
     for (ex_index, example) in enumerate(examples):
-#         print("I AM HERE")
         if ex_index % 10_000 == 0:
             logger.info("Writing example %d of %d", ex_index, len(examples))
 
@@ -325,21 +305,12 @@ def convert_examples_to_features(
         label_ids = []
         for word, label in zip(example.words, example.labels):
             word_tokens = tokenizer.tokenize(word)
-
-#             # bert-base-multilingual-cased sometimes output "nothing ([]) when calling tokenize with just a space.
-#             if len(word_tokens) > 0:
-#                 tokens.extend([word_tokens[0]])
-#                 # Use the real label id for the first token of the word, and padding ids for the remaining tokens
-#                 label_ids.extend([label_map[label]])
-
+            
             # bert-base-multilingual-cased sometimes output "nothing ([]) when calling tokenize with just a space.
             if len(word_tokens) > 0:
                 tokens.extend(word_tokens)
                 # Use the real label id for the first token of the word, and padding ids for the remaining tokens
-                curr_pad_token_label_id = pad_token_label_id
-#                 if label_map[label] != 2:
-#                     curr_pad_token_label_id = 1
-                label_ids.extend([label_map[label]] + [curr_pad_token_label_id] * (len(word_tokens) - 1))
+                label_ids.extend([label_map[label]] + [pad_token_label_id] * (len(word_tokens) - 1))
 
         # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
         special_tokens_count = tokenizer.num_special_tokens_to_add()
@@ -430,8 +401,10 @@ def get_labels(path: str) -> List[str]:
     if path:
         with open(path, "r") as f:
             labels = f.read().splitlines()
+#             labels = [i+'-bio' if i != 'O' else 'O' for i in labels]
         if "O" not in labels:
             labels = ["O"] + labels
         return labels
     else:
-        return ["O", "B-MISC", "I-MISC", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC"]
+        # return ["O", "B-MISC", "I-MISC", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC"]
+        return ["O", "B-bio", "I-bio"]

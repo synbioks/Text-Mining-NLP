@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: huggingface-job
+  name: nikhil-fcn-8 # name this like <user>-<extra>
   namespace: sbks
 spec:
   template:
@@ -10,23 +10,24 @@ spec:
         # nodeName: k8s-bharadia-03
         nautilus.io/region: ucsd
       containers:
-      - name: bert-gau
+      - name: bert-xl-alias
         image: nakumgaurav/sbks:dev8
         # image: tensorflow/tensorflow  
         command:
-        - "bash"
+        - sh
+        - -c
         args:
-        - "/sbksvol/gaurav/NER_src/run_ner.sh"
+        - "bash /sbksvol/nikhil/sbks-ucsd-test/top-model/huggingface-finetune/run_test_v2.sh Species_miRNA_softmax_v10_lr5_6_wd3_ft5_pt5_2607_1 Species miRNA softmax_v10_lr5_6_wd3_ft5_pt5 > /sbksvol/nikhil/res_2607_1/Species_miRNA_softmax_v10_lr5_6_wd3_ft5_pt5.txt"
         resources:
           limits:
-            memory: "24G"
-            cpu: 6
-            # ephemeral-storage: 200Gi
+            memory: "8G"
+            cpu: 1
+            ephemeral-storage: "1G"
             nvidia.com/gpu: 1  # enable GPUs as needed
           requests:
-            memory: "24G"
-            cpu: 6
-            # ephemeral-storage: 100Gi
+            memory: "8G"
+            cpu: 1
+            ephemeral-storage: "1G"
             nvidia.com/gpu: 1  # must match the limit!
         volumeMounts:
           - mountPath: "/sbksvol"
@@ -37,4 +38,3 @@ spec:
           persistentVolumeClaim:
             claimName: sbksvol
   backoffLimit: 0  # no backoff; if pod fails, fail the job
-
