@@ -228,7 +228,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 #     wandb.log({"params":log_params})
 #     wandb.log({"xargs":xargs})
 
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True)
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True,,entity="ucsd_sbks")
     xargs['tf'] = params.get('tf',False)
     model = get_model(
         model_path=model_args["model_name_or_path"],
@@ -297,7 +297,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         # Now reload the model from best model we have found
         # Reading from file
         
-        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True)
+        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True,,entity="ucsd_sbks")
         print("The file is loaded from ---------------------------> ",
               params["OUTPUT_DIR"] + 'config.json')
         data = json.loads(
@@ -556,7 +556,7 @@ def main(_params):
     torch.cuda.empty_cache()
 
     
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary",entity="sbks_ucsd")
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary",entity="ucsd_sbks")
     report = run_test(trainer, model, train_dataset, train_df, label_map)
     wandb.run.summary["train_report"]=report
     report = run_test(trainer, model, eval_dataset, dev_df, label_map)
