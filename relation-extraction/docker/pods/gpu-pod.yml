@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gary-re
+  labels:
+    k8s-app: gary-re
+  namespace: sbks
+spec:
+  containers:
+  - name: gary-re
+    image: jiaweitang/sbks-torch:latest
+    imagePullPolicy: Always
+    args: ["sleep", "36500000"]
+    resources:
+      limits:
+        memory: "6G"
+        cpu: 1.5
+        nvidia.com/gpu: 1
+      requests:
+        memory: "6G"
+        cpu: 1.5
+        nvidia.com/gpu: 1
+    volumeMounts:
+      - mountPath: "/sbksvol"
+        name: sbksvol
+    env:
+    - name: PYTHONPATH
+      value: "/root/sbks-ucsd/relation-extraction/biobert_RE"
+    - name: GITLAB_TOKEN
+      valueFrom: 
+        secretKeyRef: 
+          name: gary-gitlab-readonly
+          key: token
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  volumes:
+    - name: sbksvol
+      persistentVolumeClaim:
+        claimName: sbksvol
+    - name: gary-gitlab-readonly
+      secret:
+        secretName: gary-gitlab-readonly
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: gpu-type
+            operator: In
+            values:
+            - 2080Ti
+            - 1080Ti

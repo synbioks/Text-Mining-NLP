@@ -94,13 +94,13 @@ def get_token_classifier_output(model, logits, labels, attention_mask, return_di
                                              (model.xargs.get('random')*masked_idx.shape[0])//100).to(attention_mask.device)
                     attention_mask[masked_idx[rand_idx]] = loss_fct.ignore_index
                 active_loss = attention_mask.view(-1) == 1
-                active_logits = logits.reshape(-1, model.num_labels)
+                active_logits = logits.view(-1, model.num_labels)
                 active_labels = torch.where(
-                    active_loss, labels.reshape(-1), torch.tensor(loss_fct.ignore_index).type_as(labels)
+                    active_loss, labels.view(-1), torch.tensor(loss_fct.ignore_index).type_as(labels)
                 )
                 loss = loss_fct(active_logits, active_labels)
             else:
-                loss = loss_fct(logits.reshape(-1, model.num_labels), labels.view(-1))
+                loss = loss_fct(logits.view(-1, model.num_labels), labels.view(-1))
                 
         elif "crf" in model.top_model["name"]:
             labels_copy = labels.detach().clone()

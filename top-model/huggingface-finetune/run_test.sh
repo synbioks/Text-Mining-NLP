@@ -4,8 +4,8 @@ NAME="main"
 WANDB_API_KEY = "90852721fdf4fb388c7f75ad45a5a0629bfc4bbf"
 export WANDB_API_KEY
 
+
 /root/anaconda3/bin/python3.7 -m pip install --upgrade pip
-/root/anaconda3/bin/python3.7 -m pip install torch==1.10 torchvision torchaudio
 /root/anaconda3/bin/python3.7 -m pip install transformers==4.6.0
 /root/anaconda3/bin/python3.7 -m pip install pytorch-crf
 /root/anaconda3/bin/python3.7 -m pip install "ray[tune]"

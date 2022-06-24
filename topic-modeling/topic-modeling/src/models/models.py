@@ -6,7 +6,7 @@ from gensim.models import LdaSeqModel
 from gensim.models import CoherenceModel
 
 class model():
-    def __init__(self, data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path, a_sq=None, pub_year=None, test_size=0.2, random_seed=100, iterations=1000):
+    def __init__(self, data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path, doc_lda_path, a_sq=None, pub_year=None, test_size=0.2, random_seed=100, iterations=1000):
         self.data_words_path = data_words_path
         self.model_name = model_name
         self.k = k
@@ -14,6 +14,7 @@ class model():
         self.model_path = model_path 
         self.corpus_path = corpus_path
         self.coh_path = coh_path
+        self.doc_lda_path = doc_lda_path
         self.test_size = test_size
         self.random_seed = random_seed
         self.iterations = iterations
@@ -50,6 +51,15 @@ class model():
                                                     id2word=id2word, 
                                                     random_seed=self.random_seed,
                                                     iterations=self.iterations)
+            # Save Coherence Model
+            co = 'c_uci' # the way to calculate coherence score 
+            coherencemodel = CoherenceModel(model=self.model,texts=texts,dictionary=id2word, coherence=co)
+            pickle.dump(coherencemodel, open(self.coh_path, "wb"))
+
+            # Save Doc Lda
+            doc_lda = self.model[corpus]
+            pickle.dump(doc_lda, open(self.doc_lda_path, 'wb'))
+
         elif self.model_name == 'dtm':
             self.model = LdaSeqModel(
                             corpus=corpus_train, 
@@ -62,17 +72,16 @@ class model():
         # Save Corpus
         pickle.dump(corpus, open(self.corpus_path, 'wb'))
         
-        # Save Coherence Model
-        co = 'c_v' # the way to calculate coherence score 
-        coherencemodel = CoherenceModel(model=self.model,texts=texts,dictionary=id2word, coherence=co)
-        pickle.dump(coherencemodel, open(self.coh_path, "wb"))
+        
+
+        
 
 
     def _save_model(self):
         self.model.save(self.model_path)
 
-def run_model(data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path):
-    m = model(data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path)
+def run_model(data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path, doc_lda_path):
+    m = model(data_words_path, model_name, k, path_to_mallet, model_path, corpus_path, coh_path, doc_lda_path)
 
 
 

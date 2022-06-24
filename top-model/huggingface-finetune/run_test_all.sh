@@ -12,7 +12,7 @@ nvidia-smi
 /root/anaconda3/bin/python3.7 -m pip install "ray[tune]"
 /root/anaconda3/bin/python3.7 -m pip install wandb
 
-gene=(BC2GM  bioinfer  cellfinder  deca  fsu  iepa  jnlpba  loctext  miRNA  osiris  variome gpro)
+gene=(BC2GM  bioinfer  cellfinder  deca  fsu  iepa  jnlpba  loctext  miRNA  osiris  variome)
 cellline=(cellfinder  cll  gellus  jnlpba)
 species=(linneaus  loctext  miRNA  s800  variome)
 chemicals=(cdr  cemp  chebi  chemdner  scai_chemicals)

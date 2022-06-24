@@ -2,8 +2,11 @@
 # coding: utf-8
 
 """
-Architecture: NER Top Model Training setups (B)
-              Train top model first, then fine tune BioBERT+top models. Top models: 3layer-CRF, 3layer-Softmax
+transformers==4.6.0 
+pytorch-crf==0.7.2 
+"ray[tune]"==1.9.2 
+wandb==0.12.9
+
 """
 from transformers.trainer_utils import set_seed
 from models.models_enum import ModelsType
@@ -228,7 +231,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 #     wandb.log({"params":log_params})
 #     wandb.log({"xargs":xargs})
 
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True,,entity="ucsd_sbks")
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True)
     xargs['tf'] = params.get('tf',False)
     model = get_model(
         model_path=model_args["model_name_or_path"],
@@ -297,7 +300,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         # Now reload the model from best model we have found
         # Reading from file
         
-        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True,,entity="ucsd_sbks")
+        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True)
         print("The file is loaded from ---------------------------> ",
               params["OUTPUT_DIR"] + 'config.json')
         data = json.loads(
@@ -356,8 +359,6 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 
         # Then unfreeze the bert weights and fine tune end-to-end
         model = reloaded_model
-        for param in model.base_model.parameters():
-            param.requires_grad = True
         freeze_model(model)
         model.to('cuda')
 
@@ -427,20 +428,13 @@ def get_predictions(trainer, model, test_dataset, label_map):
         for j in range(len(preds[i])):
             # ignore pad_tokens
             if label_ids[i, j] != nn.CrossEntropyLoss().ignore_index:
-                pred_label = label_map[preds[i][j]]
-                gnd_label = label_map[label_ids[i,j]]
-                if len(preds_list[i]) >0 and pred_label == 'I' and preds_list[i][-1] == 'O':
-                    pred_label = 'B'
-                if len(label_list[i]) >0 and gnd_label == 'I' and label_list[i][-1] == 'O':
-                    gnd_label = 'B'
-                
-                preds_list[i].append(pred_label)
-                label_list[i].append(gnd_label)
+                preds_list[i].append(label_map[preds[i][j]])
+                label_list[i].append(label_map[label_ids[i,j]])
 
     return preds_list,label_list
 
 
-def run_test(trainer, model, test_dataset, test_df, label_map,strict={}):
+def run_test(trainer, model, test_dataset, test_df, label_map):
     preds_list, label_list = get_predictions(trainer, model, test_dataset, label_map)
 
     def sentences_combiner(df):
@@ -469,8 +463,9 @@ def run_test(trainer, model, test_dataset, test_df, label_map,strict={}):
 #             print('Gt-',len(x),test_tokens[i])
 #             print('Gt-',len(x),x)
 #             print('Pred-',len(preds_list[i]),preds_list[i])
-    print("F1-score: {:.1%}".format(f1_score(label_list, preds_list,**strict)))
-    report = classification_report(label_list, preds_list, digits=3,output_dict=True,**strict)
+
+    print("F1-score: {:.1%}".format(f1_score(label_list, preds_list)))
+    report = classification_report(label_list, preds_list, digits=3,output_dict=True)
     print(report)
     return report
 #     print("F1-score: {:.1%}".format(f1_score(test_labels_new, preds_list_new)))
@@ -556,7 +551,7 @@ def main(_params):
     torch.cuda.empty_cache()
 
     
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary",entity="ucsd_sbks")
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary")
     report = run_test(trainer, model, train_dataset, train_df, label_map)
     wandb.run.summary["train_report"]=report
     report = run_test(trainer, model, eval_dataset, dev_df, label_map)
