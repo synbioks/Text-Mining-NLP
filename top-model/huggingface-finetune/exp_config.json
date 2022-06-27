@@ -916,6 +916,26 @@
         "tf": false,
         "top_model":3
     },
+    "baseline_v10_lr5_6_wd3_ft-1_pt500_tp3_v2": {
+        "LOWER_CASE": false,
+        "LOAD_BEST_MODEL": true,
+        "MAX_LEN": 256,
+        "BATCH_SIZE": 32,
+        "EPOCH_TOP": 2,
+        "EPOCH_END2END": 10,
+        "model_type": 2,
+        "grad_finetune": true,
+        "grad_e2e": false,
+        "grad_finetune_layers": -1,
+        "lr": 5e-5,
+        "weight_decay": 5e-3,
+        "lr_finetune":5e-6,
+        "data_size": 100,
+        "patience": 500,
+        "model_name_or_path":"/sbksvol/nikhil/model/biobert_v1.0_pubmed_pmc/",
+        "tf": false,
+        "top_model":3
+    },
     "baseline_v10_lr5_6_wd3_ft5_pt5_tp0": {
         "LOWER_CASE": false,
         "LOAD_BEST_MODEL": true,

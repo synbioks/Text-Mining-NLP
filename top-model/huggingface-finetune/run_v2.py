@@ -169,6 +169,9 @@ def freeze_model(model):
         for i in range(len(model.bert.encoder.layer) - params['grad_finetune_layers'], len(model.bert.encoder.layer)):
             for param in model.bert.encoder.layer[i].parameters():
                 param.requires_grad = True
+    else:
+        for param in model.base_model.parameters():
+            param.requires_grad = True
 
 def model_init():
     train_df, test_df, dev_df, labels, num_labels, label_map, data_dir, wt = prepare_data()
@@ -231,7 +234,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
 #     wandb.log({"params":log_params})
 #     wandb.log({"xargs":xargs})
 
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model",reinit=True)
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_top_model", entity="ucsd_sbks",reinit=True)
     xargs['tf'] = params.get('tf',False)
     model = get_model(
         model_path=model_args["model_name_or_path"],
@@ -300,7 +303,7 @@ def run_train(train_dataset, eval_dataset, config, model_args, labels, num_label
         # Now reload the model from best model we have found
         # Reading from file
         
-        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model",reinit=True)
+        wb_run = wandb.init(project="NER",name=params['exp_name']+"_full_model", entity="ucsd_sbks",reinit=True)
         print("The file is loaded from ---------------------------> ",
               params["OUTPUT_DIR"] + 'config.json')
         data = json.loads(
@@ -482,7 +485,7 @@ def main(_params):
     params['seed_value'] = args.seed_value
     params['set_seed'] = args.set_seed
     '''
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"_init")
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"_init", entity="ucsd_sbks")
     if params['set_seed']:
         random_seed_set(params['seed_value'])
 
@@ -551,7 +554,7 @@ def main(_params):
     torch.cuda.empty_cache()
 
     
-    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary")
+    wb_run = wandb.init(project="NER",name=params['exp_name']+"summary", entity="ucsd_sbks")
     report = run_test(trainer, model, train_dataset, train_df, label_map)
     wandb.run.summary["train_report"]=report
     report = run_test(trainer, model, eval_dataset, dev_df, label_map)
