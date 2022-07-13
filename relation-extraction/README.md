@@ -595,6 +595,16 @@ acs_re_postproess.py --dataset-dir DATASET_DIR
 
 # Training with Nautilus
 
+## Instructions
+### 1. Download the relation-extraction/docker folder to the local system.
+### 2. Use `generate_yml_files.py` to generate yml files for running experiments. (see instructions below)
+- docker/pods contains the yml files for cpu/gpu pods.
+- docker/yml_arguments contains the arguments to be filled in for yml_templates
+- docker/yml_templates contains sample gpu job templates with missing arguments
+### 3. Be careful with GPU usage policies. (see specifics on Nautilus website)
+
+<br/>
+
 `docker/generate_yml_files.py` is a tool for generating multiple yml manifests using a template file and an argument file. It is useful for running multiple experiments/jobs on Nautilus.
 
 ```
@@ -632,6 +642,8 @@ patterns will be replaced by the actual arguments argument_2
 argument_1
 ```
 
+<br/>
+
 ## Some useful commands for Nautilus
 
 -- Creating/Deleting pods:
@@ -642,4 +654,33 @@ argument_1
 
 `kubectl exec podname -it -- /bin/bash`
 
+-- Port forwarding
+
+`kubectl port-forward <pod_name> 8888:8888 -n <namespace>`
+
 For more commands, refer to [Nautilus Setup](https://docs.google.com/document/d/1WRi9hVpUuFzOkLeF7fkk55jFCRSOa_i3wkTivctt_Os/edit).
+
+<br/>
+
+# Attention Visualization
+`biobert_RE/attention_visualization.ipynb` contains the neccessary script to visualize the trained attention weights. The script allows for sampled sentences to be tokenized and visualized using the trained Bert model.
+
+## Requirements:
+### System:
+```
+torch
+transformers
+bertviz
+```
+### User-provided:
+```
+BertLarge (weights/biobert_large_v1.1_pubmed_torch) # can use base model as well
+trained model (weights/experiment/checkpoint...) # checkpoint of any trained BioBert model
+```
+
+## Example
+
+![attention_viz.png](assets/attention_viz.png)
+
+The above example shows the how the sample sentence "Hello World" is visualized using the Bertviz tool. User can choose the layer number and which attention head to visualize. The mouse hover on [CLS] shows the attentions for this hovered on token. The strength of the attention is seen through the weight of the color.
+
