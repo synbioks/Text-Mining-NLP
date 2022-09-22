@@ -61,8 +61,8 @@ Our results
 
 Loss curves
 
-![Loss curves for PubmedQA](figs\pubmedqa-losscurve.png?raw=true)
-![Loss curves for PubmedQA](figs\bioasq-losscurve.png?raw=true)
+![Loss curves for PubmedQA](figs/pubmedqa-losscurve.png)
+![Loss curves for PubmedQA](figs/bioasq-losscurve.png)
 
 Results with early stopping with a patience of 8 and the metric as validation accuracy
 
