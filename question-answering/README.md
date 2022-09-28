@@ -43,37 +43,6 @@ This code automatically logs to wandb as we have wandb installed. Set report_to=
 6. chmod +x run_examples_blurb_biolinkbert-base.sh
 7. ./run_examples_blurb_biolinkbert-base.sh
 
-## 2. Results
-
-Reported results in the paper
-
-|                         | PubMedQA | BioASQ   | 
-| ----------------------  | -------- | -------  | 
-| **BioLinkBERT-base**    | **70.2** | **91.4** | 
-| **BioLinkBERT-large**   | **72.2** | **94.8** |
-
-Our results
-
-|  **BioLinkBERT-base**   | PubMedQA |  BioASQ   | 
-| ----------------------  | -------- |  -------  | 
-|      Validation data    | **70.2** | **94.67** | 
-|      Test data          | **69.2** |   **95**  |
-
-Loss curves
-
-![Loss curves for PubmedQA](figs/pubmedqa-losscurve.png)
-![Loss curves for PubmedQA](figs/bioasq-losscurve.png)
-
-Results with early stopping with a patience of 8 and the metric as validation accuracy
-
-|  **BioLinkBERT-base**   | PubMedQA |  BioASQ   | 
-| ----------------------  | -------- |  -------  | 
-|      Validation data    |   **64** |    **96** | 
-|      Test data          | **63.8** | **93.57** |
-
-Different early stopping patience values of 3,5 and 8 was used and 8 gave the best results.
-On the whole, early stopping did not help improve accuracy
-
 
 ## Citation
 If you find our work helpful, please cite the following:
