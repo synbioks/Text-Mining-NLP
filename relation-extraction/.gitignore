@@ -16,3 +16,4 @@ docker/secrets
 *.gz
 *.log
 *.aux
+*.bak

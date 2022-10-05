@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: gary-re
+  name: chris-re
   labels:
-    k8s-app: gary-re
+    k8s-app: chris-re
   namespace: sbks
 spec:
   containers:
-  - name: gary-re
+  - name: chris-re
     image: jiaweitang/sbks-torch:latest
     imagePullPolicy: Always
     args: ["sleep", "36500000"]

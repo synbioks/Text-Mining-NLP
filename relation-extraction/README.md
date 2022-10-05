@@ -416,7 +416,7 @@ The following is the learning rate curve with lr_factor=0.0005, warm_up=1000. Du
 
 # BratEval
 
-[BratEval](https://github.com/aalbahem/brateval) is a tool that performs pairwise comparison of annotation sets done on the same set of documents. 
+[BratEval](https://github.com/READ-BioMed/brateval) is a tool that performs pairwise comparison of annotation sets done on the same set of documents. 
 
 ## Requirement
 - BratEval modules from its github page

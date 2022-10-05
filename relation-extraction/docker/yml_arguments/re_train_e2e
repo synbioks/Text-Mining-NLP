@@ -1,5 +1,5 @@
-gary-re-end-to-end-1	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-1 > logs.txt && mv logs.txt weights/end-to-end-1
-gary-re-end-to-end-2	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-2 > logs.txt && mv logs.txt weights/end-to-end-2
-gary-re-end-to-end-3	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-3 > logs.txt && mv logs.txt weights/end-to-end-3
-gary-re-end-to-end-4	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-4 > logs.txt && mv logs.txt weights/end-to-end-4
-gary-re-end-to-end-5	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-5 > logs.txt && mv logs.txt weights/end-to-end-5
+chris	re-end-to-end-1	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-1 > logs.txt && mv logs.txt weights/end-to-end-1
+chris	re-end-to-end-2	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-2 > logs.txt && mv logs.txt weights/end-to-end-2
+chris	re-end-to-end-3	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-3 > logs.txt && mv logs.txt weights/end-to-end-3
+chris	re-end-to-end-4	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-4 > logs.txt && mv logs.txt weights/end-to-end-4
+chris	re-end-to-end-5	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-5 > logs.txt && mv logs.txt weights/end-to-end-5

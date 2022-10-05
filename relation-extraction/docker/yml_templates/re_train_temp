@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: [[[[ARG:0]]]]
+  name: [[[[ARG:0]]]]-[[[[ARG:1]]]]
   labels:
-    k8s-app: [[[[ARG:0]]]]
+    k8s-app: [[[[ARG:0]]]]-[[[[ARG:1]]]]
   namespace: sbks
 spec:
   backoffLimit: 0
@@ -11,7 +11,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - name: [[[[ARG:0]]]]
+      - name: [[[[ARG:0]]]]-[[[[ARG:1]]]]
         image: jiaweitang/sbks-torch:latest
         command:
         - "/bin/bash"
@@ -20,9 +20,9 @@ spec:
           cd /root &&
           git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/mhn-ucsd/sbks-ucsd.git &&
           cd /root/sbks-ucsd/relation-extraction &&
-          ln -s /sbksvol/jiawei/re-model-data/weights weights &&
-          ln -s /sbksvol/jiawei/re-model-data/data data &&
-          [[[[ARG:1]]]]
+          ln -s /sbksvol/[[[[ARG:0]]]]/weights weights &&
+          ln -s /sbksvol/[[[[ARG:0]]]]/data data &&
+          [[[[ARG:2]]]]
         imagePullPolicy: Always
         resources:
           limits:
