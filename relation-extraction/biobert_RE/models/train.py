@@ -279,7 +279,7 @@ if __name__ == '__main__':
     parser.add_argument('--ga-batch-size', type=int) # only update parameter after seeing these many samples
     parser.add_argument('--dataloader-workers', type=int, default=4)
     parser.add_argument('--seq-len', type=int, default=256)
-    parser.add_argument('--bert-state-path', type=str, default='weights/biobert_large_v1.1_pubmed_torch/')
+    parser.add_argument('--bert-state-path', type=str, default='model_weights/biobert_large_v1.1_pubmed_torch/')
     parser.add_argument('--use-bert-large', type=bool_string, default='True')
     parser.add_argument('--top-hidden-size', nargs='*', default=[1024, 1024])
     parser.add_argument('--freeze-bert', type=bool_string, default='False')
@@ -289,7 +289,7 @@ if __name__ == '__main__':
     parser.add_argument('--valid-data', type=str, default='data/merged/training/vali.txt')
     parser.add_argument('--test-data', type=str, default='data/merged/dev/merged.txt')
     parser.add_argument('--label-map-name', type=str, default='merged')
-    parser.add_argument('--inference-data', type=str, default='data/acs/acs-data')
+    parser.add_argument('--inference-data', type=str, default='data/acs-data')
     parser.add_argument('--ckpt-dir', type=str, default=None)
     parser.add_argument('--balance-dataset', type=bool_string, default='False')
     parser.add_argument('--do-train', type=bool_string, default='True')
