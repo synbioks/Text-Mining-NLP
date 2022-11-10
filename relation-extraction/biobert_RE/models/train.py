@@ -24,7 +24,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
 
     if args.record_wandb:
         # use wandb to record weights
-        wb_run = wandb.init(project='RE', name=args.record_wandb, entity="ucsd_sbks", config = args)
+        wb_run = wandb.init(project='RE_scaling', name=args.record_wandb, entity="ucsd_sbks", config = args)
         wandb.watch(net, log='all', log_freq=500)
     # setup training
     print(f'Running train {task_name}')

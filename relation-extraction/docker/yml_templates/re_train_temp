@@ -45,6 +45,11 @@ spec:
             secretKeyRef: 
               name: gary-gitlab-readonly
               key: token
+        - name: WANDB_API_KEY
+          valueFrom:
+            secretKeyRef: 
+              name: aarthy-wandb-re-scaling
+              key: token
       restartPolicy: Never
       volumes:
         - name: sbksvol
