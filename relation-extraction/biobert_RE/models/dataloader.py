@@ -1,6 +1,7 @@
 import os
 import torch
 from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from transformers import BertTokenizer
 from tqdm import tqdm
 
@@ -124,8 +125,9 @@ def get_train_valid_test(train_data_filename, valid_data_filename, test_data_fil
         dataset=train_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
-        shuffle=True,
-        collate_fn=tsv_collate_fn
+        shuffle=False,
+        collate_fn=tsv_collate_fn,
+        sampler=DistributedSampler(train_dataset),
     )
 
     valid_dataloader = DataLoader(
@@ -133,7 +135,8 @@ def get_train_valid_test(train_data_filename, valid_data_filename, test_data_fil
         batch_size=valid_batch_size,
         num_workers=num_workers,
         shuffle=False,
-        collate_fn=tsv_collate_fn
+        collate_fn=tsv_collate_fn,
+        sampler=DistributedSampler(valid_dataset),
     )
 
     test_dataloader = DataLoader(
