@@ -6,7 +6,7 @@ import torch.optim as optim
 import torch.multiprocessing as mp
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.distributed import init_process_group, destroy_process_group
-import habana_frameworks.torch.distributed.hccl
+#import habana_frameworks.torch.distributed.hccl
 import os
 
 import numpy as np
