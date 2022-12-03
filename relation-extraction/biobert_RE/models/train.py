@@ -27,16 +27,20 @@ from utils.early_stop import EarlyStopping
 from dataset_processing.input_to_annbrat import convert_json_to_brat, input_to_re
 import wandb
 
-def main(rank:int, world_size, args):
-    
-    ddp_setup(rank, world_size, args.dist_backend)
+def main(gpu:int, world_size, args):
+    ddp_setup(gpu, world_size, args.dist_backend)
+    args.gpu = gpu
+    if args.gpu is not None:
+        print("Use GPU: {} for training".format(args.gpu))
+    args.device = torch.device('cuda:{}'.format(args.gpu))
      # initialize top model
     bert_hidden_size = 1024 if args.use_bert_large else 768
     # call get label map once to set the default label map
     cpr.get_label_map(args.label_map_name)
     out_size = len(cpr.get_label_map()) # calculate the output size
+    print(out_size)
     net = get_end_to_end_net(args.bert_state_path, bert_hidden_size, args.top_hidden_size, out_size, args.activation).to(args.device)
-    net = DDP(net, device_ids=[args.local_rank])
+    net = DDP(net, device_ids=[args.gpu], find_unused_parameters=True)
     if args.resume_from_ckpt is not None:
         print(f'Loading existing checkpoint: {args.resume_from_ckpt}')
         net.module.load_state_dict(torch.load(args.resume_from_ckpt))
@@ -115,7 +119,7 @@ def ddp_setup(rank: int, world_size: int, backend="nccl"):
 
 def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloader, loss_fn, optimizer, args):
 
-    if args.record_wandb and args.local_rank == 0:
+    if args.record_wandb and args.gpu == 0:
         # use wandb to record weights
         wb_run = wandb.init(project='RE_scaling', name=args.record_wandb, entity="ucsd_sbks", config = args)
         wandb.watch(net, log='all', log_freq=500)
@@ -162,16 +166,16 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
                     if early_stop.early_stop:
                         break
 
-                    if args.ckpt_dir is not None and args.local_rank == 0:
+                    if args.ckpt_dir is not None and args.gpu == 0:
                         ckpt_path = os.path.join(args.ckpt_dir, f'{train_step_count}')
                         torch.save(net.state_dict(), ckpt_path)
                     net.train()
                     print(f'Resume epoch {epoch_count}')
 
-                    if args.record_wandb and args.local_rank == 0:
+                    if args.record_wandb and args.gpu == 0:
                         wandb.log({'train loss': train_loss, 'vali loss': vali_loss}, step=train_step_count)
 
-                if args.record_wandb and args.local_rank == 0:
+                if args.record_wandb and args.gpu == 0:
                     wandb.log({'epoch': epoch_count}, step=train_step_count)
     # final test
 
@@ -191,7 +195,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     test_net('VALIDATION', net, valid_dataloader)
     test_net('TEST', net, test_dataloader)
     
-    if args.ckpt_dir is not None and best_step_count > 0 and args.local_rank == 0:
+    if args.ckpt_dir is not None and best_step_count > 0 and args.gpu == 0:
         ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{best_step_count}')
         torch.save(net.state_dict(), ckpt_path)
 
@@ -199,7 +203,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     for hook in hooks:
         hook.vis_activation(args.ckpt_dir, to_wandb=args.record_wandb)
 
-    if args.record_wandb and args.local_rank == 0:
+    if args.record_wandb and args.gpu == 0:
         wb_run.finish()
 
 def test_net(task_name, net, test_dataloader, limit=None):
@@ -391,7 +395,7 @@ if __name__ == '__main__':
     parser.add_argument('--activation', type=str, default='Tanh')
     parser.add_argument('--record-activation', nargs='+', default=[])
     parser.add_argument('--record-wandb', type=str, default='')
-    parser.add_argument('--local_rank', type=int, default=-1, metavar='N', help='Local process rank.') 
+    parser.add_argument('--rank', type=int, default=-1, metavar='N', help='Local process rank.') 
     parser.add_argument('--dataloader_workers', type=int, default=2) 
     parser.add_argument('--dist-backend', default='nccl', type=str, help='distributed backend')
 
@@ -399,9 +403,6 @@ if __name__ == '__main__':
     # print out all package versions and name
     print('Installed packages:')
     print(os.system('pip list'))
-
-    args.device = torch.cuda.device(args.local_rank)
-    #TODO: elif args.device == 'guadi':
 
     # calculate gradient accumulation parameter
     # if ga_batch_size is not specified, it will be set equal to batch_size

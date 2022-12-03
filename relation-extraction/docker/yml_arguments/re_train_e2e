@@ -1,5 +1,5 @@
-chris	re-end-to-end-1	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-1 > logs.txt && mv logs.txt weights/end-to-end-1
-chris	re-end-to-end-2	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-2 > logs.txt && mv logs.txt weights/end-to-end-2
-chris	re-end-to-end-3	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-3 > logs.txt && mv logs.txt weights/end-to-end-3
-chris	re-end-to-end-4	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-4 > logs.txt && mv logs.txt weights/end-to-end-4
-chris	re-end-to-end-5	python biobert_RE/models/train.py --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-5 > logs.txt && mv logs.txt weights/end-to-end-5
+aarthy	re-end-to-end-1	python biobert_RE/models/train.py --record-wandb test-run1 --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-1 > logs.txt && mv logs.txt weights/end-to-end-1
+aarthy	re-end-to-end-2	python biobert_RE/models/train.py --record-wandb test-run2 --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-2 > logs.txt && mv logs.txt weights/end-to-end-2
+aarthy	re-end-to-end-3	python biobert_RE/models/train.py --record-wandb test-run3 --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-3 > logs.txt && mv logs.txt weights/end-to-end-3
+aarthy	re-end-to-end-4	python biobert_RE/models/train.py --record-wandb test-run4 --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-4 > logs.txt && mv logs.txt weights/end-to-end-4
+aarthy	re-end-to-end-5	python biobert_RE/models/train.py --record-wandb test-run5 --batch-size 2 --ga-batch-size 16 --top-hidden-size 1024 1024 --ckpt-dir weights/end-to-end-5 > logs.txt && mv logs.txt weights/end-to-end-5
