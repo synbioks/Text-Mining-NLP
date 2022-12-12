@@ -97,7 +97,8 @@ def main(gpu:int, world_size, args):
         test_net(
             'TEST',
             net,
-            test_dataloader
+            test_dataloader,
+            args
             )
 
         brat_eval(
@@ -206,7 +207,7 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
     if args.record_wandb and args.gpu == 0:
         wb_run.finish()
 
-def test_net(task_name, net, test_dataloader, limit=None):
+def test_net(task_name, net, test_dataloader, args, limit=None):
 
     # setup testing
     print(f'Running test {task_name}')
@@ -222,7 +223,7 @@ def test_net(task_name, net, test_dataloader, limit=None):
             if limit and i >= limit:
                 break
             
-            pred = net.module.predict(x_batch).cpu().numpy()
+            pred = net.module.predict(x_batch, args.device).cpu().numpy()
             y = y_batch.numpy()
             num_tested += len(y)
             num_correct += np.sum(pred == y)
@@ -233,9 +234,9 @@ def test_net(task_name, net, test_dataloader, limit=None):
             
             # calculate loss
             loss_fn = nn.CrossEntropyLoss()
-            x = {k: v.cuda() for k, v in x_batch.items()}
+            x = {k: v.to(args.device) for k, v in x_batch.items()}
             out = net(x)
-            y = y_batch.cuda()
+            y = y_batch.to(args.device)
             loss = loss_fn(out, y)
             loss_lst.append(loss.item())
 
@@ -283,7 +284,7 @@ def inference_net(task_name, net, args):
         output = []
         with torch.no_grad():
             for _, (id1s, id2s, batch_x) in enumerate(dataloader):
-                pred, score = net.module.predict(batch_x, return_score=True)
+                pred, score = net.module.predict(batch_x, args.device, return_score=True)
                 score = score.cpu().tolist()
                 pred = pred.cpu().tolist()
                 for i in range(len(id1s)):
@@ -331,7 +332,7 @@ def brat_eval(task_name, net, args):
     idx_to_label = {v:k for k,v in cpr.get_label_map().items()}
     with torch.no_grad():
         for _, (x_batch, input_ids) in enumerate(tqdm(dataloader)):
-            pred = net.module.predict(x_batch)
+            pred = net.module.predict(x_batch, args.device)
             pred = pred.cpu().tolist()
             for i in range(len(pred)):
                 output.append((pred[i], input_ids[i]))

@@ -50,7 +50,7 @@ class EndToEnd(nn.Module):
         y = self.top_model(y)
         return y
 
-    def train_step(self, x, y, loss_fn, optimizer):
+    def train_step(self, x, y, loss_fn, optimizer, device):
         x = {k: v.cuda() for k, v in x.items()}
         y = y.cuda()
         optimizer.zero_grad()
@@ -60,8 +60,8 @@ class EndToEnd(nn.Module):
         optimizer.step()
         return loss
 
-    def predict(self, x, return_score=False):
-        x = {k: v.cuda() for k, v in x.items()}
+    def predict(self, x, device, return_score=False):
+        x = {k: v.to(device) for k, v in x.items()}
         score = F.softmax(self.forward(x), dim=-1)
         pred = torch.argmax(score, dim=-1)
         if return_score:
