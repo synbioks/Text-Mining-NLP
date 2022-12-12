@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: chris-re-gpu-viz
+  labels:
+    k8s-app: chris-re-gpu-viz
+  namespace: sbks
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: chris-re-gpu-viz
+        image: jiaweitang/sbks-torch:latest
+        command:
+        - "/bin/bash"
+        - "-c"
+        - >
+          cd /root &&
+          git clone https://oauth2:${GITLAB_TOKEN}@gitlab.com/mhn-ucsd/sbks-ucsd.git &&
+          cd /root/sbks-ucsd/relation-extraction &&
+          ln -s /sbksvol/chris/weights weights &&
+          ln -s /sbksvol/re_data/weights model_weights &&
+          ln -s /sbksvol/re_data data &&
+          sleep 7200
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "12G"
+            cpu: 1.5
+            nvidia.com/gpu: 1
+          requests:
+            memory: "12G"
+            cpu: 1.5
+            nvidia.com/gpu: 1
+        volumeMounts:
+          - mountPath: "/sbksvol"
+            name: sbksvol
+        env:
+        - name: PYTHONPATH
+          value: "/root/sbks-ucsd/relation-extraction/biobert_RE"
+        - name: GITLAB_TOKEN
+          valueFrom: 
+            secretKeyRef: 
+              name: gary-gitlab-readonly
+              key: token
+      restartPolicy: Never
+      volumes:
+        - name: sbksvol
+          persistentVolumeClaim:
+            claimName: sbksvol
+        - name: gary-gitlab-readonly
+          secret:
+            secretName: gary-gitlab-readonly
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-GeForce-RTX-2080-Ti
+                - NVIDIA-GeForce-GTX-1080-Ti
