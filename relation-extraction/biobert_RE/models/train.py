@@ -222,7 +222,7 @@ def test_net(task_name, net, test_dataloader, limit=None):
             if limit and i >= limit:
                 break
             
-            pred = net.predict(x_batch).cpu().numpy()
+            pred = net.module.predict(x_batch).cpu().numpy()
             y = y_batch.numpy()
             num_tested += len(y)
             num_correct += np.sum(pred == y)
@@ -283,7 +283,7 @@ def inference_net(task_name, net, args):
         output = []
         with torch.no_grad():
             for _, (id1s, id2s, batch_x) in enumerate(dataloader):
-                pred, score = net.predict(batch_x, return_score=True)
+                pred, score = net.module.predict(batch_x, return_score=True)
                 score = score.cpu().tolist()
                 pred = pred.cpu().tolist()
                 for i in range(len(id1s)):
@@ -331,7 +331,7 @@ def brat_eval(task_name, net, args):
     idx_to_label = {v:k for k,v in cpr.get_label_map().items()}
     with torch.no_grad():
         for _, (x_batch, input_ids) in enumerate(tqdm(dataloader)):
-            pred = net.predict(x_batch)
+            pred = net.module.predict(x_batch)
             pred = pred.cpu().tolist()
             for i in range(len(pred)):
                 output.append((pred[i], input_ids[i]))
