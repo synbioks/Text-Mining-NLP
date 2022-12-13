@@ -160,8 +160,8 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
                 if train_step_count > args.resume_from_step and train_step_count % args.valid_freq == 0:
                     net.eval()
                     print(f'\nStep {train_step_count} finished')
-                    train_loss = test_net('TRAIN', net, train_dataloader, limit=(3000 // args.batch_size))
-                    vali_loss = test_net('VALIDATION', net, valid_dataloader, limit=(.3*len(valid_dataloader.dataset)/args.batch_size))
+                    train_loss = test_net('TRAIN', net, train_dataloader, args, limit=(3000 // args.batch_size))
+                    vali_loss = test_net('VALIDATION', net, valid_dataloader, args, limit=(.3*len(valid_dataloader.dataset)/args.batch_size))
                     early_stop(vali_loss, net, train_step_count)
 
                     if early_stop.early_stop:
@@ -192,9 +192,9 @@ def train_net(task_name, net, train_dataloader, valid_dataloader, test_dataloade
         hooks.append(hook)
 
     print('Train finished')
-    test_net('TRAIN', net, train_dataloader)
-    test_net('VALIDATION', net, valid_dataloader)
-    test_net('TEST', net, test_dataloader)
+    test_net('TRAIN', net, train_dataloader, args)
+    test_net('VALIDATION', net, valid_dataloader, args)
+    test_net('TEST', net, test_dataloader, args)
     
     if args.ckpt_dir is not None and best_step_count > 0 and args.gpu == 0:
         ckpt_path = os.path.join(args.ckpt_dir, f'best_model_{best_step_count}')
