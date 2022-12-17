@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aarthy-gcn
+  namespace: sbks
+spec:
+  containers:
+  - name: aarthy-gcn
+    image: jiaweitang/sbks-torch:latest
+    imagePullPolicy: Always
+    args: ["sleep", "36500000"]
+    resources:
+      limits:
+        memory: "20G"
+        cpu: 4
+        nvidia.com/gpu: 1
+      requests:
+        memory: "20G"
+        cpu: 4
+        nvidia.com/gpu: 1
+    volumeMounts:
+      - mountPath: "/sbksvol"
+        name: sbksvol
+  volumes:
+    - name: sbksvol
+      persistentVolumeClaim:
+        claimName: sbksvol
+  affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-GeForce-RTX-2080-Ti
+                - NVIDIA-GeForce-GTX-1080-Ti

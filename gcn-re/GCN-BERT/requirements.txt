@@ -1,0 +1,5 @@
+pandas
+nltk
+boto3
+scipy=1.4.1
+# mkdir ../data/merged/predictions - binary, final, initial

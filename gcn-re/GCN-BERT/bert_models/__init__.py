@@ -1,0 +1,1 @@
+from .train_vgcn_bert import VGCN_BERT
