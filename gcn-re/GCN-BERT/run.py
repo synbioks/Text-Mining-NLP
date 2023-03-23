@@ -60,7 +60,6 @@ if test:
                                                  dominant_entity[0],
                                                  config.getint('SEGMENTATION', 'no_of_cores'),
                                                 )
-
         train_test.run_GCN_model(seg_train, seg_test, config['GCN_MODELS']['embedding_path'],
                                  config.getint('GCN_MODELS', 'embedding_dim'),
                                  config['GCN_MODELS']['model'], config['GCN_MODELS']['window_size'], dominant_entity[0], segment,

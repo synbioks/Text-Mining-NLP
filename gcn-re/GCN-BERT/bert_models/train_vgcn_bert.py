@@ -28,7 +28,7 @@ if cuda_yes:
 device = torch.device("cuda:0" if cuda_yes else "cpu")
 
 class VGCN_BERT:
-    def __init__(self, model, cleanData, buildGraph, initial_predictions=None, final_predictions=None, del_stop_words=False, model_type='VGCN_BERT', train_epochs=500,
+    def __init__(self, model, cleanData, buildGraph, initial_predictions=None, final_predictions=None, del_stop_words=False, model_type='VGCN_BERT', train_epochs=15,
                  dropout=0.2, batch_size=8, gcn_embedding_dim=16, learning_rate0= 3e-5, l2_decay=0.001):
         self.model = model
         self.data = cleanData
@@ -37,6 +37,7 @@ class VGCN_BERT:
         MAX_SEQ_LENGTH = 200 + gcn_embedding_dim
         gradient_accumulation_steps = 1
         bert_model_scale = 'bert-base-uncased'
+        bert_state_path = '/sbksvol/jiawei/re-model-data/weights/biobert_base_v1.0_torch'
         do_lower_case = True
         warmup_proportion = 0.1
         perform_metrics_str = ['weighted avg', 'f1-score']
@@ -115,7 +116,8 @@ class VGCN_BERT:
 
         loss_weight = torch.tensor(train_classes_weight).to(device)
 
-        tokenizer = BertTokenizer.from_pretrained(bert_model_scale, do_lower_case=do_lower_case)
+        # tokenizer = BertTokenizer.from_pretrained(bert_model_scale, do_lower_case=do_lower_case)
+        tokenizer = BertTokenizer.from_pretrained(os.path.join(bert_state_path, 'vocab.txt'), do_lower_case=do_lower_case)
 
         def get_pytorch_dataloader(examples, tokenizer, batch_size, shuffle_choice, classes_weight=None,
                                    total_resample_size=-1):
@@ -231,8 +233,11 @@ class VGCN_BERT:
         valid_acc_prev = 0
         perform_metrics_prev = 0
 
-        model = VGCN_Bert.from_pretrained(bert_model_scale, gcn_adj_dim=gcn_vocab_size, gcn_adj_num=len(gcn_adj_list), gcn_embedding_dim=gcn_embedding_dim,
+        # model = VGCN_Bert.from_pretrained(bert_model_scale, gcn_adj_dim=gcn_vocab_size, gcn_adj_num=len(gcn_adj_list), gcn_embedding_dim=gcn_embedding_dim,
+        #                                  num_labels=len(self.graph.class_labels))
+        model = VGCN_Bert.from_pretrained(bert_state_path, gcn_adj_dim=gcn_vocab_size, gcn_adj_num=len(gcn_adj_list), gcn_embedding_dim=gcn_embedding_dim,
                                           num_labels=len(self.graph.class_labels))
+        
         prev_save_step = -1
 
         model.to(device)
