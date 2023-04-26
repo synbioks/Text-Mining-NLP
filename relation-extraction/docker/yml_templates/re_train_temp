@@ -22,7 +22,7 @@ spec:
           cd /root/sbks-ucsd/relation-extraction &&
           ln -s /sbksvol/[[[[ARG:0]]]]/weights weights &&
           ln -s /sbksvol/re_data/weights model_weights &&
-          ln -s /sbksvol/[[[[ARG:0]]]]/data data &&
+          ln -s /sbksvol/re_data/data data &&
           [[[[ARG:2]]]]
         imagePullPolicy: Always
         resources:

@@ -29,7 +29,7 @@ spec:
     - name: GITLAB_TOKEN
       valueFrom: 
         secretKeyRef: 
-          name: gary-gitlab-readonly
+          name: re-gitlab-readonly
           key: token
   restartPolicy: Never
   automountServiceAccountToken: false
@@ -37,9 +37,9 @@ spec:
     - name: sbksvol
       persistentVolumeClaim:
         claimName: sbksvol
-    - name: gary-gitlab-readonly
+    - name: re-gitlab-readonly
       secret:
-        secretName: gary-gitlab-readonly
+        secretName: re-gitlab-readonly
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
