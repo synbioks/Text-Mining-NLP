@@ -44,9 +44,10 @@ spec:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-        - matchExpressions:
-          - key: gpu-type
-            operator: In
-            values:
-            - 2080Ti
-            - 1080Ti
+          - matchExpressions:
+            - key: nvidia.com/gpu.product
+              operator: In
+                # Specifies GPU types
+              values:
+                - NVIDIA-GeForce-RTX-2080-Ti
+                - NVIDIA-GeForce-RTX-1080-Ti
