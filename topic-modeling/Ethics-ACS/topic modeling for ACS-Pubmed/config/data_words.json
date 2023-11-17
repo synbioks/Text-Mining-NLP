@@ -1,7 +1,0 @@
-
-{
-    "json_input_path": "data/json-files",
-    "q": 0.005,
-    "output_path_data_words": "data/saved_results/data_words/q=0.005_full_abstracts.pickle",
-    "output_path_a_sq": "data/saved_results/data_words/article_sq_full.pickle"
-}

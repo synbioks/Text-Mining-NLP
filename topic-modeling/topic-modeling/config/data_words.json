@@ -1,9 +1,0 @@
-
-{
-    "json_input_path": "data/json-files",
-    "ner_input_path": "data/20210205",
-    "contain_abstract": true,
-    "q": 0.005,
-    "output_path_data_words": "data/saved_results/data_words/noner_q=0.005_abstract.pickle",
-    "output_path_a_sq": "data/saved_results/data_words/article_sq.pickle"
-}

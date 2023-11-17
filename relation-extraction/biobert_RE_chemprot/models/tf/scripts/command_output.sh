@@ -1,1 +1,0 @@
- python run_re.py --task_name=$TASK_NAME --do_train=false --do_eval=false --do_predict=true --vocab_file=$BIOBERT_DIR/vocab.txt --bert_config_file=$BIOBERT_DIR/bert_config.json --max_seq_length=128 --data_dir=$RE_DIR --output_dir=$OUTPUT_DIR
