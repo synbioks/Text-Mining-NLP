@@ -664,6 +664,8 @@ argument_1
 
 For more commands, refer to [Nautilus Setup](https://docs.google.com/document/d/1WRi9hVpUuFzOkLeF7fkk55jFCRSOa_i3wkTivctt_Os/edit).
 
+For help, refer to [Nautilus Documentation](https://docs.nationalresearchplatform.org/).
+
 <br/>
 
 # Attention Visualization
