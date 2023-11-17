@@ -648,15 +648,19 @@ argument_1
 
 -- Creating/Deleting pods:
 
-`kubectl create/delete -f file.yaml`
+`kubectl create (apply)/delete -f <yaml_file.yaml>`
 
 -- Start a interactive bash with the pod:
 
-`kubectl exec podname -it -- /bin/bash`
+`kubectl exec -it <pod_name> -- /bin/bash`
+
+-- Start jupyter notebook
+
+`jupyter notebook --ip='0.0.0.0' --allow-root`
 
 -- Port forwarding
 
-`kubectl port-forward <pod_name> 8888:8888 -n <namespace>`
+`kubectl port-forward <pod_name> 8888:8888`
 
 For more commands, refer to [Nautilus Setup](https://docs.google.com/document/d/1WRi9hVpUuFzOkLeF7fkk55jFCRSOa_i3wkTivctt_Os/edit).
 
