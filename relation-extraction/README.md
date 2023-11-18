@@ -648,7 +648,7 @@ argument_1
 
 -- Creating/Deleting pods:
 
-`kubectl create (apply)/delete -f <yaml_file.yaml>`
+`kubectl create(apply)/delete -f <yaml_file.yaml>`
 
 -- Start a interactive bash with the pod:
 
