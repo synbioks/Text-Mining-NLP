@@ -1,0 +1,54 @@
+'Tags: android, android-layout, android-linearlayout\n\nQuestion: Set the size of child to parent in Android\n\nI have the following code:\n\n\\begin{code}
+\n<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"\nxmlns:tools="http://schemas.android.com/tools"\nandroid:layout_width="match_parent"
+\nandroid:layout_height="match_parent"\nandroid:orientation="vertical"\nandroid:paddingTop="80dp"\ntools:context=".MainActivity">\n\n<LinearLayout\n    
+android:layout_width="match_parent"\n    android:layout_height="match_parent"\n    android:orientation="horizontal"\n    android:layout_marginTop="100dp">\n\n    
+<LinearLayout\n        android:layout_width="0dp"\n        android:layout_height="0dp"\n        android:layout_weight=".1">\n\n        <TextView\n            
+android:layout_width="0dp"\n            android:layout_height="wrap_content"\n            android:text="Text One"\n            android:minHeight="?android:attr/actionBarSize"\n
+            android:layout_weight="0.1" />\n         <View\n            android:layout_width="5dp"\n            android:layout_height="match_parent"\n            
+            android:background="@android:color/darker_gray"\n            />\n    </LinearLayout>\n\n    <RelativeLayout\n        android:layout_width="0dp"\n        
+            android:layout_height="0dp"\n        android:layout_weight=".1"\n        android:gravity="left"\n        android:background="@drawable/background"\n        
+            >\n\n        <ImageView\n            android:layout_width="wrap_content"\n            android:layout_height="wrap_content"\n            
+            android:background="@android:color/transparent" />\n\n        <TextView\n            android:layout_width="wrap_content"\n            
+            android:layout_height="wrap_content"\n            android:text="Text Two"\n            android:textStyle="bold"\n            
+            android:background="@android:color/transparent"\n            android:padding="8dp"\n            android:textSize="22Sp" />\n\n    
+            </RelativeLayout>\n\n</LinearLayout>\n\n<LinearLayout\n    android:layout_width="match_parent"\n    android:layout_height="match_parent"\n    
+            android:orientation="horizontal"\n    android:layout_marginTop="100dp">\n\n    <LinearLayout\n        android:layout_width="0dp"\n        
+            android:layout_height="0dp"\n        android:layout_weight=".1"\n        >\n\n        <TextView\n            
+            android:layout_width="0dp"\n            android:layout_height="wrap_content"\n            android:text="Text Three"\n            
+            android:minHeight="?android:attr/actionBarSize"\n            android:layout_weight="0.1" />\n\n        <View\n            android:layout_width="5dp"\n            
+            android:layout_height="match_parent"\n            android:background="@android:color/darker_gray"\n            />\n    </LinearLayout>\n\n    <ImageView\n        
+            android:layout_width="40dp"\n        android:layout_height="match_parent"\n        android:background="@android:color/transparent"\n        
+            android:src="@drawable/ic_launcher"\n        android:layout_centerHorizontal="true"\n        android:layout_marginTop="100dp" />\n\n</LinearLayout>\n\n<LinearLayout\n
+                android:id="@+id/button_layout"\n    android:layout_width="fill_parent"\n    android:layout_height="wrap_content"\n    android:gravity="center_horizontal"\n    
+                android:minHeight="350dp">\n\n    <Button\n        android:background="@android:color/transparent"\n        android:layout_width="match_parent"\n        
+                android:layout_height="wrap_content"\n        android:text="Button"\n        android:textStyle="bold"\n        />\n\n</LinearLayout>\n\\end{code}\n\n
+                I want to change the layout_width/height of the child Views to be 300dp and set the parent LinearLayout to have 300dp width and height.  
+                The text is the problem.\n\nThe following code works, however, I don\'t think this is the most efficient way of achieving it:\n\n
+                \\begin{code}\n<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"\nxmlns:tools="http://schemas.android.com/tools"\n
+                android:layout_width="match_parent"\nandroid:layout_height="match_parent"\nandroid:orientation="vertical"\nandroid:paddingTop="80dp"\ntools:context=".MainActivity">\n\n
+                <LinearLayout\n    android:layout_width="match_parent"\n    android:layout_height="match_parent"\n    android:orientation="horizontal"\n    
+                android:layout_marginTop="100dp">\n\n    <LinearLayout\n        android:layout_width="0dp"\n        android:layout_height="0dp"\n        
+                android:layout_weight=".1"\n        android:gravity="center_horizontal">\n\n        <TextView\n            android:layout_width="match_parent"\n            
+                android:layout_height="match_parent"\n            android:minHeight="?android:attr/actionBarSize"\n            android:layout_weight="0.1" />\n\n
+                    </LinearLayout>\n\n    <ImageView\n        android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        
+                    android:background="@android:color/transparent"\n        android:src="@drawable/ic_launcher"\n        
+                    android:layout_marginTop="15dp" />\n\n</LinearLayout>\n\n<LinearLayout\n    android:id="@+id/button_layout"\n    android:layout_width="300dp"\n    
+                    android:layout_height="wrap_content"\n    android:gravity="center_horizontal"\n    android:minHeight="350dp">\n\n    <Button\n        
+                    android:background="@android:color/transparent"\n        android:layout_width="match_parent"\n        android:layout_height="wrap_content"\n        
+                    android:text="Button"\n        android:textStyle="bold"\n        />\n\n</LinearLayout>\n\\end{code}\n\nAny ideas on how to make it more efficient? 
+                    I tried using `layout_width` and `layout_height` for the text and image but this didn\'t work.\n\nAnswer: Try this.. It works for me.. Just give the textView width 
+                    and height as 300dp in LinearLayout...\n\n\\begin{code}\n<LinearLayout\n    android:orientation="horizontal"\n    android:layout_width="match_parent"\n    
+                    android:layout_height="match_parent"\n    android:layout_marginTop="100dp" >\n\n    <LinearLayout\n        android:orientation="vertical"\n        
+                    android:layout_width="0dp"\n        android:layout_height="0dp"\n        android:layout_weight=".1">\n\n        <TextView\n            
+                    android:layout_width="match_parent"\n            android:layout_height="match_parent"\n            android:minHeight="?android:attr/actionBarSize"\n            
+                    android:layout_weight="0.1"\n            android:layout_marginTop="100dp" />\n\n        <View\n            android:layout_width="5dp"\n            
+                    android:layout_height="match_parent"\n            android:background="@android:color/darker_gray" />\n    </LinearLayout>\n\n    <ImageView\n        
+                    android:layout_width="wrap_content"\n        android:layout_height="wrap_content"\n        android:background="@android:color/transparent"\n        
+                    android:src="@drawable/ic_launcher"\n        android:layout_marginTop="15dp"\n        android:layout_margin="@dimen/margin_8dp"\n        
+                    android:layout_gravity="center_horizontal" />\n\n    <LinearLayout\n        android:orientation="horizontal"\n        android:layout_width="match_parent"\n        
+                    android:layout_marginTop="@dimen/margin_8dp"\n        android:layout_marginBottom="@dimen/margin_8dp"\n        android:layout_marginLeft="@dimen/margin_8dp"\n        
+                    android:layout_marginRight="@dimen/margin_8dp"\n        android:minHeight="320dp"\n        android:gravity="center_horizontal" >\n\n        <Button\n            
+                    android:background="@android:color/transparent"\n            android:layout_width="240dp"\n            android:layout_height="match_parent"\n            
+                    android:padding="8dp"\n            android:text="Button"\n            android:textStyle="bold"\n            android:layout_margin="@dimen/margin_8dp"/>\n    
+                    </LinearLayout>\n\n</LinearLayout>\n\\end{code}\n\nComment: Thanks for your answer! The `android:layout_margin="@dimen/margin_8dp"`, however, doesn\'t work for me. 
+                    The layout is not aligned properly.\n\nComment: You can also give weight to LinearLayout.. But i don\'t know the best practices of android...

@@ -1,0 +1,123 @@
+Pytorch Version: 1.13.1+cu117
+***THIS IS AN EXAMPLE PROMPT AND EXPECTED RESPONSE***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Previously, we reported that a primary heparin or heparan sulfate binding site resides in a distinct sequence in immunoglobulin (Ig)-like module II of the three modules of FGFR."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+sulfate
+immunoglobulin (Ig)-like module II
+FGFR
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+1. ('sulfate', 'immunoglobulin (Ig)-like module II', 'RELATED')
+
+2. ('sulfate', 'FGFR', 'RELATED')
+
+3. ('immunoglobulin (Ig)-like module II', 'FGFR', 'NOT_RELATED').
+
+***NOW, IT IS YOUR TURN***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+
+# The Basics of Relation Extraction
+
+Relation extraction is a task in natural language processing (NLP) that involves identifying and extracting relationships between entities mentioned in text. These relationships can be of various types, such as:
+
+* Organizational relationships (e.g. CEO of a company)
+* Temporal relationships (e.g. born in 1990)
+* Spatial relationships (e.g. located in New York)
+* Causal relationships (e.g. caused by)
+
+The goal of relation extraction is to automatically identify and extract these relationships from text, allowing for more effective analysis and understanding of the content.
+
+### Approaches to Relation Extraction
+
+There are several approaches to relation extraction, including:
+
+1. Rule-based methods: These methods rely on hand-crafted rules to identify and extract relationships from text. These rules are based on the syntax and semantics of the language, as well as the specific domain of interest.
+2. Machine learning methods: These methods use machine learning algorithms to learn patterns and relationships from labeled training data. These algorithms can then be used to predict the presence of relationships in new, unseen text.
+3. Hybrid methods: These methods combine rule-based and machine learning approaches to relation extraction. These methods use rules to identify potential relationships, and then use machine learning algorithms to classify them as accurate or not.
+
+### Features for Relation Extraction
+
+Features are the characteristics or properties of entities and relationships that are used to train machine learning models for relation extraction. These features can be categorized into three types:
+
+1. Entity features: These features describe the entities mentioned in the text, such as their names, types, and positions.
+2. Relation features: These features describe the relationships between entities, such as their direction, type, and strength.
+3. Contextual features: These features describe the context in which the entities and relationships appear, such as the sentence or paragraph they are in, and the named entities and relationships that surround them.
+
+### Machine Learning for Relation Extraction
+
+Machine learning is a key component of relation extraction systems. There are several machine learning algorithms that can be used for relation extraction, including:
+
+1. Support vector machines (SVMs): These algorithms use a kernel function to map the features into a higher-dimensional space, where separation is easier.
+2. Conditional random fields (CRFs): These algorithms model the joint probability of the relationships and entities, and use a linear classification layer to predict the presence of relationships.
+3. Neural networks: These algorithms use deep neural networks to learn complex patterns and relationships in the text.
+
+### Evaluation of Relation Extraction Systems
+
+Evaluation is an essential step in the development of relation extraction systems. There are several evaluation metrics that can be used to measure the performance of these systems, including:
+
+1. Precision: The number of true positive relations divided by the total number of predicted relations.
+2. Recall: The number of true positive relations divided by the total number of ground truth relations.
+3. F1-score: The harmonic mean of precision and recall.
+
+### Applications of Relation Extraction
+
+Relation extraction has many applications in areas such as:
+
+1. Information retrieval: Relation extraction can be used to improve the ranking of relevant documents in search results.
+2. Question answering: Relation extraction can be used to answer questions that require information from multiple sentences or documents.
+3. Text summarization: Relation extraction can be used to identify the most important relationships in a document and summarize them concisely.
+4. Sentiment analysis: Relation extraction can be used to identify the relationships between entities and their sentiment.
+
+In conclusion, relation extraction is a powerful tool for extracting meaningful relationships from text data. With the help of machine learning and NLP techniques, relation extraction systems can improve the accuracy and efficiency of various applications in industries such as information retrieval, question answering, text summarization, and sentiment analysis.

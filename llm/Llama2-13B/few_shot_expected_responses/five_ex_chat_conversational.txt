@@ -1,0 +1,151 @@
+Pytorch Version: 1.13.1+cu117
+***THIS IS AN EXAMPLE PROMPT AND EXPECTED RESPONSE***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Previously, we reported that a primary heparin or heparan sulfate binding site resides in a distinct sequence in immunoglobulin (Ig)-like module II of the three modules of FGFR."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+sulfate
+immunoglobulin (Ig)-like module II
+FGFR
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+('DF', 'sigma-1 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+('DF', 'sigma-2 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+('DM', 'sigma-1 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('(+)-3-methoxy-N-methylmorphinan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('DM', 'N-methyl-d-aspartate', 'NOT_RELATED', 'The mechanisms of these CNS effects of DM have been suggested to be associated with the low-affinity, noncompetitive, N-methyl-d-aspartate (NMDA) antagonism of DM and/or the high-affinity DM/sigma receptors.')
+('DM', 'NMDA', 'NOT_RELATED', 'The mechanisms of these CNS effects of DM have been suggested to be associated with the low-affinity, noncompetitive, N-methyl-d-aspartate (NMDA) antagonism of DM and/or the high-affinity DM/sigma receptors.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+1. ('sulfate', 'immunoglobulin (Ig)-like module II', 'RELATED')
+
+2. ('sulfate', 'FGFR', 'RELATED')
+
+3. ('immunoglobulin (Ig)-like module II', 'FGFR', 'NOT_RELATED').
+
+***NOW, IT IS YOUR TURN***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+('DF', 'sigma-1 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+('DF', 'sigma-2 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+('DM', 'sigma-1 receptors', 'RELATED', 'We found that DF, DM, and DR were relative high-affinity ligands at sigma-1 receptors (Ki=151, 205, 144 nM, respectively) while all of them were with low affinity at sigma-2 receptors (Ki=4-11 microM).')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('(+)-3-methoxy-N-methylmorphinan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('DM', 'N-methyl-d-aspartate', 'NOT_RELATED', 'The mechanisms of these CNS effects of DM have been suggested to be associated with the low-affinity, noncompetitive, N-methyl-d-aspartate (NMDA) antagonism of DM and/or the high-affinity DM/sigma receptors.')
+('DM', 'NMDA', 'NOT_RELATED', 'The mechanisms of these CNS effects of DM have been suggested to be associated with the low-affinity, noncompetitive, N-methyl-d-aspartate (NMDA) antagonism of DM and/or the high-affinity DM/sigma receptors.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+
+#region Namespace
+
+namespace Extensions {
+
+#endregion Namespace
+
+#region Using Statements
+
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+
+#endregion Using Statements
+
+#region Extension Methods
+
+public static class Extensions {
+
+#endregion Extension Methods
+
+#region Methods
+
+    // Methods
+
+    public static bool In<T>(this T item, params T[] items)
+    {
+        return items.Any(x => x.Equals(item));
+    }
+
+    public static bool In<T>(this T item, Expression<Func<T, bool>> predicate)
+    {
+        return predicate.Compile().Invoke(item);
+    }
+
+    public static bool In<T>(this T item, params T[] items, Expression<Func<T, bool>> predicate)
+    {
+        return items.Any(x => predicate.Compile().Invoke(x));
+    }
+
+#endregion Methods
+
+}
+
+#endregion Namespace
+```
+
+This code defines extension methods for the `In` method that can be used with any type, including anonymous types, to determine if an item is present in a list of items. The methods take two forms:
+
+1. `In(this T item, params T[] items)`: This method takes a single item and a list of items as parameters, and returns `true` if the single item is present in the list of items.
+2. `In(this T item, Expression<Func<T, bool>> predicate)`: This method takes a single item and a predicate expression as parameters, and returns `true` if the single item satisfies the predicate expression.
+3. `In(this T item, params T[] items, Expression<Func<T, bool>> predicate)`: This method takes a single item, a list of items, and a predicate expression as parameters, and returns `true` if the single item is present in the list of items and satisfies the predicate expression.
+
+The extension methods use linq to determine if the item is present in the list of items, and return `true` if it is present, `false` otherwise.
+
+You can use these extension methods like this:
+```
+string item = "apple";
+string[] items = { "apple", "banana", "orange" };
+
+bool isIn = items.In(item); // returns true
+
+bool isInWithPredicate = items.In(item, x => x.StartsWith("a")); // returns true
+
+bool isInWithPredicate2 = items.In(item, "banana", x => x.StartsWith("a")); // returns false
+```

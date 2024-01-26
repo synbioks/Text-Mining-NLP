@@ -1,0 +1,34 @@
+Pytorch Version: 1.13.1+cu117
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:
+
+[{'end': 21, 'id': 'T50', 'start': 11, 'text': 'dimemorfan', 'type': 'CHEMICAL'}, {'end': 41, 'id': 'T56', 'start': 25, 'text': 'sigma-1 receptor', 'type': 'GENE-Y'}, {'end': 126, 'id': 'T49', 'start': 110, 'text': 'dextromethorphan', 'type': 'CHEMICAL'}, {'end': 142, 'id': 'T51', 'start': 131, 'text': 'dextrorphan', 'type': 'CHEMICAL'}]
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the form, (entity_1, entity_2, CPR_class, sentence in which they are found):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+Tags: java, android
+
+Question: Why is the Android Studio emulator running too fast?
+
+The problem that I'm having is that the Android Studio emulator keeps starting the program at a very fast rate, I've tried to use `startApp()` as well as `runOnUiThread()` but the program keeps starting up too quickly.
+
+Comment: What is the purpose of the emulator?  Are you trying to run a test app that simulates a user?  Or are you trying to run an app that has been installed on your Android device?
+
+Comment: What are you trying to achieve?  What are you trying to do?  How do you expect it to happen?
+
+Answer: You should use `startActivity` instead of `startApp`.
+`startActivity` will start the application and not the whole application like startApp does.

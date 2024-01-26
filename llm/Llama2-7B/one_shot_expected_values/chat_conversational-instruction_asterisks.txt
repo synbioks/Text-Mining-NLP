@@ -1,0 +1,13 @@
+1. ('ATP', 'MgADP', 'RELATED')
+
+2. ('MgADP','sulfonylurea receptor', 'RELATED')
+
+3. ('glibenclamide','sulfonylurea receptor', 'RELATED')
+
+4. ('sulfonylurea', 'glibenclamide', 'RELATED')
+
+5. ('sulfonylurea', 'MgADP', 'NOT_RELATED')
+
+6. ('MgADP', 'glibenclamide', 'NOT_RELATED')
+
+7. ('glibenclamide', 'ATP', 'NOT_RELATED')

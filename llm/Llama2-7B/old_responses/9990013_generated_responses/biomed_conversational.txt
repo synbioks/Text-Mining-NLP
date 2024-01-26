@@ -1,0 +1,39 @@
+Pytorch Version: 1.13.1+cu117
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+nucleotide
+NBFs
+SUR1
+glibenclamide
+ATP
+MgADP
+MgADP
+NBF2
+ATP
+NBF1
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+['']

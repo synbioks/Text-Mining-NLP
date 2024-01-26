@@ -1,0 +1,51 @@
+Pytorch Version: 1.13.1+cu117
+***THIS IS AN EXAMPLE PROMPT AND EXPECTED RESPONSE***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Previously, we reported that a primary heparin or heparan sulfate binding site resides in a distinct sequence in immunoglobulin (Ig)-like module II of the three modules of FGFR."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+sulfate
+immunoglobulin (Ig)-like module II
+FGFR
+
+Use these chemicals/genes to form your relations and their categories.
+
+### Response:
+Sure, here you go:
+
+1. ('sulfate', 'immunoglobulin (Ig)-like module II', 'RELATED')
+
+2. ('sulfate', 'FGFR', 'RELATED')
+
+3. ('immunoglobulin (Ig)-like module II', 'FGFR', 'NOT_RELATED').
+
+***NOW, IT IS YOUR TURN***:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+### Response:
+Sure, here you go:
+
+
+

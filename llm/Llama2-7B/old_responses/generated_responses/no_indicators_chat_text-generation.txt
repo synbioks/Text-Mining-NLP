@@ -1,0 +1,122 @@
+I also provide the corpus of biomedical text that I would like you to use for the task -- each sentence in this corpus is an abstract from a biomedical journal article -- and a sample of the output of a previous version of the tool that I created. I have removed all the relations from the sample output and replaced it with the 'NOT_RELATED' class.
+
+The input format is a CSV file, as follows:
+
+'line numbers: 1-50; column 1: sentence, column 2: relation (RELATED or NOT_RELATED)'.
+
+For example, the following CSV file is correct input:
+
+"line numbers: 1-50; column 1, sentence; column 2, relation (RELATED or NOT_RELATED)";
+
+1;Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.
+1;RELATED
+2;This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.
+2;RELATED
+3;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.
+3;NOT_RELATED
+4;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+4;NOT_RELATED
+5;The present study investigated the effect of DF on the binding of [3H]-PD158780 to the NMDA-linked PCP site in the rat brain.
+5;NOT_RELATED
+
+The following file is not correct. The first sentence has a RELATED relation, but the line number 5 should have a NOT_RELATED relation.
+
+"line numbers: 1-50; column 1, sentence; column 2, relation (RELATED or NOT_RELATED)"
+
+1;Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.
+1;RELATED
+2;This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.
+2;RELATED
+3;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+3;RELATED
+4;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.
+4;RELATED
+5;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+5;NOT_RELATED
+
+
+Your submission will not be judged on the number of relations that it is able to identify, but on its accuracy, or precision. That is, if a sentence has a particular category assigned to it, your program must be able to identify that category with a certain percentage of accuracy. The accuracy will be assessed on a sentence-by-sentence basis. To make this assessment, I am using 'F-1' score, which is a measure of precision and recall (or accuracy) on a sentence by sentence basis.
+
+The F-1 score is defined as:
+
+\textit{F1} = (\textit{2 * precision * recall})/((\textit{2 * precision} + \textit{2 * recall}) - \textit{1})
+
+where precision = TP / (TP + FP) and recall = TP/(TP + FN).
+
+TP: The true positives, i.e., the correctly identified relations.
+
+FP: The false positives, i.e., the incorrect relations.
+
+FN: The false negatives, or the incorrectly ignored relations.
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:
+
+[{'end': 21, 'id': 'T50','start': 11, 'text': 'dimemorfan', 'type': 'CHEMICAL'}, {'end': 41, 'id': 'T56','start': 25, 'text':'sigma-1 receptor', 'type': 'GENE-Y'}, {'end': 126, 'id': 'T49','start': 110, 'text': 'dextromethorphan', 'type': 'CHEMICAL'}, {'end': 142, 'id': 'T51','start': 131, 'text': 'dextrorphan', 'type': 'CHEMICAL'}]
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the form, (entity_1, entity_2, CPR_class, sentence in which they are found):
+
+RELATED:
+('dimemorfan','sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF','sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Your score will be calculated as follows:
+
+F_1 = (TP_RELATED * TP_NOTREL / (TP_RELATED + FP_RELATED + FN_RELATED));
+
+F_1 = (TP_NOTRELATED * TP_NOTREL / (TP_NOTRELATED + FP_NOTRELATED + FN_NOTRELATED));
+
+F_1 = TP/(TP + FP + FN)
+
+where TP_RELATED = TP_NOTRELATED = TP_NOTRELATED;
+
+FP_RELATED + FN_RELATED;
+
+FP_NOTRELATED + FN_NOTRELATED;
+
+TP: The true positives, i.e., the correctly identified relations.
+
+FP: The false positives, i.e., the incorrect relations.
+
+FN: The false negatives, or the incorrectly ignored relations.
+
+The F-1 score is calculated for every sentence in the corpus, and the best accuracy is chosen as my score. The corpus of biomedical text that I would like you to use for the task is available here.
+
+The output file should be the same as the input, except that the relations are categorized as either RELATED or NOT_RELATED for each entity in the sentence. The format of the output CSV file is the same as the input. The output file name should be the same as the input file name, except the extension must be '.correct' or '.incorrect' depending on whether the output file contains only relations in which the class category is correct (RELATED or NOT_RELATED) or incorrect (NOT_RELATED or RELATED).
+
+In the example above, the correct output file would be:
+
+"line numbers: 1-50; column 1, sentence; column 2, relation (RELATED or NOT_RELATED)"
+
+1;Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.
+1;RELATED
+2;This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.
+2;RELATED
+3;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+3;RELATED
+4;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.
+4;RELATED
+5;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+5;NOT_RELATED
+
+In the example above, the incorrect output file would be:
+
+"line numbers: 1-50; column 1, sentence; column 2, relation (RELATED or NOT_RELATED)"
+
+1;Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.
+1;NOT_RELATED
+2;This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.
+2;NOT_RELATED
+3;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.
+3;NOT_RELATED
+4;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+4;NOT_RELATED
+5;Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to be ineffective in treating neuropathic pain.
+5;RELATED
+
+In both of the above examples, you can see that I used the same entities (chemical names and genes) in the sentences, but I used different relations. In the first example, the chemical names were used in the same relations (RELATED and NOT_RELATED), but the class categories are incorrect. In the second example, I used the same chemicals and genes in the sentences, but used the correct relations (RELATED and NOT_RELATED).
+
+The output of your program must be in either.correct or.incorrect format and should have the same number of sentences as the original corpus (100 sentences, in this case).

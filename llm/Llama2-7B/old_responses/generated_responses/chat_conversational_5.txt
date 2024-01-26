@@ -1,0 +1,70 @@
+Pytorch Version: 1.13.1+cu117
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+dimemorfan
+sigma-1 receptor
+dextromethorphan
+dextrorphan
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+import numpy as np
+import pandas as pd
+
+class Relation extractor:
+    def __init__(self, corpus):
+        self.corpus = corpus
+
+    def extract_relations(self):
+        relations = []
+        for text in self.corpus:
+            entities = self.entity_ recognition(text)
+            relations.append(self.create_relation(entities))
+        return relations
+
+    def entity_recognition(self, text):
+        # Use a pre-trained NLP model to extract entities from the text.
+        nlp = spaCy.load("en_core_web_sm")
+        doc = nlp(text)
+        entities = [ entity.text for entity in doc.ents ]
+        return entities
+
+    def create_relation(self, entities):
+        # Create a relation between two entities based on some criteria.
+        # For example, if the entities are "Albert Einstein" and "Theory of Relativity",
+        # you might create a relation of "Albert Einstein is known for his work on the Theory of Relativity".
+        relation = None
+        for entity in entities:
+            if relation is None:
+                relation = entity
+            else:
+                relation = "%s is known for %s" % (relation, entity)
+        return relation
+
+    def save_relations(self, relations):
+        # Save the relations to a pandas dataframe for further analysis.
+        relations_df = pd.DataFrame.from_records(relations)
+        relations_df.to_csv("relations.csv", index=False)
+
+    def load_relations(self, relations_file):
+        # Load the relations from a pandas dataframe for further analysis.
+        relations_df = pd.read_csv(relations_file)
+        return relations_df

@@ -1,0 +1,42 @@
+Pytorch Version: 1.13.1+cu117
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+dimemorfan
+sigma-1 receptor
+dextromethorphan
+dextrorphan
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+The first step in the process of extraction is to create a dataset that contains all the necessary information for the extraction task. This dataset is called a train dataset, and it should contain a balanced collection of examples that represent both the positive and negative examples for the task at hand. For example, if the task is to extract named entities from a piece of text, the train dataset should contain a mix of sentences that contain named entities and sentences that do not contain named entities.
+
+Once the train dataset is created, the next step is to use machine learning algorithms to train a model that can perform the extraction task. The training process involves feeding the train dataset to the model, and adjusting the model's parameters to minimize the error between the predicted output and the actual output.
+
+After the model is trained, it can be used to extract information from new, unseen data. This is done by feeding the new data to the model, and generating the predicted output based on the trained model. The predicted output can then be compared to the actual output to evaluate the accuracy of the model.
+
+Here is an example of how the process of extraction can be applied to the task of named entity recognition:
+
+1. Create a train dataset that contains a balanced collection of sentences, some of which contain named entities and others that do not.
+2. Use a machine learning algorithm, such as a supervised learning algorithm, to train a model that can recognize named entities in text.
+3. Train the model on the train dataset by feeding it the sentences and adjusting the model's parameters to minimize the error between the predicted output and the actual output.
+4. Use the trained model to extract named entities from new, unseen data.
+5. Evaluate the accuracy of the model by comparing the predicted output to the actual output.
+
+The process of extraction can be applied to various other tasks, such as sentiment analysis, topic modeling, and text summarization, among others. The specific steps involved in the process of extraction may vary depending on the task and the type of data being analyzed.

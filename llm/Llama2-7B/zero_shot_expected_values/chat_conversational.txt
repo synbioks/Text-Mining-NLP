@@ -1,0 +1,3 @@
+sulfonylurea receptor - glibenclamide - RELATED
+
+ATP - MgADP - NOT_RELATED

@@ -2,8 +2,7 @@ import json
 import random
 
 NUM_EXAMPLES = 2
-PURE_ONE_SHOT = False #True
-ZERO_SHOT = False
+PURE_ONE_SHOT = False
 
 f = open('../data/merged.json')
 corpus = json.load(f)
@@ -29,7 +28,11 @@ if(NUM_EXAMPLES == 1 and PURE_ONE_SHOT):
         random_abstract = random.choice(list(corpus.keys()))
         for sentence in corpus[random_abstract]['abstract']:
             if(len(sentence['relations']) >= 1):
-                random_example = (sentence['relations'][0]['ent_id1'], sentence['relations'][0]['ent_id2'], sentence['relations'][0]['rel_type'], sentence['text'])
+                entity_id_one = sentence['relations'][0]['ent_id1']
+                entity_id_two = sentence['relations'][0]['ent_id2']
+                entity_name_one = [entity_dict['text'] for entity_dict in sentence['entities'] if entity_dict['id'] == entity_id_one][0]
+                entity_name_two = [entity_dict['text'] for entity_dict in sentence['entities'] if entity_dict['id'] == entity_id_two][0]
+                random_example = (entity_name_one, entity_name_two, sentence['relations'][0]['rel_type'], sentence['text'])
                 break
 
 
@@ -41,23 +44,40 @@ if(NUM_EXAMPLES >= 1 and not PURE_ONE_SHOT):
             if(len(sentence['relations']) >= 1):
                 for relation in sentence['relations']:
                     if(len(examples_dict[relation['rel_type']]) < NUM_EXAMPLES):
-                        examples_dict[relation['rel_type']].append((relation['ent_id1'], relation['ent_id2'], relation['rel_type'], sentence['text']))
+                        entity_id_one = relation['ent_id1']
+                        entity_id_two = relation['ent_id2']
+                        entity_name_one = [entity_dict['text'] for entity_dict in sentence['entities'] if entity_dict['id'] == entity_id_one][0]
+                        entity_name_two = [entity_dict['text'] for entity_dict in sentence['entities'] if entity_dict['id'] == entity_id_two][0]
+                        examples_dict[relation['rel_type']].append((entity_name_one, entity_name_two, relation['rel_type'], sentence['text']))
             else:
                 if(len(sentence['entities']) > 1):
                     if(len(examples_dict['NOT']) < NUM_EXAMPLES):
-                        entity_pairs = [(entity_one['id'], entity_two['id']) for idx, entity_one in enumerate(sentence['entities']) for entity_two in sentence['entities'][idx + 1:]]
+                        #entity_pairs = [(entity_one['id'], entity_two['id']) for idx, entity_one in enumerate(sentence['entities']) for entity_two in sentence['entities'][idx + 1:]]
+                        entity_pairs = [(entity_one['text'], entity_two['text']) for idx, entity_one in enumerate(sentence['entities']) for entity_two in sentence['entities'][idx + 1:]]
                         pairs_index = 0
                         while(len(examples_dict['NOT']) < NUM_EXAMPLES and pairs_index < len(entity_pairs)):
                             examples_dict['NOT'].append((entity_pairs[pairs_index][0], entity_pairs[pairs_index][1], 'NOT', sentence['text']))
                             pairs_index += 1
 
 #print(random_example)
-print(examples_dict)
+#print(examples_dict)
 
+example_sentence = corpus['10064839']['abstract'][0]
 
-raw_prompt = "Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:\n\n\"{}\"\n\nI need to categorize each pairwise chemical name (pair of entities) in the sentence as having one of the following relational classes (ChemProt Relations):\n\nCPR-1: 'PART_OF'\nCPR-2: 'REGULATOR|DIRECT_REGULATOR|INDIRECT_REGULATOR'\nCPR-3: 'UPREGULATOR|ACTIVATOR|INDIRECT_UPREGULATOR'\nCPR-4: 'DOWNREGULATOR|INHIBITOR|INDIRECT_DOWNREGULATOR'\nCPR-5: 'AGONIST|AGONIST-ACTIVATOR|AGONIST_INHIBITOR'\nCPR-6: 'ANTAGONIST'\nCPR-7: 'MODULATOR|MODULATOR_ACTIVATOR|MODULATOR_INHIBITOR'\nCPR-8: 'COFACTOR'\nCPR-9: 'SUBSTRATE|PRODUCT_OF|SUBSTRATE_PRODUCT_OF'\nCPR-10: 'NOT'\n\nCan you list each pair of entities that you find in the sentence and their relational class in the format (entity_1, entity_2, CPR_class), along with an explanation as to why that particular class was chosen?\n\nTo help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:\n\n{}\n\nFor example, {} would be a non-exhaustive list from the entire corpus of abstracts of some example relationships for each class."
+raw_prompt = "Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:\n\n\"{}\"\n\nI need to categorize each pairwise chemical name (pair of entities) in the sentence as having one of the following relational classes (ChemProt Relations):\n\nCPR-1: 'PART_OF'\nCPR-2: 'REGULATOR|DIRECT_REGULATOR|INDIRECT_REGULATOR'\nCPR-3: 'UPREGULATOR|ACTIVATOR|INDIRECT_UPREGULATOR'\nCPR-4: 'DOWNREGULATOR|INHIBITOR|INDIRECT_DOWNREGULATOR'\nCPR-5: 'AGONIST|AGONIST-ACTIVATOR|AGONIST_INHIBITOR'\nCPR-6: 'ANTAGONIST'\nCPR-7: 'MODULATOR|MODULATOR_ACTIVATOR|MODULATOR_INHIBITOR'\nCPR-8: 'COFACTOR'\nCPR-9: 'SUBSTRATE|PRODUCT_OF|SUBSTRATE_PRODUCT_OF'\nCPR-10: 'NOT'\n\nCan you list each pair of entities that you find in the sentence and their relational class in the format (entity_1, entity_2, CPR_class), along with an explanation as to why that particular class was chosen?\n\nTo help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:\n\n{}\n\nFurthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the form, (entity_1, entity_2, CPR_class, sentence in which they are found): {}\n\nPlease use these examples as calibration to help you with this task."
 
-if(ZERO_SHOT):
+examples_string = ''
+for key, val in examples_dict.items():
+    examples_string += key + ':\n'
+    for example in val:
+        examples_string += str(example) + '\n'
+
+prompt = raw_prompt.format(example_sentence['text'], example_sentence['entities'], examples_string)
+
+print(prompt)
+
+#zero-shot
+if(NUM_EXAMPLES == 0):
     raw_prompt = "Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:\n\n\"{}\"\n\nI need to categorize each pairwise chemical name (pair of entities) in the sentence as having one of the following relational classes (ChemProt Relations):\n\nCPR-1: 'PART_OF'\nCPR-2: 'REGULATOR|DIRECT_REGULATOR|INDIRECT_REGULATOR'\nCPR-3: 'UPREGULATOR|ACTIVATOR|INDIRECT_UPREGULATOR'\nCPR-4: 'DOWNREGULATOR|INHIBITOR|INDIRECT_DOWNREGULATOR'\nCPR-5: 'AGONIST|AGONIST-ACTIVATOR|AGONIST_INHIBITOR'\nCPR-6: 'ANTAGONIST'\nCPR-7: 'MODULATOR|MODULATOR_ACTIVATOR|MODULATOR_INHIBITOR'\nCPR-8: 'COFACTOR'\nCPR-9: 'SUBSTRATE|PRODUCT_OF|SUBSTRATE_PRODUCT_OF'\nCPR-10: 'NOT'\n\nCan you list each pair of entities that you find in the sentence and their relational class in the format (entity_1, entity_2, CPR_class), along with an explanation as to why that particular class was chosen?\n\nTo help you with this task, the following is a list of identified chemicals/genes from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:\n\n{}"
 
 #abstract = corpus['10064839']['abstract']

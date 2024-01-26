@@ -1,0 +1,165 @@
+Pytorch Version: 1.13.1+cu117
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan."
+
+I need to categorize each pairwise chemical name (pair of entities) in the sentence as having one of the following relational classes (ChemProt Relations):
+
+CPR-1: 'PART_OF'
+CPR-2: 'REGULATOR|DIRECT_REGULATOR|INDIRECT_REGULATOR'
+CPR-3: 'UPREGULATOR|ACTIVATOR|INDIRECT_UPREGULATOR'
+CPR-4: 'DOWNREGULATOR|INHIBITOR|INDIRECT_DOWNREGULATOR'
+CPR-5: 'AGONIST|AGONIST-ACTIVATOR|AGONIST_INHIBITOR'
+CPR-6: 'ANTAGONIST'
+CPR-7: 'MODULATOR|MODULATOR_ACTIVATOR|MODULATOR_INHIBITOR'
+CPR-8: 'COFACTOR'
+CPR-9: 'SUBSTRATE|PRODUCT_OF|SUBSTRATE_PRODUCT_OF'
+CPR-10: 'NOT'
+
+Can you list each pair of entities that you find in the sentence and their relational class in the format (entity_1, entity_2, CPR_class)?
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:
+
+[{'end': 21, 'id': 'T50', 'start': 11, 'text': 'dimemorfan', 'type': 'CHEMICAL'}, {'end': 41, 'id': 'T56', 'start': 25, 'text': 'sigma-1 receptor', 'type': 'GENE-Y'}, {'end': 126, 'id': 'T49', 'start': 110, 'text': 'dextromethorphan', 'type': 'CHEMICAL'}, {'end': 142, 'id': 'T51', 'start': 131, 'text': 'dextrorphan', 'type': 'CHEMICAL'}]
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the form, (entity_1, entity_2, CPR_class, sentence in which they are found):
+
+CPR-1:
+('amino acids', 'factor XI apple 3 domain', 'CPR-1', 'Identification of amino acids in the factor XI apple 3 domain required for activation of factor IX.')
+('amino acids', 'factor IX', 'CPR-1', 'Identification of amino acids in the factor XI apple 3 domain required for activation of factor IX.')
+CPR-2:
+('dimemorfan', 'sigma-1 receptor', 'CPR-2', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'CPR-2', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+CPR-3:
+('capsaicin', 'c-fos', 'CPR-3', 'c-fos expression was induced in urethane-anaesthetized rats by intracisternal capsaicin administration.')
+('capsaicin', 'c-fos', 'CPR-3', 'Sumatriptan and LY 344864 decreased the number of capsaicin-induced c-fos-like immunoreactive cells within trigeminal nucleus caudalis (ID50 = 0.04 and 0.6 mg kg(-1)).')
+CPR-4:
+('valsartan', 'Ang II', 'CPR-4', 'At 4 hours, losartan blocked 43% of the Ang II-induced systolic blood pressure increase; valsartan, 51%; and irbesartan, 88% (P<0.01 between drugs).')
+('irbesartan', 'Ang II', 'CPR-4', 'At 4 hours, losartan blocked 43% of the Ang II-induced systolic blood pressure increase; valsartan, 51%; and irbesartan, 88% (P<0.01 between drugs).')
+CPR-5:
+('LY 344864', '5-HT1F', 'CPR-5', 'To establish the relative importance of these subtypes, we compared the effects of sumatriptan with those of a selective 5-HT1F receptor agonist (LY 344864) on c-fos protein expression in the trigeminal nucleus caudalis.')
+('terbutaline', 'beta 2-adrenoceptor', 'CPR-5', 'In humans, prolonged administration of the beta 2-adrenoceptor agonist terbutaline leads to a desensitization of beta 2-adrenoceptor-mediated cardiovascular responses, which can be blunted by concomitant administration of the antianaphylactic drug ketotifen.')
+CPR-6:
+('SDZ 21-009', 'rat 5-HT1B', 'CPR-6', 'The effect of sumatriptan, but not of LY 344864, was prevented by pretreatment with the antagonist SDZ 21-009, which displays high affinity for rat 5-HT1B receptors.')
+('betaxolol', 'beta 1-AR', 'CPR-6', 'In distinction, the preferential beta 1-AR antagonist, betaxolol, and the preferential beta 2-AR antagonist, ICI118,551, did not increase basal levels of DA, NAD, or 5-HT.')
+CPR-7:
+('AZ12216052', 'mGluR8', 'CPR-7', 'To investigate the role of mGluR8 in modulating the synaptic responses of retinal ganglion cells, we used a recently identified positive allosteric modulator of mGluR8, AZ12216052 (AZ) and the mGluR8-specific orthosteric agonist (S)-3,4-dicarboxyphenylglycine (DCPG).')
+('ML326', 'M5', 'CPR-7', 'Discovery of ML326: The first sub-micromolar, selective M5 PAM.')
+CPR-8:
+('pyridoxal phosphate', 'MalP', 'CPR-8', "The 2.0A crystal structure of the MalP/Glc1P binary complex shows that the Glc1P substrate adopts a conformation seen previously with both inactive and active forms of mammalian GP, with the phosphate group not in close contact with the 5'-phosphate group of the essential pyridoxal phosphate (PLP) cofactor.")
+('PLP', 'MalP', 'CPR-8', "The 2.0A crystal structure of the MalP/Glc1P binary complex shows that the Glc1P substrate adopts a conformation seen previously with both inactive and active forms of mammalian GP, with the phosphate group not in close contact with the 5'-phosphate group of the essential pyridoxal phosphate (PLP) cofactor.")
+CPR-9:
+('prostaglandin E2', 'COX-2', 'CPR-9', 'Before dosing and 24 h after the seventh dose of each regimen, heparinized whole blood samples were incubated with lipopolysaccharide (10 microgram/ml) for 24 h at 37 degrees C, and prostaglandin E2 was measured in plasma as an index of monocyte COX-2 activity.')
+('thromboxane B2', 'COX-1', 'CPR-9', 'The production of thromboxane B2 in whole blood allowed to clot at 37 degrees C for 60 min was assessed as an index of platelet COX-1 activity.')
+NOT:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Input Format
+
+The input for the task is a set of sentences from the corpus of biological abstracts. Each sentence is separated by the '||' character. The corpus of abstracts is available as a tab-delimited text file at this link.
+
+### Output Format
+
+For each pairwise chemical name (pair of entities) in the sentence, print its pairwise relation class (as defined in the corpus of abstracts). The following format is used:
+
+<entity_1>|<entity_2>
+
+where entity_1 is the identifier for the subject and entity_2 is the identifier for the object.
+
+### Scope
+
+In your input, each pair of entities can only appear once (i.e. a pair cannot be repeated twice in your input).
+
+For instance:
+
+(entity_1, entity_2) = ('dimemorfan','sigma-1 receptor')
+(entity_1, entity_2) = ('amino acids', 'c-fos')
+(entity_1, entity_2) = ('dimemorfan', 'factor XI apple 3 domain')
+(entity_1, entity_2) = ('amino acids', 'factor IX')
+
+### Examples
+
+Input:
+
+|T50||T56
+||dimemorfan&&&&sigma-1 receptor
+
+Output:
+
+CPR-2 || dimemorfan || factor XI apple 3 domain
+
+Note that the '||' signifies the boundary of a sentence.
+
+Input:
+
+|T50||T56||dimemorfan
+
+Output:
+
+CPR-2 || dimemorfan
+
+Input:
+
+|T50||T56||dimemorfan
+||dimemorfan
+
+Output:
+
+CPR-2 || dimemorfan && dimemorfan
+
+Notice that we print all pairs that have been identified in the entire sentence. In this case, the subject and object can appear more than once in the sentence.
+
+Input:
+
+|T50||T56
+||dimemorfan&&&&sigma-1 receptor
+
+Output:
+
+CPR-2 || dimemorfan && sigma-1 receptor
+
+
+### Examples
+
+Input:
+
+|T55||T57
+||capsaicin&&and&&c-fos
+
+Output:
+
+CPR-3 || c-fos
+
+### Example 2
+
+Input:
+
+|T56||T57
+||dimemorfan&&and&&c-fos
+
+Output:
+
+CPR-2 || c-fos
+
+### Example 3
+
+Input:
+
+|T54||T60||T38||T57
+||dimemorfan&&and&&c-fos
+
+Output:
+
+CPR-2 || CPR-2 || c-fos
+
+## Explanation
+
+
+This solution is based on a naive Bayesian classifier. We first use the NLTk library in Python to parse the sentences in the abstract corpus to obtain the entities. We then use a Naive Bayes classifier to calculate the conditional probabilities, and then use these probabilities to calculate the relational classes and output the results.
+
+This approach has the advantage of simplicity, but is not as efficient as the other solutions in terms of time and space.
+

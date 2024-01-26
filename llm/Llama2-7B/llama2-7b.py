@@ -27,7 +27,7 @@ tokenizer = AutoTokenizer.from_pretrained(model)
 #model = AutoModelForCausalLM.from_pretrained("./Llama-2-7b-hf/")
 #
 prompt = 'Write a song for me.'
-prompt2 = 'What was my previous question?'
+prompt2 = 'What was my previous prompt?'
 #
 #input_ids = tokenizer(prompt, return_tensors="pt", device_map="auto").input_ids
 #outputs = model.generate(input_ids, max_new_tokens=200)

@@ -1,0 +1,119 @@
+Pytorch Version: 1.13.1+cu117
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+nucleotide
+NBFs
+SUR1
+glibenclamide
+ATP
+MgADP
+MgADP
+NBF2
+ATP
+NBF1
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+nucleotide
+NBFs
+SUR1
+glibenclamide
+ATP
+MgADP
+MgADP
+NBF2
+ATP
+NBF1
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+('glibenclamide','sur1', 'RELATED', 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1').
+('sur1', 'nbf', 'NOT_RELATED', 'SUR1 is an integral cell-membrane protein, a member of the SUR1 subfamily of the sulphonylurea receptor family of proteins. It is a member of the ATPgated potassium channel family. It is an integral membrane protein and is located predominantly in the mitochondrial membrane. Its N-terminal domain is cytoplasmic and it has an intramembrane domain with three nucleotide  binding folds (NBFs)').
+('sur1', 'nbf', 'NOT_RELATED', 'SUR1 is an integral cell-membrane protein, a member of the SUR1 subfamily of the sulphonylurea receptor family of proteins. It is a member of the ATP-gated potassium channel family. It is an integral membrane protein and is located predominantly in the mitochondrial membrane. Its N-terminal domain is cytoplasmic and it has an intramembrane domain with three nucleotide binding folds (NBFs')
+('MgADP', 'nucleotide', 'RELATED', 'Molecular cloning of the human SUR1 sulphonylurea receptor subunit reveals a large protein containing 12 predicted transmembrane domains, a single nucleotide binding fold, and an intramembrane domain which contains 12 predicted transmembrane helices (N-terminal to C-terminal).')
+('ATP', 'nucleotide', 'NOT_RELATED', 'Molecular cloning of the human SUR1 sulphonylurea receptor subunit reveals a large protein containing 12 predicted transmembrane domains, a single nucleotide binding fold, and an intramembrane domain which contains 12 predicted transmembrane helices (N-terminal to C-terminal).')
+### Instruction:
+Pretend to be a medical expert of the following specialty, i.e. the medical specialty that the paper is written about, and categorize the relations in the abstract into one of the three types:
+RELEVANT, RELATED, NOT_RELEVANT.
+To help you with this task, a short summary of the paper is given. In the format (abstract summary, medical specialty, classification).
+The abstract summary will be a sentence or two about the main content of the paper. 
+To help you with this task, an example sentence is given for each medical specialty:
+('The aim of this study is to determine the effect of the use of dextromethorphan on the plasma membrane of mice.') -TOXICOLOGY 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.' -NEUROLOGY/ PSYCHIATRY ('The aims of the present study were to determine the effects of chronic treatment with a novel antipsychotic drug quinpirole on the levels of dopamine (DA) and its metabolites in the striatum of the monkey and mice, and the effects of DA depletion on the antipsychotic-like effects of quinpirole.') -PSYCHIATRY 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1.') -ENDROCRINOLOGY
+### Response:
+RELEVANT:
+('The main aim of this study was to establish the effect of the use of dextromethorphan on the plasma membrane in mice.')
+RELATED:
+('The aim of this study is to determine the effect of the use of dextromethorphan on the plasma membrane of mice.') -TOXICOLOGY 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.' -NEUROLOGY/ PSYCHIATRY ('The aims of the present study were to determine the effects of chronic treatment with a novel antipsychotic drug quinpirole on the levels of dopamine (DA) and its metabolites in the striatum of the monkey and mice, and the effects of DA depletion on the antipsychotic-like effects of quinpirole.') -PSYCHIATRY 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1.') -ENDROCRINOLOGY
+### Instruction:
+You have now been assigned to review two abstracts. Each abstract is a sentence that contains some relations. You will be asked to classify each pairwise chemical name in the abstract as being 'RELATED' or 'NOT_RELATED' in the format (entity1, entity2, class)
+Please use the example relations provided earlier, i.e. (entity1, entity2, class, example_sentence) to help you with this task.
+To help you with this task, an example sentence is given for each medical specialty:
+('The aim of this study is to determine the effect of the use of dextromethorphan on the plasma membrane of mice.') -TOXICOLOGY 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.' -NEUROLOGY/ PSYCHIATRY ('The aims of the present study were to determine the effects of chronic treatment with a novel antipsychotic drug quinpirole on the levels of dopamine (DA) and its metabolites in the striatum of the monkey and mice, and the effects of DA depletion on the antipsychotic-like effects of quinpirole.') -PSYCHIATRY 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1.') -ENDROCRINOLOGY
+### Response:
+The abstract summary will be provided. In the format (abstract summary, medical specialty, classification).
+You have now been assigned to review two abstracts. Each abstract is a sentence that contains some relations. You will be asked to classify each pairwise chemical name in the abstract as being 'RELATED' or 'NOT_RELATED' in the format (entity1, entity2, class)
+Please use the example relations provided earlier, i.e. (entity1, entity2, class, example_sentence) to help you with this task.
+To help you with this task, an example sentence is given for each medical specialty:
+('The aim of this study is to determine the effect of the use of dextromethorphan on the plasma membrane of mice.') -TOXICOLOGY 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.') -NEUROLOGY/ PSYCHIATRY ('The aims of the present study were to determine the effects of chronic treatment with a novel antipsychotic drug quinpirole on the levels of dopamine (DA) and its metabolites in the striatum of the monkey and mice, and the effects of DA depletion on the antipsychotic-like effects of quinpirole.') -PSYCHIATRY 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1.') -ENDROCRINOLOGY
+This abstract is about an experimental study on the effect of a drug on a mice model. In the context of our research, this drug is a candidate biomarker for this disease, and thus we categorize this relation as 'RELATED'.  
+This abstract is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'.
+(glibenclamide, sur1, NOT_RELATED, 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')  This abstract is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'.  'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')
+This abstract is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'.  'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')
+This study involves a clinical study on a mouse model using the experimental drug. It is in this context that the biomarker is being used. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'.  'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')  This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'.
+(glibenclamide, sur1, RELATED, 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the effect of the drug. In this sense the relation between the biomarker and the drug is used to predict the effect of the drug on the patient. We thus categorize this relation as 'RELATED'. (glibenclamide, sur1, RELATED, 'This direct biochemical evidence of cooperative interaction in nucleotide binding of the two NBFs of SUR1 suggests that glibenclamide both blocks this cooperative binding of ATP and MgADP and, in cooperation with the MgADP bound at NBF2, causes ATP to be released from NBF1')
+This study is about a clinical study on a mouse model. In the context of our research, the biomarker is being measured for its effect on the model. In this sense, the relation between the biomarker and the model is used to predict the effect of the drug on the mouse. We thus categorize this relation as 'RELATED'. 
+This study is about a clinical trial. In the context of our research, the biomarker is being measured for its effect on the model. In this sense, the relation between the biomarker and the model is used to predict the drug on the mouse. We thus categorize this relation as 'RELATED'.
+This study is about a clinical trial. In the context of our research, the biomarker is being used to measure the drug. In this sense, the relation between the biomarker and the drug is used to predict the effect of the model. We thus categorize this relation as 'RELATED'.
+In this sense, the biomarker and the model. In this sense, RELATED'.
+(RELATED 

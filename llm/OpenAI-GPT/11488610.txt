@@ -1,0 +1,17 @@
+Cofactor and tryptophan accessibility and unfolding of brain glutamate decarboxylase.
+Cofactor and tryptophan accessibility of the 65-kDa form of rat brain glutamate decarboxylase (GAD) was investigated by fluorescence quenching measurements using acrylamide, I-, and Cs+ as the quenchers.
+Trp residues were partially exposed to solvent.
+I- was less able and Cs+ was more able to quench the fluorescence of Trp residues in the holoenzyme of GAD (holoGAD) than the apoenzyme (apoGAD).
+The fraction of exposed Trp residues were in the range of 30-49%.
+In contrast, pyridoxal-P bound to the active site of GAD was exposed to solvent.
+I- was more able and Cs+ was less able to quench the fluorescence of pyridoxal-P in holoGAD.
+The cofactor was present in a positively charged microenvironment, making it accessible for interactions with anions.
+A difference in the exposure of Trp residues and pyridoxal-P to these charged quenchers suggested that the exposed Trp residues were essentially located outside of the active site.
+Changes in the accessibility of Trp residues upon pyridoxal-P binding strongly supported a significant conformational change in GAD.
+Fluorescence intensity measurements were also carried out to investigate the unfolding of GAD using guanidine hydrochloride (GdnHCl) as the denaturant.
+At 0.8-1.5 M GdnHCl, an intermediate step was observed during the unfolding of GAD from the native to the denatured state, and was not found during the refolding of GAD from the denatured to native state, indicating that this intermediate step was not a reversible process.
+However, at >1.5 M GdnHCl for holoGAD and >2.0 M GdnHCl for apoGAD, the transition leading to the denatured state was reversible.
+It was suggested that the intermediate step involved the dissociation of native dimer of GAD into monomers and the change in the secondary structure of the protein.
+Circular dichroism revealed a decrease in the alpha-helix content of GAD from 36 to 28%.
+The unfolding pattern suggested that GAD may consist of at least two unfolding domains.
+Unfolding of the lower GdnHCl-resisting domain occurred at a similar concentration of denaturant for apoGAD and holoGAD, while unfolding of the higher GdnHCl-resisting domain occurred at a higher concentration of GdnHCl for apoGAD than holoGAD.

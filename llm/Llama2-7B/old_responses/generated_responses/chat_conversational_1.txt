@@ -1,0 +1,88 @@
+Pytorch Version: 1.13.1+cu117
+Tags: javascript, jquery, html, twitter-bootstrap, css
+
+Question: Bootstrap 3.1.1 Navbar Collapse not Working on iPhone 5s
+
+I am trying to get the Bootstrap 3.1.1 Navbar collapse button to work on my iPhone 5s, and I'm pretty sure I'm doing it right, but I'm not getting the correct behavior.
+
+I have a navbar with 2 rows, and a button in the last row which should collapse when you click the hamburger in the top left corner.
+
+The problem is that the hamburger icon is not clickable and doesn't even collapse the menu. If i click anywhere on the menu it will collapse.
+
+I also tried to put the menu on the top and the collapsible button on the left, but I got a white background on the menu.
+
+What am I missing?
+
+\begin{code}
+<html>
+<head>
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+<link href="css/bootstrap-responsive.css" rel="stylesheet" type="text/css" />
+</head>
+<script src="js/jquery-1.10.2.js" type="text/javascript"></script>
+<script src="js/bootstrap.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2"></button>
+        [
+        ](#)
+
+        <ul class="nav navbar-nav">
+            \item [Test1](#)
+            \item [Test2](#)
+            \item [Test3](#)
+
+\end{itemize}
+
+</body>
+</html>
+\end{code}
+
+Answer: Bootstrap uses \strong{flexbox} by default. On the iPhone, it is \strong{not} supported yet.
+
+See more here http://caniuse.com/#feat=flexbox
+
+You can use `position:fixed;top:0;left:0;` for the button on an iPhone
+
+Comment: @RiccardoCampagna if so, please accept the answer by clicking the checkmark
+
+Answer: You can use a media query like this:
+
+\begin{code}
+@media screen and (max-width: 768px) {
+ .btn-navbar {
+    float: none;
+    margin-left: 15px
+  }
+}
+\end{code}
+
+You can read more here:
+
+\begin{blockquote}
+
+http://www.w3schools.com/CSS/css_rwd_mediaqueries.asp
+\end{blockquote}
+
+Answer: Include this in your css file to solve problem.
+
+\begin{code}
+@media (max-width: 767px) {
+   .navbar-default.collapse {
+        display: none;
+    }
+}
+@media (min-width: 768px) {
+   .navbar-default.collapse {
+        display: block;
+    }
+}
+\end{code}
+
+Answer: I had the same issue. I've been reading the documentation and the answer to your problem could be the use of `position:fixed;`:
+
+[http://getbootstrap.com/css/#navbar-collapse](http://getbootstrap.com/css/#navbar-collapse)
+
+Answer: You can use Bootstrap [js/bootstrap.min.js](http://getbootstrap.com/components/#navbar-buttons-collapse-%3E-btn-collapse-%3E-icon-only) to collapse your button and also [bootstrap-collapse](https://github.com/twbs/bootstrap-collapse) to collapse your menu.

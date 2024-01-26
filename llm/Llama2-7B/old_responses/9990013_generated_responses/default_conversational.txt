@@ -1,0 +1,162 @@
+Pytorch Version: 1.13.1+cu117
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Xml.Serialization;
+using Microsoft.Win32;
+using Newtonsoft.Json;
+
+namespace ScreenshotCaptor
+{
+    /// <summary>
+    /// A class to read screenshot files.
+    /// </summary>
+    public class FileReader
+    {
+        /// <summary>
+        /// The directory where to find all screenshots.
+        /// </summary>
+        [XmlIgnore]
+        private string directoryToScan;
+
+        /// <summary>
+        /// The directory where screenshots should be written.
+        /// </summary>
+        [XmlElement("screenshotDirectory")]
+        private string screenshotDirectory;
+
+        /// <summary>
+        /// The file extension that indicates a screenshot.
+        /// </summary>
+        [XmlElement("extension")]
+        private string extension;
+
+        /// <summary>
+        /// Indicates whether the screenshots should be compressed.
+        /// </summary>
+        [XmlElement("compress")]
+        private bool compress;
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileReader"/> class.
+        /// </summary>
+        /// <param name="directoryToScan"></param>
+        public FileReader(string directoryToScan)
+        {
+            this.directoryToScan = directoryToScan;
+        }
+
+        /// <summary>
+        /// Gets the extension that indicates a screenshot.
+        /// </summary>
+        public string Extension
+        {
+            get
+            {
+                return this.extension?? ".jpg";
+            }
+        }
+
+        
+        /// <summary>
+        /// Scans through the specified directories for screenshot files. Returns an
+        /// <see cref="Screenshot"/> for each found screenshot.
+        /// </summary>
+        /// <param name="directory">The directories to scan.</param>
+        /// <param name=screenshotDirectory">
+        /// The directory where to look for screenshots.
+        /// Defaults to <see cref="screenshotDirectory"/>
+        /// </param>
+        /// <param name="screenshotExtensions">
+        /// The extensions for files that indicate a screenshot.
+        /// Defaults to <see cref="Extension"/>
+        /// </param>
+        /// <param name="compress">Indicates whether screenshots should be compressed.
+        /// Default is true.
+        /// </param>
+        public IEnumerable<Screenshot> LoadScreenshots(IEnumerable<string> directory, string screenshotDirectory, string screenshotExtensions, bool compress)
+        {
+            foreach (var d in directory)
+            {
+                var dir = Path.GetFullPath(d);
+                if (!File.Exists(dir))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(screenshotDirectory))
+                {
+                    screenshotDirectory = screenshotDirectory?? directoryToScan;
+                }
+                var screenshotPath = GetFilePathForScreenshot(d, screenshotDirectory, screenshotExtensions);
+                var screenshot = Screenshot.Load(screenshotPath);
+                yield return screenshot;
+            }
+        }
+
+        private string GetFilePathForScreenshot(string directory, string screenshotDirectory, string screenshotExtensions)
+        {
+            var filePattern = Path.Combine(directory, "*.{0}".Fmt(screenshotExtensions));
+            if (Directory.Exists(screenshotDirectory))
+            {
+                filePattern = Path.Combine(Path.Combine(screenshotDirectory, "*.{0}".Fmt(screenshotExtensions)), filePattern);
+            }
+            var files = Directory.GetFiles(directory, filePattern);
+
+            foreach (string file in files)
+            {
+                var extensionMatch = file.Split('.').Last();
+
+                if (extensionMatch!= screenshotExtensions)
+                {
+                    continue;
+                }
+
+                if (compress == false)
+                {
+                    return file;
+                }
+            }
+
+            throw new Exception("No screencapture.{0} found in {1}.".Fmt(screenshotExtensions, directory));
+        }
+    }
+}
+

@@ -1,0 +1,162 @@
+Pytorch Version: 1.13.1+cu117
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence -- their identifier ('id'), whether it is a chemical or gene ('type'), line numbers in which they would be found in the full abstract ('start' and 'end'), and their name ('text'). Use these chemicals/genes to form your relations and their categories:
+
+[{'end': 21, 'id': 'T50', 'start': 11, 'text': 'dimemorfan', 'type': 'CHEMICAL'}, {'end': 41, 'id': 'T56', 'start': 25, 'text': 'sigma-1 receptor', 'type': 'GENE-Y'}, {'end': 126, 'id': 'T49', 'start': 110, 'text': 'dextromethorphan', 'type': 'CHEMICAL'}, {'end': 142, 'id': 'T51', 'start': 131, 'text': 'dextrorphan', 'type': 'CHEMICAL'}]
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the form, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+class Solution
+{
+public:
+    string reverseWords(string s)
+    {
+        stringstream ss(s);
+        string word;
+        vector<string> words;
+        while (getline(ss, word,''))
+        {
+            if (!word.empty())
+                words.push_back(word);
+        }
+        stringstream ss_out(s);
+        for (unsigned int i = 0; i < words.size(); i++)
+        {
+            if (i % 2 == 0)
+                put_word(ss_out, s, words.at(i));
+            else
+                put_word(ss_out, s, words.at(i), " ");
+        }
+        return string(ss_out.getline());
+    }
+
+    void put_word(stringstream &ss, const string &s, const string &word, const string &sep)
+    {
+        for (unsigned int i = 0; i < word.length(); i++)
+        {
+            char c = word.at(i);
+            if (c == sep.at(0))
+            {
+                while (is_space(c))
+                    c++;
+                ss << c;
+            }
+        }
+    }
+};
+
+void check(const string &s)
+{
+    vector<string> ss;
+    istringstream ss_str(s);
+    string tmp;
+    while (getline(ss_str, tmp,''))
+    {
+        ss.push_back(tmp);
+    }
+}
+
+int main()
+{
+    Solution s;
+
+    stringstream ss_01("The sky is blue. The grass is green.");
+    stringstream ss_02("The quick brown fox jumps over the lazy dog");
+    stringstream ss_03("I like apples  I don't like pears. I do like bananas, though.");
+    stringstream ss_04("1 2 3 4 5 6 7 8");
+    stringstream ss_05("");
+    stringstream ss_06("1");
+    stringstream ss_07("234 89 78 67 654 89 76 5");
+    stringstream ss_08("55 62 75 235 89 91 78 654");
+    stringstream ss_09("");
+    stringstream ss_10("111 1111111 111111111 111 1111111111");
+    stringstream ss_11("");
+    stringstream ss_12("1 2");
+
+    string s_01 = "";
+    check(s_01);
+
+    string s_02 = "";
+    check(s_02);
+
+    string s_03 = "";
+    check(s_03);
+
+    string s_04 = "";
+    check(s_04);
+
+    string s_05 = "";
+    check(s_05);
+
+    string s_06 = "";
+    check(s_06);
+
+    string s_07 = "";
+    check(s_07);
+
+    string s_08 = "";
+    check(s_08);
+
+    string s_09 = "";
+    check(s_09);
+
+    string s_10 = "";
+    check(s_10);
+
+    string s_11 = "";
+    check(s_11);
+
+    string s_12 = "";
+    check(s_12);
+
+    Solution sol;
+    string s_1 = sol.reverseWords("The sky is blue. The grass is green.");
+    string s_2 = sol.reverseWords("The quick brown fox jumps over the lazy dog");
+    string s_3 = sol.reverseWords("I like apples  I don't like pears. I do like bananas, though.");
+    string s_4 = sol.reverseWords("1 2 3 4 5 6 7 8");
+    string s_5 = sol.reverseWords("");
+    string s_6 = sol.reverseWords("1");
+    string s_7 = sol.reverseWords("234 89 78 67 654 89 76 5");
+    string s_8 = sol.reverseWords("55 62 75 235 89 91 78 654");
+    string s_9 = sol.reverseWords("");
+    string s_10 = sol.reverseWords("111 1111111 111111111 111 1111111111");
+    string s_11 = sol.reverseWords("");
+    string s_12 = sol.reverseWords("1 2");
+
+    std::cout << s_01 << '\n';
+    std::cout << s_02 << '\n';
+    std::cout << s_03 << '\n';
+    std::cout << s_04 << '\n';
+    std::cout << s_05 << '\n';
+    std::cout << s_06 << '\n';
+    std::cout << s_07 << '\n';
+    std::cout << s_08 << '\n';
+    std::cout << s_09 << '\n';
+    std::cout << s_10 << '\n';
+    std::cout << s_11 << '\n';
+    std::cout << s_12 << '\n';
+
+    return 0;
+}
+

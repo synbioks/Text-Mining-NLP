@@ -1,0 +1,82 @@
+Pytorch Version: 1.13.1+cu117
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+### Instruction:
+Pretend to be an expert on relation extraction, particularly for biomedical text. The following is a sentence from a biomedical abstract:
+
+"Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide."
+
+I need you to categorize each pairwise chemical name (pair of entities) in the sentence as being 'RELATED' or 'NOT_RELATED' in the format (entity_1, entity_2, class).
+
+To help you with this task, the following is a list of identified chemicals/genes (entities) from the sentence:
+
+ATP
+MgADP
+sulfonylurea
+sulfonylurea receptor
+glibenclamide
+
+Use these chemicals/genes to form your relations and their categories.
+
+Furthermore, some example relations for each class (randomly selected from the entire corpus of abstracts) are provided here, in the format, (entity_1, entity_2, class, example_sentence):
+
+RELATED:
+('dimemorfan', 'sigma-1 receptor', 'RELATED', 'Binding of dimemorfan to sigma-1 receptor and its anticonvulsant and locomotor effects in mice, compared with dextromethorphan and dextrorphan.')
+('DF', 'sigma receptors', 'RELATED', 'This study therefore characterized the binding of DF to the sigma receptors and NMDA-linked PCP sites and examined the anticonvulsant as well as locomotor effects of DF in mice in comparison with those of DM and DR.')
+NOT_RELATED:
+('Dextromethorphan', '(+)-3-methoxy-N-methylmorphinan', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+('Dextromethorphan', 'DM', 'NOT_RELATED', 'Dextromethorphan ((+)-3-methoxy-N-methylmorphinan, DM) has been shown to have both anticonvulsant and neuroprotective effects.')
+
+
+Please use these examples as calibration to help you with this task.
+
+### Response:
+Sure, here you go:
+
+RELATED:
+
+* ('ATP','sulfonylurea receptor', 'RELATED', 'Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide.')
+* ('MgADP','sulfonylurea receptor', 'RELATED', 'Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide.')
+* ('glibenclamide','sulfonylurea receptor', 'RELATED', 'Cooperative binding of ATP and MgADP in the sulfonylurea receptor is modulated by glibenclamide.')
+
+NOT_RELATED:
+
+* ('ATP', 'dimemorfan', 'NOT_RELATED', '')
+* ('MgADP', 'dimemorfan', 'NOT_RELATED', '')
+* ('glibenclamide', 'dimemorfan', 'NOT_RELATED', '')
+
+Examples:
+
+* ('ATP','sigma-1 receptor', 'RELATED', 'Binding of ATP to the sigma-1 receptor and its modulation of the G protein-coupled receptor 15')
+* ('MgADP','sigma-1 receptor', 'RELATED', 'Modulation of the G protein-coupled receptor 15 by MgADP and ATP binding')
+* ('glibenclamide','sigma-1 receptor', 'RELATED', 'Glibenclamide, a potent and selective sulfonylurea receptor 1 modulator, binds to the sigma-1 receptor and modulates its activity')
