@@ -1,0 +1,102 @@
+apiVersion: kubeflow.org/v2beta1
+kind: MPIJob
+metadata:
+  name: jbentley2-mnbert
+  namespace: default
+spec:
+  slotsPerWorker: 8
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+         spec:
+           volumes:
+           - name: mydir
+             hostPath:
+               path: /home/jbentley2
+               type: Directory
+           - name: scratch
+             emptyDir: {}
+           hostIPC: true
+           containers:
+           - image: vault.habana.ai/gaudi-docker/1.11.0/ubuntu22.04/habanalabs/pytorch-installer-2.0.1:latest
+             name: u20-pytorch-installer-1-13-1-1-9-0-580
+#             imagePullPolicy: Always
+             volumeMounts:
+             - name: mydir
+               mountPath: /home/jbentley2
+             - name: scratch
+               mountPath: /scratch
+             command: ["/bin/bash", "-c"]
+             args:
+             - >-
+                cd /home/jbentley2/voyager/relation-extraction/biobert_RE;
+                export HOME=/home/jbentley2;
+                export PYTHONPATH=/home/jbentley2/voyager/installs/v1.9/tf/local/lib/python3.10/dist-packages:/usr/lib/habanalabs:$PYTHONPATH;
+                export TRANSFORMERS_CACHE=/home/jbentley2/voyager/relation-extraction/cache;
+                
+                sleep 5;
+                declare -xr MASTER_ADDR=$(mpirun --allow-run-as-root -n 1 hostname -i 2>/dev/null |tail -n 1);
+                export OMP_NUM_THREADS=1;
+                declare -xr MPI_ROOT=${MPI_ROOT:-/opt/amazon/openmpi/};
+                export HABANA_LOGS=~/.habana_logs;
+
+                echo $MASTER_ADDR > job-mastaddr.txt;
+
+                sleep 5;
+                mpirun --allow-run-as-root  \
+                      --prefix ${MPI_ROOT} \
+                      -np 16 -bind-to core --map-by ppr:4:socket:PE=6 \
+                      -rank-by core --report-bindings \
+                      --tag-output \
+                      --merge-stderr-to-stdout \
+                      -x PYTHONPATH  \
+                      -x MASTER_ADDR \
+                      -x ENABLE_CONSOLE=False \
+                      -x LOG_LEVEL_ALL=4 \
+                      python3 -m models.train_multinode --epochs 2 --batch-size 16 > stdoutmnode-test5.txt;                
+    Worker:
+      replicas: 2
+      template:
+        spec:
+                #tolerations:
+                #- key: ""
+                #operator: "Exists"
+                #effect: "NoSchedule"
+          volumes:
+           - name: mydir
+             hostPath:
+               path: /home/jbentley2
+               type: Directory
+           - name: datadir
+             hostPath:
+               path: /voyager/ceph/users/jbentley2/
+               type: Directory
+           - name: scratch
+             emptyDir: {}
+          hostIPC: true
+          containers:
+          - image: vault.habana.ai/gaudi-docker/1.11.0/ubuntu22.04/habanalabs/pytorch-installer-2.0.1:latest
+            name: u20-pytorch-installer-1-13-1-1-9-0-580
+#            imagePullPolicy: Always
+            resources:
+              limits:
+                habana.ai/gaudi: 8
+                cpu: 95
+                memory: 409Gi
+                hugepages-2Mi: 95000Mi
+              requests:
+                habana.ai/gaudi: 8
+                cpu: 95
+                memory: 409Gi
+                hugepages-2Mi: 95000Mi
+            volumeMounts:
+             - name: mydir
+               mountPath: /home/jbentley2
+             - name: scratch
+               mountPath: /scratch
+            env:
+             - name: HOME
+               value: "/scratch"
